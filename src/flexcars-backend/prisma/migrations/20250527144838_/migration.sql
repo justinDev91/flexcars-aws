@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Reservation" ALTER COLUMN "startDatetime" DROP NOT NULL,
+ALTER COLUMN "endDatetime" DROP NOT NULL,
+ALTER COLUMN "pickupLocation" DROP NOT NULL,
+ALTER COLUMN "dropoffLocation" DROP NOT NULL,
+ALTER COLUMN "status" SET DEFAULT 'PENDING',
+ALTER COLUMN "totalPrice" DROP NOT NULL;

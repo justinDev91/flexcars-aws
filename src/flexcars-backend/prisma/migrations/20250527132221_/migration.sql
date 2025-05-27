@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "VehicleMaintenance" ALTER COLUMN "type" DROP NOT NULL,
+ALTER COLUMN "scheduledDate" DROP NOT NULL,
+ALTER COLUMN "status" SET DEFAULT 'PENDING';

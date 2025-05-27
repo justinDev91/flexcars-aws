@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
-  IsEnum,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -45,16 +44,11 @@ export class CreateOrUpdateUserDto {
 
   @ApiPropertyOptional({
     description: 'Birth date of the user (ISO format)',
-    example: '1990-01-01',
+    example: '2001-05-27T00:00:00.000Z',
   })
   @IsOptional()
   @IsDateString()
   birthDate?: string;
-
-  @ApiPropertyOptional({ enum: Role, description: 'Role assigned to the user' })
-  @IsEnum(Role)
-  @IsDateString()
-  role?: Role;
 
   @ApiPropertyOptional({
     description: 'ID of the company the user belongs to (if applicable)',

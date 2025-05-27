@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Vehicle" ALTER COLUMN "locationLat" DROP NOT NULL,
+ALTER COLUMN "locationLng" DROP NOT NULL,
+ALTER COLUMN "imageUrl" DROP NOT NULL;

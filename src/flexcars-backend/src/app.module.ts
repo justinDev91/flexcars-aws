@@ -14,6 +14,9 @@ import { TokensService } from './tokens/tokens.service';
 import { EventsGateway } from './events/events.gateway';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './company/company.module';
+import { VehiclesModule } from './vehicle/vehicle.module';
+import { MaintenancesModule } from './maintenance/maintenance.module';
+import { ReservationsModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { CompaniesModule } from './company/company.module';
     AuthModule,
     UsersModule,
     CompaniesModule,
+    VehiclesModule,
+    MaintenancesModule,
+    ReservationsModule,
     MailerModule.forRoot({
       transport: {
         host: 'localhost',
