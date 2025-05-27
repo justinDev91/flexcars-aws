@@ -117,12 +117,12 @@ enum NotificationType {
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
-  password     String?
+  password     String   
   firstName    String
   lastName     String
-  phoneNumber  String
-  birthDate    DateTime @default(now())
-  role         Role
+  phoneNumber  String?
+  birthDate    DateTime?
+  role         Role     @default(USER)
   companyId    String?
   company      Company? @relation(fields: [companyId], references: [id])
   createdAt    DateTime @default(now())
@@ -134,7 +134,6 @@ model User {
   vehicleRecommendations VehicleRecommendation[]
   signedContractsAsCustomer RentalContract[] @relation("user")
   signedContractsAsAgent RentalContract[] @relation("signedByAgent")
-
   Incident Incident[]
 }
 

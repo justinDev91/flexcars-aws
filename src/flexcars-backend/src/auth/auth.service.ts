@@ -21,9 +21,9 @@ export interface JwtPayload {
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-    private prisma: PrismaService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async signIn(email: string, pass: string): Promise<any> {
@@ -39,7 +39,6 @@ export class AuthService {
       lastName: user.lastName,
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = user;
 
     return {

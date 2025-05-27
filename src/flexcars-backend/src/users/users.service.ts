@@ -6,7 +6,7 @@ import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   findAll(params: { page: number; limit: number }) {
     const { page, limit } = params;
@@ -25,6 +25,7 @@ export class UsersService {
   }
 
   createUser(data: Prisma.UserCreateInput) {
+    //TODO ne pas passer le role 
     return this.prisma.user.create({
       data,
     });

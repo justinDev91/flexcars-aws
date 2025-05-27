@@ -3,7 +3,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './auth/auth.guard';
@@ -12,8 +11,9 @@ import { PrismaService } from './prisma.service';
 import { TokensController } from './tokens/tokens.controller';
 import { TokensModule } from './tokens/tokens.module';
 import { TokensService } from './tokens/tokens.service';
-import { UsersModule } from './users/users.module';
 import { EventsGateway } from './events/events.gateway';
+import { UsersModule } from './users/users.module';
+import { CompaniesModule } from './company/company.module';
 
 @Module({
   imports: [
@@ -22,6 +22,7 @@ import { EventsGateway } from './events/events.gateway';
     }),
     AuthModule,
     UsersModule,
+    CompaniesModule,
     MailerModule.forRoot({
       transport: {
         host: 'localhost',

@@ -1,20 +1,66 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEmail, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+
+export enum Role {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  MANAGER = 'MANAGER',
+  CUSTOMER = 'CUSTOMER',
+  CARSITTER = 'CARSITTER',
+}
 
 export class CreateOrUpdateUserDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'User email address' })
   @IsEmail()
   @Type(() => String)
   email: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ description: 'User password (optional for updates)' })
+  @IsOptional()
+  @IsString()
+  @Type(() => String)
+  password: string;
+
+  @ApiProperty({ description: 'First name of the user' })
   @IsString()
   @Type(() => String)
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Last name of the user' })
   @IsString()
   @Type(() => String)
   lastName: string;
+
+  @ApiPropertyOptional({ description: 'Phone number of the user' })
+  @IsOptional()
+  @Type(() => String)
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: 'Birth date of the user (ISO format)',
+    example: '1990-01-01',
+  })
+  @IsOptional()
+  @IsDateString()
+  birthDate?: string;
+
+  @ApiPropertyOptional({ enum: Role, description: 'Role assigned to the user' })
+  @IsEnum(Role)
+  @IsDateString()
+  role?: Role;
+
+  @ApiPropertyOptional({
+    description: 'ID of the company the user belongs to (if applicable)',
+  })
+  @IsOptional()
+  @IsString()
+  @Type(() => String)
+  companyId?: string;
 }
