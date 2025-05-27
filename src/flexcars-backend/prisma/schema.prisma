@@ -8,28 +8,318 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String?
-  firstName String
-  lastName  String
-  birthDate DateTime @default(now())
-  Token     Token?
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+  CUSTOMER
+  CARSITTER
 }
 
-enum TokenType {
-  INVITATION
+enum CompanyType {
+  DEALERSHIP
+  RENTAL_AGENCY
+  BUSINESS
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  ELECTRIC
+  HYBRID
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  RESERVED
+  RENTED
+  MAINTENANCE
+  INCIDENT
+}
+
+enum MaintenanceType {
+  OIL_CHANGE
+  INSPECTION
+  REPAIR
+}
+
+enum MaintenanceStatus {
+  PENDING
+  DONE
+  OVERDUE
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum DocumentType {
+  ID_CARD
+  DRIVER_LICENSE
+  PROOF_OF_ADDRESS
+}
+
+enum InvoiceStatus {
+  PAID
+  UNPAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYPAL
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+enum DurationType {
+  HOURLY
+  DAILY
+  WEEKLY
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum IncidentStatus {
+  OPEN
+  RESOLVED
+  IN_REVIEW
+}
+
+enum Availability {
+  AVAILABLE
+  BUSY
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String?
+  firstName    String
+  lastName     String
+  phoneNumber  String
+  birthDate    DateTime @default(now())
+  role         Role
+  companyId    String?
+  company      Company? @relation(fields: [companyId], references: [id])
+  createdAt    DateTime @default(now())
+  Token        Token?
+  reservations Reservation[]
+  documents    Document[]
+  carSitter    CarSitter?
+  notifications Notification[]
+  vehicleRecommendations VehicleRecommendation[]
+  signedContractsAsCustomer RentalContract[] @relation("user")
+  signedContractsAsAgent RentalContract[] @relation("signedByAgent")
+
+  Incident Incident[]
+}
+
+model Company {
+  id         String      @id @default(uuid())
+  name       String
+  type       CompanyType
+  address    String
+  vatNumber  String
+  logoUrl    String
+  createdAt  DateTime    @default(now())
+  users      User[]
+  vehicles   Vehicle[]
+}
+
+model Vehicle {
+  id             String           @id @default(uuid())
+  companyId      String
+  company        Company          @relation(fields: [companyId], references: [id])
+  brand          String
+  model          String
+  year           Int
+  plateNumber    String
+  fuelType       FuelType
+  currentMileage Int
+  gpsEnabled     Boolean
+  status         VehicleStatus
+  locationLat    Float
+  locationLng    Float
+  imageUrl       String
+  createdAt      DateTime         @default(now())
+  maintenances   VehicleMaintenance[]
+  reservations   Reservation[]
+  incidents      Incident[]
+  recommendations VehicleRecommendation[]
+  PricingRule PricingRule[]
+
+  CarSitter CarSitter[]
+}
+
+model VehicleMaintenance {
+  id             String           @id @default(uuid())
+  vehicleId      String
+  vehicle        Vehicle          @relation(fields: [vehicleId], references: [id])
+  type           MaintenanceType
+  scheduledDate  DateTime
+  completedDate  DateTime?
+  status         MaintenanceStatus
+  notes          String?
+}
+
+model Reservation {
+  id             String           @id @default(uuid())
+  vehicleId      String
+  vehicle        Vehicle          @relation(fields: [vehicleId], references: [id])
+  customerId     String
+  customer       User             @relation(fields: [customerId], references: [id])
+  startDatetime  DateTime
+  endDatetime    DateTime
+  pickupLocation String
+  dropoffLocation String
+  status         ReservationStatus
+  totalPrice     Float
+  createdAt      DateTime         @default(now())
+  rentalContract RentalContract?
+  services       ReservationService[]
+  invoice        Invoice?
+}
+
+model RentalContract {
+  id                String           @id @default(uuid())
+  reservationId     String           @unique
+  reservation       Reservation      @relation(fields: [reservationId], references: [id])
+  pdfUrl            String
+  signedByCustomerId String
+  signedByCustomer  User             @relation("user", fields: [signedByCustomerId], references: [id])
+  signedByAgentId   String
+  signedByAgent     User             @relation("signedByAgent", fields: [signedByAgentId], references: [id])
+  signedAt          DateTime
+}
+
+model Document {
+  id          String       @id @default(uuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  type        DocumentType
+  fileUrl     String
+  verified    Boolean
+  uploadedAt  DateTime     @default(now())
+}
+
+model Invoice {
+  id             String           @id @default(uuid())
+  reservationId  String           @unique
+  reservation    Reservation      @relation(fields: [reservationId], references: [id])
+  invoiceNumber  String
+  amount         Float
+  dueDate        DateTime
+  paidAt         DateTime?
+  status         InvoiceStatus
+  penaltyAmount  Float?
+  payments       Payment[]
+}
+
+model Payment {
+  id             String           @id @default(uuid())
+  invoiceId      String
+  invoice        Invoice          @relation(fields: [invoiceId], references: [id])
+  method         PaymentMethod
+  transactionId  String
+  paidAt         DateTime
+  status         PaymentStatus
+}
+
+model RentalService {
+  id             String           @id @default(uuid())
+  name           String
+  pricePerDay    Float
+  reservationServices ReservationService[]
+}
+
+model ReservationService {
+  id             String           @id @default(uuid())
+  reservationId  String
+  reservation    Reservation      @relation(fields: [reservationId], references: [id])
+  serviceId      String
+  service        RentalService    @relation(fields: [serviceId], references: [id])
+}
+
+model PricingRule {
+  id             String           @id @default(uuid())
+  vehicleId      String
+  vehicle        Vehicle          @relation(fields: [vehicleId], references: [id])
+  durationType   DurationType
+  basePrice      Float
+  dynamicMultiplier Float
+  season         String?
+}
+
+model Incident {
+  id             String           @id @default(uuid())
+  vehicleId      String
+  vehicle        Vehicle          @relation(fields: [vehicleId], references: [id])
+  reportedById   String
+  reportedBy     User             @relation(fields: [reportedById], references: [id])
+  description    String
+  severity       IncidentSeverity
+  photosUrl      String
+  status         IncidentStatus
+  reportedAt     DateTime         @default(now())
+  resolvedAt     DateTime?
+}
+
+model CarSitter {
+  id             String           @id @default(uuid())
+  userId         String           @unique
+  user           User             @relation(fields: [userId], references: [id])
+  assignedVehicleId String?
+  assignedVehicle Vehicle?        @relation(fields: [assignedVehicleId], references: [id])
+  currentLocationLat Float
+  currentLocationLng Float
+  availability   Availability
+  lastActiveAt   DateTime
+}
+
+model Notification {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id])
+  type           NotificationType
+  title          String
+  message        String
+  sentAt         DateTime
+  isRead         Boolean
+}
+
+model VehicleRecommendation {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id])
+  recommendedVehicleId String
+  recommendedVehicle Vehicle       @relation(fields: [recommendedVehicleId], references: [id])
+  score          Float
+  reason         String
+  createdAt      DateTime         @default(now())
 }
 
 model Token {
@@ -39,4 +329,8 @@ model Token {
   type      TokenType
   createdAt DateTime  @default(now())
   usedAt    DateTime?
+}
+
+enum TokenType {
+  INVITATION
 }
