@@ -16,28 +16,43 @@ export enum Role {
 }
 
 export class CreateOrUpdateUserDto {
-  @ApiProperty({ description: 'User email address' })
+  @ApiProperty({
+    description: 'User email address',
+    example: 'jane.doe@example.com',
+  })
   @IsEmail()
   @Type(() => String)
   email: string;
 
-  @ApiPropertyOptional({ description: 'User password (optional for updates)' })
+  @ApiPropertyOptional({
+    description: 'User password (required for creation, optional for updates)',
+    example: 'StrongP@ssw0rd!',
+  })
   @IsOptional()
   @IsString()
   @Type(() => String)
   password: string;
 
-  @ApiProperty({ description: 'First name of the user' })
+  @ApiProperty({
+    description: 'First name of the user',
+    example: 'Jane',
+  })
   @IsString()
   @Type(() => String)
   firstName: string;
 
-  @ApiProperty({ description: 'Last name of the user' })
+  @ApiProperty({
+    description: 'Last name of the user',
+    example: 'Doe',
+  })
   @IsString()
   @Type(() => String)
   lastName: string;
 
-  @ApiPropertyOptional({ description: 'Phone number of the user' })
+  @ApiPropertyOptional({
+    description: 'Phone number of the user',
+    example: '+33 6 12 34 56 78',
+  })
   @IsOptional()
   @Type(() => String)
   phoneNumber?: string;
@@ -52,6 +67,7 @@ export class CreateOrUpdateUserDto {
 
   @ApiPropertyOptional({
     description: 'ID of the company the user belongs to (if applicable)',
+    example: 'company-uuid-1234',
   })
   @IsOptional()
   @IsString()

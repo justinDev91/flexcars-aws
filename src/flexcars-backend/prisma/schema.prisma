@@ -206,34 +206,34 @@ model Reservation {
 model RentalContract {
   id                String           @id @default(uuid())
   reservationId     String           @unique
-  reservation       Reservation      @relation(fields: [reservationId], references: [id])
-  pdfUrl            String
+  reservation       Reservation?     @relation(fields: [reservationId], references: [id])
+  pdfUrl            String?
   signedByCustomerId String
-  signedByCustomer  User             @relation("user", fields: [signedByCustomerId], references: [id])
+  signedByCustomer  User?            @relation("user", fields: [signedByCustomerId], references: [id])
   signedByAgentId   String
-  signedByAgent     User             @relation("signedByAgent", fields: [signedByAgentId], references: [id])
-  signedAt          DateTime
+  signedByAgent     User?            @relation("signedByAgent", fields: [signedByAgentId], references: [id])
+  signedAt          DateTime         @default(now())
 }
 
 model Document {
   id          String       @id @default(uuid())
   userId      String
-  user        User         @relation(fields: [userId], references: [id])
-  type        DocumentType
-  fileUrl     String
-  verified    Boolean
+  user        User?         @relation(fields: [userId], references: [id])
+  type        DocumentType?
+  fileUrl     String?
+  verified    Boolean      @default(false)
   uploadedAt  DateTime     @default(now())
 }
 
 model Invoice {
   id             String           @id @default(uuid())
   reservationId  String           @unique
-  reservation    Reservation      @relation(fields: [reservationId], references: [id])
-  invoiceNumber  String
-  amount         Float
-  dueDate        DateTime
-  paidAt         DateTime?
-  status         InvoiceStatus
+  reservation    Reservation?     @relation(fields: [reservationId], references: [id])
+  invoiceNumber  String?
+  amount         Float?
+  dueDate        DateTime         @default(now())
+  paidAt         DateTime?        @default(now())
+  status         InvoiceStatus    @default(UNPAID)
   penaltyAmount  Float?
   payments       Payment[]
 }
@@ -241,11 +241,11 @@ model Invoice {
 model Payment {
   id             String           @id @default(uuid())
   invoiceId      String
-  invoice        Invoice          @relation(fields: [invoiceId], references: [id])
-  method         PaymentMethod
-  transactionId  String
-  paidAt         DateTime
-  status         PaymentStatus
+  invoice        Invoice?          @relation(fields: [invoiceId], references: [id])
+  method         PaymentMethod     @default(STRIPE)
+  transactionId  String?
+  paidAt         DateTime          @default(now())
+  status         PaymentStatus     @default(PENDING)
 }
 
 model RentalService {
@@ -258,31 +258,31 @@ model RentalService {
 model ReservationService {
   id             String           @id @default(uuid())
   reservationId  String
-  reservation    Reservation      @relation(fields: [reservationId], references: [id])
+  reservation    Reservation?      @relation(fields: [reservationId], references: [id])
   serviceId      String
-  service        RentalService    @relation(fields: [serviceId], references: [id])
+  service        RentalService?    @relation(fields: [serviceId], references: [id])
 }
 
 model PricingRule {
   id             String           @id @default(uuid())
   vehicleId      String
-  vehicle        Vehicle          @relation(fields: [vehicleId], references: [id])
-  durationType   DurationType
-  basePrice      Float
-  dynamicMultiplier Float
+  vehicle        Vehicle?          @relation(fields: [vehicleId], references: [id])
+  durationType   DurationType      @default(HOURLY)
+  basePrice      Float?
+  dynamicMultiplier Float?
   season         String?
 }
 
 model Incident {
   id             String           @id @default(uuid())
   vehicleId      String
-  vehicle        Vehicle          @relation(fields: [vehicleId], references: [id])
+  vehicle        Vehicle?          @relation(fields: [vehicleId], references: [id])
   reportedById   String
-  reportedBy     User             @relation(fields: [reportedById], references: [id])
+  reportedBy     User?             @relation(fields: [reportedById], references: [id])
   description    String
-  severity       IncidentSeverity
-  photosUrl      String
-  status         IncidentStatus
+  severity       IncidentSeverity?
+  photosUrl      String?
+  status         IncidentStatus   @default(OPEN)
   reportedAt     DateTime         @default(now())
   resolvedAt     DateTime?
 }
@@ -290,34 +290,34 @@ model Incident {
 model CarSitter {
   id             String           @id @default(uuid())
   userId         String           @unique
-  user           User             @relation(fields: [userId], references: [id])
+  user           User?             @relation(fields: [userId], references: [id])
   assignedVehicleId String?
   assignedVehicle Vehicle?        @relation(fields: [assignedVehicleId], references: [id])
-  currentLocationLat Float
-  currentLocationLng Float
-  availability   Availability
-  lastActiveAt   DateTime
+  currentLocationLat Float?
+  currentLocationLng Float?
+  availability   Availability     @default(BUSY)
+  lastActiveAt   DateTime?
 }
 
 model Notification {
   id             String           @id @default(uuid())
   userId         String
-  user           User             @relation(fields: [userId], references: [id])
-  type           NotificationType
-  title          String
-  message        String
-  sentAt         DateTime
-  isRead         Boolean
+  user           User?             @relation(fields: [userId], references: [id])
+  type           NotificationType  @default(EMAIL)
+  title          String?
+  message        String?
+  sentAt         DateTime           @default(now())
+  isRead         Boolean            @default(false)
 }
 
 model VehicleRecommendation {
   id             String           @id @default(uuid())
   userId         String
-  user           User             @relation(fields: [userId], references: [id])
+  user           User?             @relation(fields: [userId], references: [id])
   recommendedVehicleId String
-  recommendedVehicle Vehicle       @relation(fields: [recommendedVehicleId], references: [id])
-  score          Float
-  reason         String
+  recommendedVehicle Vehicle?       @relation(fields: [recommendedVehicleId], references: [id])
+  score          Float?
+  reason         String?
   createdAt      DateTime         @default(now())
 }
 

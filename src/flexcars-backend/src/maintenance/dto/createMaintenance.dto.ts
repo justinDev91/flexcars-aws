@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
 
 export enum MaintenanceType {
@@ -15,34 +15,52 @@ export enum MaintenanceStatus {
 }
 
 export class CreateMaintenanceDto {
-  @ApiProperty({ description: 'ID of the vehicle' })
+  @ApiProperty({
+    description: 'ID of the vehicle associated with the maintenance',
+    example: 'vehicle-1234-uuid',
+  })
   @IsString()
   @Type(() => String)
   vehicleId: string;
 
-  @ApiPropertyOptional({ enum: MaintenanceType, description: 'Type of maintenance' })
+  @ApiPropertyOptional({
+    description: 'Type of maintenance to be performed',
+    enum: MaintenanceType,
+    example: MaintenanceType.INSPECTION,
+  })
   @IsOptional()
   @IsEnum(MaintenanceType)
   type?: MaintenanceType;
 
-  
-  @ApiPropertyOptional({ description: 'Scheduled date (ISO format) : 2025-05-27T00:00:00.000Z' })
+  @ApiPropertyOptional({
+    description: 'Scheduled date for the maintenance (ISO format)',
+    default: new Date().toISOString(),
+  })
   @IsOptional()
   @IsDateString()
   scheduledDate?: string;
 
-  @ApiPropertyOptional({ description: 'Completed date (ISO format) : 2025-05-27T00:00:00.000Z' })
+  @ApiPropertyOptional({
+    description: 'Date when the maintenance was completed (ISO format)',
+    default: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+  })
   @IsOptional()
   @IsDateString()
-  completedDate?: string ;
+  completedDate?: string;
 
-
-  @ApiPropertyOptional({ enum: MaintenanceStatus, description: 'Status of maintenance' })
+  @ApiPropertyOptional({
+    description: 'Current status of the maintenance',
+    enum: MaintenanceStatus,
+    example: MaintenanceStatus.PENDING,
+  })
   @IsOptional()
   @IsEnum(MaintenanceStatus)
   status?: MaintenanceStatus;
 
-  @ApiPropertyOptional({ description: 'Additional notes' })
+  @ApiPropertyOptional({
+    description: 'Additional notes or comments about the maintenance',
+    example: 'Changed oil and checked tire pressure.',
+  })
   @IsOptional()
   @IsString()
   @Type(() => String)

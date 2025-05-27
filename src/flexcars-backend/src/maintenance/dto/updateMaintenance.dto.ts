@@ -15,28 +15,44 @@ export enum MaintenanceStatus {
 }
 
 export class UpdateMaintenanceDto {
-
-  @ApiPropertyOptional({ enum: MaintenanceType, description: 'Type of maintenance' })
+  @ApiPropertyOptional({
+    description: 'Type of maintenance to update',
+    enum: MaintenanceType,
+    example: MaintenanceType.REPAIR,
+  })
   @IsOptional()
   @IsEnum(MaintenanceType)
   type?: MaintenanceType;
 
-  @ApiPropertyOptional({ description: 'Scheduled date (ISO format)' })
+  @ApiPropertyOptional({
+    description: 'Updated scheduled date for the maintenance (ISO format)',
+    example: new Date().toISOString(),
+  })
   @IsOptional()
   @IsDateString()
   scheduledDate?: string;
 
-  @ApiPropertyOptional({ description: 'Completed date (ISO format)' })
+  @ApiPropertyOptional({
+    description: 'Updated completed date for the maintenance (ISO format)',
+    default: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+  })
   @IsOptional()
   @IsDateString()
   completedDate?: string;
 
-  @ApiPropertyOptional({ enum: MaintenanceStatus, description: 'Status of maintenance' })
+  @ApiPropertyOptional({
+    description: 'Updated status of the maintenance',
+    enum: MaintenanceStatus,
+    example: MaintenanceStatus.DONE,
+  })
   @IsOptional()
   @IsEnum(MaintenanceStatus)
   status?: MaintenanceStatus;
 
-  @ApiPropertyOptional({ description: 'Additional notes' })
+  @ApiPropertyOptional({
+    description: 'Updated notes or comments about the maintenance',
+    example: 'Brake pads replaced and system tested.',
+  })
   @IsOptional()
   @IsString()
   @Type(() => String)
