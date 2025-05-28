@@ -245,7 +245,7 @@ model Payment {
   method         PaymentMethod     @default(STRIPE)
   transactionId  String?
   paidAt         DateTime          @default(now())
-  status         PaymentStatus     @default(PENDING)
+  status         PaymentStatus?     @default(PENDING)
 }
 
 model RentalService {
@@ -279,7 +279,7 @@ model Incident {
   vehicle        Vehicle?          @relation(fields: [vehicleId], references: [id])
   reportedById   String
   reportedBy     User?             @relation(fields: [reportedById], references: [id])
-  description    String
+  description    String?
   severity       IncidentSeverity?
   photosUrl      String?
   status         IncidentStatus   @default(OPEN)

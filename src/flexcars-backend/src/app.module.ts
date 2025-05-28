@@ -17,6 +17,17 @@ import { CompaniesModule } from './company/company.module';
 import { VehiclesModule } from './vehicle/vehicle.module';
 import { MaintenancesModule } from './maintenance/maintenance.module';
 import { ReservationsModule } from './reservation/reservation.module';
+import { RentalContractsModule } from './rentalcontract/rental-contract.module';
+import { InvoicesModule } from './invoice/invoice.module';
+import { DocumentModule } from './document/document.module';
+import { PaymentModule } from './payment/payment.module';
+import { RentalServiceModule } from './rentalservice/rentalservice.module';
+import { ReservationServiceModule } from './reservationservice/reservationservice.module';
+import { PricingRuleModule } from './pricingrule/pricing.rule.module';
+import { IncidentModule } from './incident/incident.module';
+import { CarSitterModule } from './carsitter/cars-sitter.module';
+import { NotificationModule } from './notification/notification.module';
+import { VehicleRecommendationModule } from './vehiclerecommendation/vehicle-recommendation.module';
 
 @Module({
   imports: [
@@ -29,6 +40,17 @@ import { ReservationsModule } from './reservation/reservation.module';
     VehiclesModule,
     MaintenancesModule,
     ReservationsModule,
+    RentalContractsModule,
+    InvoicesModule,
+    DocumentModule,
+    PaymentModule,
+    RentalServiceModule,
+    ReservationServiceModule,
+    PricingRuleModule,
+    IncidentModule,
+    CarSitterModule,
+    NotificationModule,
+    VehicleRecommendationModule,
     MailerModule.forRoot({
       transport: {
         host: 'localhost',
