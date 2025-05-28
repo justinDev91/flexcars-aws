@@ -1,11 +1,11 @@
 
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { VehicleRecommendationService } from './vehicle-recommendation.dto';
 import { CreateVehicleRecommendationDto } from './dto/create-vehicle-recommendation.dto';
 import { UpdateVehicleRecommendationDto } from './dto/update-vehicle-recommendation.dto';
 
-@ApiTags('vehicle-recommendations')
+@ApiBearerAuth('access-token') 
 @Controller('vehicle-recommendations')
 export class VehicleRecommendationController {
   constructor(private readonly vehicleRecommendationService: VehicleRecommendationService) {}

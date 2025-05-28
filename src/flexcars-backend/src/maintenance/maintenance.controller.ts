@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query, Res } from "@nestjs/common";
 import { FindAllMaintenanceDto } from "./dto/FindAllMaintenance.dto";
 import { VehicleMaintenance } from "@prisma/client";
-import { ApiParam } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiParam } from "@nestjs/swagger";
 import { CreateMaintenanceDto } from "./dto/createMaintenance.dto";
 import { UpdateMaintenanceDto } from "./dto/updateMaintenance.dto";
 import { VehicleMaintenanceService } from "./maintenance.service";
 import { Response } from "express";
-
+@ApiBearerAuth('access-token') 
 @Controller('vehicle-maintenance')
 export class VehicleMaintenanceController {
   constructor(private readonly vehicleMaintenanceService: VehicleMaintenanceService) {}

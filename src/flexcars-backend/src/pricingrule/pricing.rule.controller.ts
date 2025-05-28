@@ -1,11 +1,11 @@
 
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreatePricingRuleDto } from './dto/createPricingRule.dto';
 import { UpdatePricingRuleDto } from './dto/updatePricingRule.dto';
 import { PricingRuleService } from './pricing.rule.service';
 
-@ApiTags('pricing-rules')
+@ApiBearerAuth('access-token') 
 @Controller('pricing-rules')
 export class PricingRuleController {
   constructor(private readonly pricingRuleService: PricingRuleService) {}

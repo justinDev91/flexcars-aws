@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query, Res } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateReservationDto } from './dto/createReservation.dto';
 import { UpdateReservationDto } from './dto/updateReservation.dto';
 import { FindAllReservationsDto } from './dto/findAllReservations.dto';
@@ -7,7 +7,7 @@ import { ReservationService } from './reservation.service';
 import { Response } from 'express';
 import { Reservation } from '@prisma/client';
 
-@ApiTags('reservations')
+@ApiBearerAuth('access-token') 
 @Controller('reservations')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}

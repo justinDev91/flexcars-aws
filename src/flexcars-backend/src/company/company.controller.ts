@@ -9,14 +9,15 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { Response } from 'express';
 import { CompaniesService } from './company.service';
 import { CreateOrUpdateCompanyDto } from './dto/createOrUpdateCompany';
 import { FindAllCompaniesDto } from './dto/FindAllCompaniesDto';
 import { Company } from '@prisma/client';
-
+@ApiBearerAuth('access-token') 
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}

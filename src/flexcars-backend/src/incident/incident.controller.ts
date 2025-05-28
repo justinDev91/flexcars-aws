@@ -1,11 +1,10 @@
 
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { IncidentService } from './incident.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
 import { UpdateIncidentDto } from './dto/update-incident.dto';
-
-@ApiTags('incidents')
+@ApiBearerAuth('access-token') 
 @Controller('incidents')
 export class IncidentController {
   constructor(private readonly incidentService: IncidentService) {}

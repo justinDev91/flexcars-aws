@@ -10,7 +10,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { Response } from 'express';
 import { Public } from 'src/decorators/Public';
@@ -21,7 +21,7 @@ import { UsersService } from './users.service';
 interface RequestWithUser extends Request {
   user: User;
 }
-
+@ApiBearerAuth('access-token') 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

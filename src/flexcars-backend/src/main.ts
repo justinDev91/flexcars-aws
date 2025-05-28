@@ -16,7 +16,25 @@ async function bootstrap() {
     .setTitle('Flexcars API')
     .setDescription('Documentation')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+        },
+      'access-token',
+    )
     .build();
+
+  app.enableCors({
+		origin: "*",
+		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+		credentials: true,
+		allowedHeaders: "Content-Type, Authorization",
+	});
+  
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 

@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateInvoiceDto } from './dto/createInvoice.dto';
 import { UpdateInvoiceDto } from './dto/updateInvoice.dto';
 import { Invoice } from '@prisma/client';
 import { InvoiceService } from './invoice.service';
 
-@ApiTags('invoices')
+@ApiBearerAuth('access-token') 
 @Controller('invoices')
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}

@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateRentalContractDto } from './dto/createRentalContract.dto';
 import { UpdateRentalContractDto } from './dto/updateRentalContract.dto';
 import { RentalContract } from '@prisma/client';
 import { RentalContractService } from './rental-contract.service';
 
-@ApiTags('rental-contracts')
+@ApiBearerAuth('access-token') 
 @Controller('rental-contracts')
 export class RentalContractController { 
   constructor(private readonly rentalContractService: RentalContractService) {}

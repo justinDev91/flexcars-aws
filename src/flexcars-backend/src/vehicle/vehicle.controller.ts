@@ -10,7 +10,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { Response } from 'express';
 import { Vehicle } from '@prisma/client';
 import { CreateVehicleDto } from './dto/createVehicule.dto';
@@ -18,6 +18,7 @@ import { FindAllVehiclesDto } from './dto/FindAllVehicles.dto';
 import { VehiclesService } from './vehicle.service';
 import { UpdateVehicleDto } from './dto/updateVehicle.dto';
 
+@ApiBearerAuth('access-token') 
 @Controller('vehicles')
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}

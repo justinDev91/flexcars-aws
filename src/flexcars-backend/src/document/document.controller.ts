@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateDocumentDto } from './dto/createDocument.dto';
 import { UpdateDocumentDto } from './dto/updateDocument.dto';
 import { DocumentService } from './document.service';
 
-@ApiTags('documents')
+@ApiBearerAuth('access-token') 
 @Controller('documents')
 export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}
