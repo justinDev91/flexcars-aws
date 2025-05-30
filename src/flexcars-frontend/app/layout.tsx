@@ -1,6 +1,8 @@
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
+import '@mantine/core/styles.css';
+import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
 
 import { AuthProvider } from "@/context/authContext";
 import "./globals.css";
@@ -21,13 +23,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" {...mantineHtmlProps}>
+      <head>
+        <ColorSchemeScript />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <main>{children}</main>
-        </AuthProvider>
+        <MantineProvider>
+          <AuthProvider>
+            <main>{children}</main>
+          </AuthProvider>
+        </MantineProvider>
       </body>
     </html>
   );
