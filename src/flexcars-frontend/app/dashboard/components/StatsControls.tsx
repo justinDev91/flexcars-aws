@@ -1,19 +1,20 @@
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import {
-  IconBike,
+  IconBellRinging,
   IconChevronDown,
   IconChevronUp,
-  IconRun,
-  IconSwimming,
+  IconThumbUp,
+  IconUserCheck,
 } from '@tabler/icons-react';
 import { Group, Paper, Text, UnstyledButton } from '@mantine/core';
 import classes from '../styles/StatsControls.module.css';
 
+
 const data = [
-  { icon: IconRun, label: 'Running' },
-  { icon: IconSwimming, label: 'Swimming' },
-  { icon: IconBike, label: 'Bike' },
+  { icon: IconUserCheck, label: 'CarSitter' },
+  { icon: IconThumbUp, label: 'VehicleRecommendation' },
+  { icon: IconBellRinging, label: 'Notification' },
 ];
 
 export function StatsControls() {

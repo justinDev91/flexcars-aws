@@ -3,12 +3,12 @@ import classes from '../styles/StatsGroup.module.css';
 
 const data = [
   {
-    title: 'Page views',
+    title: 'Cars rent',
     stats: '456,133',
     description: '24% more than in the same month last year, 33% more that two years ago',
   },
   {
-    title: 'New users',
+    title: 'New cars',
     stats: '2,175',
     description: '13% less compared to last month, new user engagement up by 6%',
   },
