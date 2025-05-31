@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import {
-  Icon2fa,
+  IconAlertTriangle,
   IconBellRinging,
-  IconDatabaseImport,
+  IconBuilding,
+  IconCalendarEvent,
+  IconCar,
+  IconCreditCard,
   IconFileAnalytics,
-  IconFingerprint,
-  IconKey,
+  IconFileText,
   IconLicense,
   IconLogout,
   IconMessage2,
@@ -15,36 +17,41 @@ import {
   IconReceipt2,
   IconReceiptRefund,
   IconSettings,
-  IconShoppingCart,
   IconSwitchHorizontal,
+  IconThumbUp,
+  IconUserCheck,
   IconUsers,
 } from '@tabler/icons-react';
 import { SegmentedControl, Text } from '@mantine/core';
 import classes from './NavbarSegmented.module.css';
 
+
 const tabs = {
-  account: [
+ "vehicle-rental": [
+    { link: '', label: 'Customers', icon: IconUsers },
+    { link: '', label: 'Companies', icon: IconBuilding },
+    { link: '', label: 'Vehicles', icon: IconCar },
+    { link: '', label: 'Reservation', icon: IconCalendarEvent },
+    { link: '', label: 'Incident', icon: IconAlertTriangle },
+    { link: '', label: 'CarSitters', icon: IconUserCheck },
+    { link: '', label: 'Vehicle Recommendation', icon: IconThumbUp },
     { link: '', label: 'Notifications', icon: IconBellRinging },
-    { link: '', label: 'Billing', icon: IconReceipt2 },
-    { link: '', label: 'Security', icon: IconFingerprint },
-    { link: '', label: 'SSH Keys', icon: IconKey },
-    { link: '', label: 'Databases', icon: IconDatabaseImport },
-    { link: '', label: 'Authentication', icon: Icon2fa },
     { link: '', label: 'Other Settings', icon: IconSettings },
-  ],
-  general: [
-    { link: '', label: 'Orders', icon: IconShoppingCart },
+   ],
+   "admin-management": [
+    { link: '', label: 'Invoices', icon: IconReceipt2 },
+    { link: '', label: 'Rental Contracts', icon: IconFileText },
     { link: '', label: 'Receipts', icon: IconLicense },
     { link: '', label: 'Reviews', icon: IconMessage2 },
+    { link: '', label: 'Payments', icon: IconCreditCard },
     { link: '', label: 'Messages', icon: IconMessages },
-    { link: '', label: 'Customers', icon: IconUsers },
     { link: '', label: 'Refunds', icon: IconReceiptRefund },
-    { link: '', label: 'Files', icon: IconFileAnalytics },
-  ],
+    { link: '', label: 'Files & Documents', icon: IconFileAnalytics },
+ ],
 };
 
 export default function NavbarSegmented() {
-  const [section, setSection] = useState<'account' | 'general'>('account');
+  const [section, setSection] = useState<'vehicle-rental' | 'admin-management'>('vehicle-rental');
   const [active, setActive] = useState('Billing');
 
   const links = tabs[section].map((item) => (
@@ -76,8 +83,8 @@ export default function NavbarSegmented() {
           transitionTimingFunction="ease"
           fullWidth
           data={[
-            { label: 'Account', value: 'account' },
-            { label: 'System', value: 'general' },
+            { label: 'Vehicle Rental', value: 'vehicle-rental' },
+            { label: 'Admin Management', value: 'admin-management' },
           ]}
         />
       </div>
