@@ -25,10 +25,11 @@ import {
 import { SegmentedControl, Text } from '@mantine/core';
 import classes from './styles/NavbarSegmented.module.css';
 import Link from 'next/link';
+import { LanguagePicker } from './components/LanguagePicker';
 
 const tabs = {
   'vehicle-rental': [
-    { link: '', label: 'Customers', icon: IconUsers },
+    { link: '/dashboard/users', label: 'Customers', icon: IconUsers },
     { link: '', label: 'Companies', icon: IconBuilding },
     { link: '', label: 'Vehicles', icon: IconCar },
     { link: '', label: 'Reservation', icon: IconCalendarEvent },
@@ -78,6 +79,9 @@ export default function NavbarSegmented({
     <div className={classes.layout}>
       <nav className={classes.navbar}>
         <div>
+          <div>
+            <LanguagePicker />
+          </div>
           <Text fw={500} size="sm" className={classes.title} c="dimmed" mb="xs">
             bgluesticker@mantine.dev
           </Text>
