@@ -60,7 +60,7 @@ export default function NavbarSegmented({
   const [active, setActive] = useState('Billing');
 
   const links = tabs[section].map((item) => (
-    <Link
+    <a
       className={classes.link}
       data-active={item.label === active || undefined}
       href={item.link}
@@ -72,7 +72,7 @@ export default function NavbarSegmented({
     >
       <item.icon className={classes.linkIcon} stroke={1.5} />
       <span>{item.label}</span>
-    </Link>
+    </a>
   ));
 
   return (
@@ -101,15 +101,15 @@ export default function NavbarSegmented({
         <div className={classes.navbarMain}>{links}</div>
 
         <div className={classes.footer}>
-          <Link href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+          <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
             <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
             <span>Change account</span>
-          </Link>
+          </a>
 
-          <Link href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
+          <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
             <IconLogout className={classes.linkIcon} stroke={1.5} />
             <span>Logout</span>
-          </Link>
+          </a>
         </div>
       </nav>
 

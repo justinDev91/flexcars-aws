@@ -1,10 +1,10 @@
 'use client';
 
 import { Title, Space, Container } from '@mantine/core';
-import StatsGrid from './components/statsGrid';
 import { StatsGroup } from './components/StatsGroup';
 import { StatsRing } from './components/StatsRing';
 import { StatsControls } from './components/StatsControls';
+import StatsGrid from './components/statsGrid';
 
 export default function Dashboard() {
   return (
@@ -20,7 +20,7 @@ export default function Dashboard() {
       <Space h="xl" />
 
       <StatsControls />
-      <Space h="xl" />
+       <Space h="xl" />
 
       <StatsGroup />
       <Space h="xl" />

@@ -1,49 +1,56 @@
+'use client';
+
+import { useState } from 'react';
+import {
+  ActionIcon,
+  Avatar,
+  Group,
+  Menu,
+  Table,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import {
   IconDots,
   IconMessages,
   IconNote,
   IconPencil,
   IconReportAnalytics,
+  IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
-import { ActionIcon, Avatar, Group, Menu, Table, Text } from '@mantine/core';
 
 const data = [
   {
-    avatar:
-      'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png',
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png',
     name: 'Robert Wolfkisser',
     job: 'Engineer',
     email: 'rob_wolf@gmail.com',
     rate: 22,
   },
   {
-    avatar:
-      'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png',
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png',
     name: 'Jill Jailbreaker',
     job: 'Engineer',
     email: 'jj@breaker.com',
     rate: 45,
   },
   {
-    avatar:
-      'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
     name: 'Henry Silkeater',
     job: 'Designer',
     email: 'henry@silkeater.io',
     rate: 76,
   },
   {
-    avatar:
-      'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
     name: 'Bill Horsefighter',
     job: 'Designer',
     email: 'bhorsefighter@gmail.com',
     rate: 15,
   },
   {
-    avatar:
-      'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png',
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png',
     name: 'Jeremy Footviewer',
     job: 'Manager',
     email: 'jeremy@foot.dev',
@@ -52,7 +59,14 @@ const data = [
 ];
 
 export function UsersStack() {
-  const rows = data.map((item) => (
+  const [search, setSearch] = useState('');
+
+  const filteredData = data.filter((item) =>
+    [item.name, item.job, item.email]
+      .some((field) => field.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const rows = filteredData.map((item) => (
     <Table.Tr key={item.name}>
       <Table.Td>
         <Group gap="sm">
@@ -84,12 +98,7 @@ export function UsersStack() {
           <ActionIcon variant="subtle" color="gray">
             <IconPencil size={16} stroke={1.5} />
           </ActionIcon>
-          <Menu
-            transitionProps={{ transition: 'pop' }}
-            withArrow
-            position="bottom-end"
-            withinPortal
-          >
+          <Menu transitionProps={{ transition: 'pop' }} withArrow position="bottom-end" withinPortal>
             <Menu.Target>
               <ActionIcon variant="subtle" color="gray">
                 <IconDots size={16} stroke={1.5} />
@@ -99,7 +108,9 @@ export function UsersStack() {
               <Menu.Item leftSection={<IconMessages size={16} stroke={1.5} />}>
                 Send message
               </Menu.Item>
-              <Menu.Item leftSection={<IconNote size={16} stroke={1.5} />}>Add note</Menu.Item>
+              <Menu.Item leftSection={<IconNote size={16} stroke={1.5} />}>
+                Add note
+              </Menu.Item>
               <Menu.Item leftSection={<IconReportAnalytics size={16} stroke={1.5} />}>
                 Analytics
               </Menu.Item>
@@ -114,10 +125,19 @@ export function UsersStack() {
   ));
 
   return (
-    <Table.ScrollContainer minWidth={800}>
-      <Table verticalSpacing="md">
-        <Table.Tbody>{rows}</Table.Tbody>
-      </Table>
-    </Table.ScrollContainer>
+    <>
+      <TextInput
+        placeholder="Search by name, job, or email"
+        mb="md"
+        leftSection={<IconSearch size={16} stroke={1.5} />}
+        value={search}
+        onChange={(event) => setSearch(event.currentTarget.value)}
+      />
+      <Table.ScrollContainer minWidth={800}>
+        <Table verticalSpacing="md">
+          <Table.Tbody>{rows}</Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
+    </>
   );
 }
