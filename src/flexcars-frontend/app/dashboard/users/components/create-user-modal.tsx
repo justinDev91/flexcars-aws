@@ -9,12 +9,13 @@ import {
   SegmentedControl,
   Select,
 } from '@mantine/core';
+import { zodResolver } from 'mantine-form-zod-resolver';
 import { DateInput } from '@mantine/dates';
-import { useForm, zodResolver } from '@mantine/form';
+import { useForm} from '@mantine/form';
 import { z } from 'zod';
 import { useState } from 'react';
-import { PasswordStrength } from '../components/PasswordStrength';
-import { InputValidation } from '../components/InputValidation';
+import { PasswordStrength } from './PasswordStrength';
+import { InputValidation } from './InputValidation';
 import segmentedClasses from '../../styles/GradientSegmentedControl.module.css';
 import selectClasses from '../../styles/ContainedInput.module.css';
 
@@ -61,10 +62,13 @@ export default function CreateUserForm() {
           classNames={segmentedClasses}
           mb="md"
         />
-
-        <InputValidation />
-
-        <PasswordStrength />
+  
+        <InputValidation {...form.getInputProps('email')} />
+        
+        <PasswordStrength
+          value={form.values.password}
+          {...form.getInputProps('password')}
+        />
 
         <Stack mt="md">
           <TextInput

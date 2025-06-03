@@ -1,18 +1,31 @@
-"use client";
+'use client';
 
-import LeadGrid from "./components/LeadGrid";
-import { UsersStack } from "./components/UsersStack";
+import { useDisclosure } from '@mantine/hooks';
+import { Modal, Button, Stack } from '@mantine/core';
+import LeadGrid from './components/LeadGrid';
+import { UsersStack } from './components/UsersStack';
+import CreateUserForm from './components/create-user-modal';
 
 export default function Users() {
+  const [opened, { open, close }] = useDisclosure(false);
 
   return (
-    <div >
-      <div className="pb-8">
+    <>
+      <Stack pb="md">
         <LeadGrid />
-      </div>
-      <div>
         <UsersStack />
-      </div>
-    </div>
+      </Stack>
+
+      <Modal opened={opened} onClose={close} title="Create a new user" centered>
+        <CreateUserForm />
+      </Modal>
+
+      <Button
+        variant="default"
+        onClick={open}
+      >
+        Create user
+      </Button>
+    </>
   );
 }

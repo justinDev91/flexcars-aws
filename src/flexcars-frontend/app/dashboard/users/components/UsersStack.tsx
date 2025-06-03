@@ -9,7 +9,10 @@ import {
   Table,
   Text,
   TextInput,
+  Pagination,
+  Stack,
 } from '@mantine/core';
+import { usePagination } from '@mantine/hooks';
 import {
   IconDots,
   IconMessages,
@@ -56,17 +59,62 @@ const data = [
     email: 'jeremy@foot.dev',
     rate: 98,
   },
+  {
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-4.png',
+    name: 'Alice Codeweaver',
+    job: 'Developer',
+    email: 'alice@codeweaver.dev',
+    rate: 60,
+  },
+  {
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png',
+    name: 'Tom Ironbuilder',
+    job: 'Architect',
+    email: 'tom@ironbuilder.com',
+    rate: 85,
+  },
+  {
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png',
+    name: 'Nina Pixelcrafter',
+    job: 'UI/UX Designer',
+    email: 'nina@pixelcraft.io',
+    rate: 70,
+  },
+  {
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png',
+    name: 'Carlos Datahunter',
+    job: 'Data Scientist',
+    email: 'carlos@datahunter.ai',
+    rate: 110,
+  },
+  {
+    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-9.png',
+    name: 'Lena Cloudwalker',
+    job: 'DevOps Engineer',
+    email: 'lena@cloudwalker.dev',
+    rate: 95,
+  },
 ];
+
+const PAGE_SIZE = 3;
 
 export function UsersStack() {
   const [search, setSearch] = useState('');
-
   const filteredData = data.filter((item) =>
-    [item.name, item.job, item.email]
-      .some((field) => field.toLowerCase().includes(search.toLowerCase()))
+    [item.name, item.job, item.email].some((field) =>
+      field.toLowerCase().includes(search.toLowerCase())
+    )
   );
 
-  const rows = filteredData.map((item) => (
+  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+  const pagination = usePagination({ total: totalPages, initialPage: 1 });
+
+  const paginatedData = filteredData.slice(
+    (pagination.active - 1) * PAGE_SIZE,
+    pagination.active * PAGE_SIZE
+  );
+
+  const rows = paginatedData.map((item) => (
     <Table.Tr key={item.name}>
       <Table.Td>
         <Group gap="sm">
@@ -125,19 +173,32 @@ export function UsersStack() {
   ));
 
   return (
-    <>
+    <Stack>
       <TextInput
         placeholder="Search by name, job, or email"
         mb="md"
         leftSection={<IconSearch size={16} stroke={1.5} />}
         value={search}
-        onChange={(event) => setSearch(event.currentTarget.value)}
+        onChange={(event) => {
+          setSearch(event.currentTarget.value);
+          pagination.setPage(1);
+        }}
       />
+
       <Table.ScrollContainer minWidth={800}>
         <Table verticalSpacing="md">
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
       </Table.ScrollContainer>
-    </>
+
+      {totalPages > 1 && (
+        <Pagination
+          total={totalPages}
+          value={pagination.active}
+          onChange={pagination.setPage}
+          mt="md"
+        />
+      )}
+    </Stack>
   );
 }

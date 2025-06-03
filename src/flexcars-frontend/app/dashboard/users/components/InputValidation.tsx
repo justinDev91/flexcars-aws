@@ -1,15 +1,17 @@
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { TextInput } from '@mantine/core';
+import { TextInput, TextInputProps } from '@mantine/core';
 import classes from '../../styles/InputValidation.module.css';
 
-export function InputValidation() {
+interface InputValidationProps extends TextInputProps {}
+
+export function InputValidation(props: InputValidationProps) {
   return (
     <TextInput
       label="Email"
-      error="Invalid email"
-      defaultValue="hello!gmail.com"
+      placeholder="you@example.com"
       classNames={{ input: classes.invalid }}
       rightSection={<IconAlertTriangle stroke={1.5} size={18} className={classes.icon} />}
+      {...props}
     />
   );
 }

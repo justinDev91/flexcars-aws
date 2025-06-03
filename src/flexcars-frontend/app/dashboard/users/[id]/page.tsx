@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { CardWithStats } from '../components/CardWithStats';
 import { UserInfoAction } from '../components/UserInfoAction';
 import { FeaturesCards } from '../components/FeaturesCards';
+import Steppers from '../components/Stepper';
 
 
 const PRIMARY_COL_HEIGHT = 300;
@@ -37,6 +38,7 @@ export default function Details({
 
     return (
     <Container my="md">
+      <Steppers />
       <FeaturesCards />
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         <CardWithStats />
