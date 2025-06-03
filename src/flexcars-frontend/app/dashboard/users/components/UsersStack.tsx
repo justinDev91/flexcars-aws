@@ -26,73 +26,43 @@ import {
 const data = [
   {
     avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png',
-    name: 'Robert Wolfkisser',
-    job: 'Engineer',
     email: 'rob_wolf@gmail.com',
-    rate: 22,
+    firstName: 'Robert',
+    lastName: 'Wolfkisser',
+    phoneNumber: '+33 6 12 34 56 78',
+    birthDate: '1990-04-12',
+    company: 'Acme Corp',
+    hasReservation: true,
   },
   {
     avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png',
-    name: 'Jill Jailbreaker',
-    job: 'Engineer',
     email: 'jj@breaker.com',
-    rate: 45,
+    firstName: 'Jill',
+    lastName: 'Jailbreaker',
+    phoneNumber: '+33 6 98 76 54 32',
+    birthDate: '1985-09-23',
+    company: null,
+    hasReservation: false,
   },
   {
     avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
-    name: 'Henry Silkeater',
-    job: 'Designer',
     email: 'henry@silkeater.io',
-    rate: 76,
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
-    name: 'Bill Horsefighter',
-    job: 'Designer',
-    email: 'bhorsefighter@gmail.com',
-    rate: 15,
+    firstName: 'Henry',
+    lastName: 'Silkeater',
+    phoneNumber: '+33 7 45 67 89 01',
+    birthDate: '1992-06-15',
+    company: 'Globex Inc.',
+    hasReservation: true,
   },
   {
     avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png',
-    name: 'Jeremy Footviewer',
-    job: 'Manager',
-    email: 'jeremy@foot.dev',
-    rate: 98,
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-4.png',
-    name: 'Alice Codeweaver',
-    job: 'Developer',
     email: 'alice@codeweaver.dev',
-    rate: 60,
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-6.png',
-    name: 'Tom Ironbuilder',
-    job: 'Architect',
-    email: 'tom@ironbuilder.com',
-    rate: 85,
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png',
-    name: 'Nina Pixelcrafter',
-    job: 'UI/UX Designer',
-    email: 'nina@pixelcraft.io',
-    rate: 70,
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png',
-    name: 'Carlos Datahunter',
-    job: 'Data Scientist',
-    email: 'carlos@datahunter.ai',
-    rate: 110,
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-9.png',
-    name: 'Lena Cloudwalker',
-    job: 'DevOps Engineer',
-    email: 'lena@cloudwalker.dev',
-    rate: 95,
+    firstName: 'Alice',
+    lastName: 'Codeweaver',
+    phoneNumber: '+33 6 11 22 33 44',
+    birthDate: '1988-11-30',
+    company: 'Initech',
+    hasReservation: false,
   },
 ];
 
@@ -100,8 +70,8 @@ const PAGE_SIZE = 3;
 
 export function UsersStack() {
   const [search, setSearch] = useState('');
-  const filteredData = data.filter((item) =>
-    [item.name, item.job, item.email].some((field) =>
+  const filteredData = data.filter((user) =>
+    [user.firstName, user.lastName, user.email].some((field) =>
       field.toLowerCase().includes(search.toLowerCase())
     )
   );
@@ -114,31 +84,45 @@ export function UsersStack() {
     pagination.active * PAGE_SIZE
   );
 
-  const rows = paginatedData.map((item) => (
-    <Table.Tr key={item.name}>
+  const rows = paginatedData.map((user) => (
+    <Table.Tr key={user.email}>
       <Table.Td>
         <Group gap="sm">
-          <Avatar size={40} src={item.avatar} radius={40} />
+          <Avatar size={40} src={user.avatar} radius={40} />
           <div>
             <Text fz="sm" fw={500}>
-              {item.name}
+              {user.firstName} {user.lastName}
             </Text>
             <Text c="dimmed" fz="xs">
-              {item.job}
+              {user.email}
             </Text>
           </div>
         </Group>
       </Table.Td>
       <Table.Td>
-        <Text fz="sm">{item.email}</Text>
+        <Text fz="sm">{user.phoneNumber || '—'}</Text>
         <Text fz="xs" c="dimmed">
-          Email
+          Phone
         </Text>
       </Table.Td>
       <Table.Td>
-        <Text fz="sm">${item.rate.toFixed(1)} / hr</Text>
+        <Text fz="sm">{user.birthDate || '—'}</Text>
         <Text fz="xs" c="dimmed">
-          Rate
+          Birth Date
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text fz="sm">{user.company || '—'}</Text>
+        <Text fz="xs" c="dimmed">
+          Company
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text fz="sm" c={user.hasReservation ? 'green' : 'red'}>
+          {user.hasReservation ? 'Actif' : 'Inactif'}
+        </Text>
+        <Text fz="xs" c="dimmed">
+          Reservation
         </Text>
       </Table.Td>
       <Table.Td>
@@ -153,15 +137,9 @@ export function UsersStack() {
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Menu.Item leftSection={<IconMessages size={16} stroke={1.5} />}>
-                Send message
-              </Menu.Item>
-              <Menu.Item leftSection={<IconNote size={16} stroke={1.5} />}>
-                Add note
-              </Menu.Item>
-              <Menu.Item leftSection={<IconReportAnalytics size={16} stroke={1.5} />}>
-                Analytics
-              </Menu.Item>
+              <Menu.Item leftSection={<IconMessages size={16} stroke={1.5} />}>Send message</Menu.Item>
+              <Menu.Item leftSection={<IconNote size={16} stroke={1.5} />}>Add note</Menu.Item>
+              <Menu.Item leftSection={<IconReportAnalytics size={16} stroke={1.5} />}>Analytics</Menu.Item>
               <Menu.Item leftSection={<IconTrash size={16} stroke={1.5} />} color="red">
                 Terminate contract
               </Menu.Item>
@@ -175,7 +153,7 @@ export function UsersStack() {
   return (
     <Stack>
       <TextInput
-        placeholder="Search by name, job, or email"
+        placeholder="Search by name or email"
         mb="md"
         leftSection={<IconSearch size={16} stroke={1.5} />}
         value={search}
@@ -185,7 +163,7 @@ export function UsersStack() {
         }}
       />
 
-      <Table.ScrollContainer minWidth={800}>
+      <Table.ScrollContainer minWidth={1000}>
         <Table verticalSpacing="md">
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>

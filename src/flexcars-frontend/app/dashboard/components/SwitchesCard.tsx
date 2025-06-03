@@ -2,12 +2,12 @@ import { Card, Group, Switch, Text } from '@mantine/core';
 import classes from '../styles/SwitchesCard.module.css';
 
 const data = [
-  { title: 'Messages', description: 'Direct messages you have received from other users' },
-  { title: 'Review requests', description: 'Code review requests from your team members' },
-  { title: 'Comments', description: 'Daily digest with comments on your posts' },
+  { title: 'Location updates', description: 'Receive real-time updates when a car changes location' },
+  { title: 'Maintenance alerts', description: 'Be notified when a vehicle is due for service or inspection' },
+  { title: 'Speeding alerts', description: 'Get alerts when a driver exceeds speed limits' },
   {
-    title: 'Recommendations',
-    description: 'Digest with best community posts from previous week',
+    title: 'Idle time warnings',
+    description: 'Receive notifications when a vehicle remains idle for too long',
   },
 ];
 
@@ -27,10 +27,10 @@ export function SwitchesCard() {
   return (
     <Card withBorder radius="md" p="xl" className={classes.card}>
       <Text fz="lg" className={classes.title} fw={500}>
-        Configure notifications
+        Vehicle Notification Settings
       </Text>
       <Text fz="xs" c="dimmed" mt={3} mb="xl">
-        Choose what notifications you want to receive
+        Choose which vehicle alerts you want to receive
       </Text>
       {items}
     </Card>

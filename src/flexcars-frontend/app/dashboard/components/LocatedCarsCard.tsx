@@ -1,36 +1,40 @@
-import { IconSwimming } from '@tabler/icons-react';
+import { IconMapPin } from '@tabler/icons-react';
 import { Badge, Group, Paper, Progress, Text, ThemeIcon } from '@mantine/core';
 import classes from '../styles/StatsCard.module.css';
+import { ReservedCarsCard } from './ReservedCarsCard';
 
-export function StatsCard() {
+export function LocatedCarsCard() {
   return (
     <Paper radius="md" withBorder className={classes.card} mt={20}>
-      <ThemeIcon className={classes.icon} size={60} radius={60}>
-        <IconSwimming size={32} stroke={1.5} />
+      <ThemeIcon className={classes.icon} size={60} radius={60} color="blue">
+        <IconMapPin size={32} stroke={1.5} />
       </ThemeIcon>
 
       <Text ta="center" fw={700} className={classes.title}>
-        Swimming challenge
+        Located Vehicles
       </Text>
       <Text c="dimmed" ta="center" fz="sm">
-        32 km / week
+        120 / 150 vehicles
       </Text>
 
       <Group justify="space-between" mt="xs">
         <Text fz="sm" c="dimmed">
-          Progress
+          Location Coverage
         </Text>
         <Text fz="sm" c="dimmed">
-          62%
+          80%
         </Text>
       </Group>
 
-      <Progress value={62} mt={5} />
+      <Progress value={80} mt={5} color="blue" />
 
       <Group justify="space-between" mt="md">
-        <Text fz="sm">20 / 36 km</Text>
-        <Badge size="sm">4 days left</Badge>
+        <Text fz="sm">120 located</Text>
+        <Badge size="sm" color="blue">
+          Updated 5 min ago
+        </Badge>
       </Group>
+      <ReservedCarsCard />
     </Paper>
   );
 }
