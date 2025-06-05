@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export interface FindAllUsersDto {
   page: number;
-  limit: number;
+  limit?: number;
 }
 
 export interface User {
@@ -26,7 +26,7 @@ const fetchUsers = async (
 ): Promise<User[]> => {
   const url = new URL('/users', process.env.NEXT_PUBLIC_API_URL);
   url.searchParams.set('page', params.page.toString());
-  url.searchParams.set('limit', params.limit.toString());
+  url.searchParams.set('limit',  params.limit ? params.limit.toString(): "4");
 
   const response = await fetch(url.toString(), {
     headers: {
@@ -51,7 +51,7 @@ export const useFindAllUsers = (params: FindAllUsersDto) => {
     refetchOnWindowFocus: false,
     // enabled: !!access_token,
   });
-
+  console.log("query", query)
   return {
     users: query.data || [],
     isUsersLoading: query.isLoading,

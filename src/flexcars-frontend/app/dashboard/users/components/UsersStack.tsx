@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   ActionIcon,
   Avatar,
@@ -14,6 +14,7 @@ import {
   Modal,
   Button,
   Select,
+  Loader,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
@@ -35,7 +36,8 @@ const companies = [
   { label: 'Umbrella Corp', value: 'umbrella-004' },
 ];
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 4;
+const PAGE_SIZE_PAGINATION = PAGE_SIZE + 1;
 
 export function UsersStack() {
   const [search, setSearch] = useState('');
@@ -110,7 +112,7 @@ export function UsersStack() {
       </Table.Td>
       <Table.Td>
         <Text fz="sm">
-          {user.birthDate ? new Date(user.birthDate).toLocaleDateString('fr-FR') : '—'}
+          {user.birthDate ? new Date(user.birthDate).toLocaleDateString('fr-FR') : '—'}
         </Text>
         <Text fz="xs" c="dimmed">Birth Date</Text>
       </Table.Td>
@@ -156,19 +158,27 @@ export function UsersStack() {
         }}
       />
 
-      <Table.ScrollContainer minWidth={1000}>
-        <Table verticalSpacing="md">
-          <Table.Tbody>{rows}</Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
+      {isUsersLoading ? (
+        <Group justify="center" mt="md">
+          <Loader size="lg" />
+        </Group>
+      ) : (
+        <>
+          <Table.ScrollContainer minWidth={1000}>
+            <Table verticalSpacing="md">
+              <Table.Tbody>{rows}</Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
 
-      {totalPages > 1 && (
-        <Pagination
-          total={totalPages}
-          value={page}
-          onChange={setPage}
-          mt="md"
-        />
+          {PAGE_SIZE_PAGINATION >= 1 && (
+            <Pagination
+              total={totalPages}
+              value={page}
+              onChange={setPage}
+              mt="md"
+            />
+          )}
+        </>
       )}
 
       <Modal opened={opened} onClose={close} title="Edit User" centered>
