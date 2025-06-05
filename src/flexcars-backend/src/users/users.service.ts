@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma.service';
@@ -8,12 +8,15 @@ import { PrismaService } from '../prisma.service';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(params: { page: number; limit: number }) {
-    const { page, limit } = params;
-    return this.prisma.user.findMany({
-      skip: limit * (page - 1),
-      take: limit,
-    });
+ 
+  async findAll(params: { page: number; limit: number }):Promise<Omit<User, 'role'>[]>   {
+    const { page, limit } = params;
+
+    const users = await this.prisma.user.findMany({
+      skip: limit * (page - 1),
+      take: limit,
+    });
+    return users.map(({ role, ...rest }) => rest);
   }
 
   findOneByEmail(email: string) {

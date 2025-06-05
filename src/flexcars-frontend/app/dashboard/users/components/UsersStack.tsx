@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ActionIcon,
   Avatar,
@@ -15,7 +15,7 @@ import {
   Button,
   Select,
 } from '@mantine/core';
-import { usePagination, useDisclosure } from '@mantine/hooks';
+import { useDisclosure } from '@mantine/hooks';
 import {
   IconDots,
   IconMessages,
@@ -26,50 +26,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { UpdateUser } from '@/types/user';
-
-const data = [
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png',
-    email: 'rob_wolf@gmail.com',
-    firstName: 'Robert',
-    lastName: 'Wolfkisser',
-    phoneNumber: '+33 6 12 34 56 78',
-    birthDate: '1990-04-12',
-    company: 'Acme Corp',
-    companyId: 'acme-001',
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png',
-    email: 'jj@breaker.com',
-    firstName: 'Jill',
-    lastName: 'Jailbreaker',
-    phoneNumber: '+33 6 98 76 54 32',
-    birthDate: '1985-09-23',
-    company: null,
-    companyId: '',
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
-    email: 'henry@silkeater.io',
-    firstName: 'Henry',
-    lastName: 'Silkeater',
-    phoneNumber: '+33 7 45 67 89 01',
-    birthDate: '1992-06-15',
-    company: 'Globex Inc.',
-    companyId: 'globex-002',
-  },
-  {
-    avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png',
-    email: 'alice@codeweaver.dev',
-    firstName: 'Alice',
-    lastName: 'Codeweaver',
-    phoneNumber: '+33 6 11 22 33 44',
-    birthDate: '1988-11-30',
-    company: 'Initech',
-    companyId: 'initech-003',
-  },
-];
-
+import { useFindAllUsers, User } from '../hooks/useFindUsers';
 
 const companies = [
   { label: 'Acme Corp', value: 'acme-001' },
@@ -78,7 +35,7 @@ const companies = [
   { label: 'Umbrella Corp', value: 'umbrella-004' },
 ];
 
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 5;
 
 export function UsersStack() {
   const [search, setSearch] = useState('');
@@ -90,9 +47,27 @@ export function UsersStack() {
     phoneNumber: '',
     companyId: '',
   });
+  const [page, setPage] = useState(1);
   const [opened, { open, close }] = useDisclosure(false);
 
-  const handleEditClick = (user: any) => {
+  const { users = [], isUsersLoading } = useFindAllUsers({
+    page,
+    limit: PAGE_SIZE,
+  });
+
+  const filteredUsers = users.filter((user) =>
+    [user.firstName, user.lastName, user.email].some((field) =>
+      field.toLowerCase().includes(search.toLowerCase())
+    )
+  );
+
+  const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE);
+  const paginatedUsers = filteredUsers.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
+
+  const handleEditClick = (user: User) => {
     const updateUser: UpdateUser = {
       email: user.email,
       firstName: user.firstName,
@@ -114,21 +89,7 @@ export function UsersStack() {
     close();
   };
 
-  const filteredData = data.filter((user) =>
-    [user.firstName, user.lastName, user.email].some((field) =>
-      field.toLowerCase().includes(search.toLowerCase())
-    )
-  );
-
-  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
-  const pagination = usePagination({ total: totalPages, initialPage: 1 });
-
-  const paginatedData = filteredData.slice(
-    (pagination.active - 1) * PAGE_SIZE,
-    pagination.active * PAGE_SIZE
-  );
-
-  const rows = paginatedData.map((user) => (
+  const rows = paginatedUsers.map((user) => (
     <Table.Tr key={user.email}>
       <Table.Td>
         <Group gap="sm">
@@ -148,7 +109,9 @@ export function UsersStack() {
         <Text fz="xs" c="dimmed">Phone</Text>
       </Table.Td>
       <Table.Td>
-        <Text fz="sm">{user.birthDate || '—'}</Text>
+        <Text fz="sm">
+          {user.birthDate ? new Date(user.birthDate).toLocaleDateString('fr-FR') : '—'}
+        </Text>
         <Text fz="xs" c="dimmed">Birth Date</Text>
       </Table.Td>
       <Table.Td>
@@ -189,7 +152,7 @@ export function UsersStack() {
         value={search}
         onChange={(event) => {
           setSearch(event.currentTarget.value);
-          pagination.setPage(1);
+          setPage(1);
         }}
       />
 
@@ -202,8 +165,8 @@ export function UsersStack() {
       {totalPages > 1 && (
         <Pagination
           total={totalPages}
-          value={pagination.active}
-          onChange={pagination.setPage}
+          value={page}
+          onChange={setPage}
           mt="md"
         />
       )}
@@ -225,7 +188,6 @@ export function UsersStack() {
             value={formValues.phoneNumber}
             onChange={(e) => handleFormChange('phoneNumber', e.currentTarget.value)}
           />
-          
           <Select
             label="Company"
             placeholder="Select a company"
@@ -233,7 +195,6 @@ export function UsersStack() {
             value={formValues.companyId}
             onChange={(value) => handleFormChange('companyId', value || '')}
           />
-
           <Button onClick={handleSave}>Save</Button>
         </Stack>
       </Modal>

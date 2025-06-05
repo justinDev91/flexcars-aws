@@ -122,6 +122,7 @@ model User {
   lastName     String
   phoneNumber  String?
   birthDate    DateTime?
+  avatar       String?
   role         Role     @default(USER)
   companyId    String?
   company      Company? @relation(fields: [companyId], references: [id])

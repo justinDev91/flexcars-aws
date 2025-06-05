@@ -65,6 +65,13 @@ export class CreateOrUpdateUserDto {
   @IsDateString()
   birthDate?: string;
 
+   @ApiPropertyOptional({
+    description: 'User avatar from mantine (if applicable)',
+    example: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png',
+  })  
+  @IsString()
+  avatar?: string;
+  
   @ApiPropertyOptional({
     description: 'ID of the company the user belongs to (if applicable)',
     example: 'company-uuid-1234',

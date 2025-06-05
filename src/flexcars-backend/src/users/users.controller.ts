@@ -27,10 +27,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async findAll(@Query() query: FindAllUsersDto) {
-    const users = await this.usersService.findAll(query);
-
-    return users;
+  async findAll(@Query() query: FindAllUsersDto): Promise<Omit<User, 'role'>[]>  {
+    return await this.usersService.findAll(query);
   }
 
   @Get('/:id')

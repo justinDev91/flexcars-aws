@@ -6,6 +6,9 @@ import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/c
 
 import { AuthProvider } from "@/context/authContext";
 import "./globals.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient()
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,11 +33,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+      <QueryClientProvider client={queryClient}>
         <MantineProvider>
           <AuthProvider>
             <main>{children}</main>
           </AuthProvider>
         </MantineProvider>
+      </QueryClientProvider>
       </body>
     </html>
   );
