@@ -13,9 +13,9 @@ export interface User {
   lastName: string;
   phoneNumber: string;
   birthDate: string;
-  avatar: string;
-  company: string | null;
-  companyId: string;
+  avatar?: string;
+  company?: string | null;
+  companyId?: string;
 }
 
 const USERS_KEY = 'users';
@@ -51,7 +51,6 @@ export const useFindAllUsers = (params: FindAllUsersDto) => {
     refetchOnWindowFocus: false,
     // enabled: !!access_token,
   });
-  console.log("query", query)
   return {
     users: query.data || [],
     isUsersLoading: query.isLoading,

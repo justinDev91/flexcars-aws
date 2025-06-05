@@ -11,43 +11,48 @@ import {
 } from '@mantine/core';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { DateInput } from '@mantine/dates';
-import { useForm} from '@mantine/form';
-import { z } from 'zod';
+import { useForm } from '@mantine/form';
 import { useState } from 'react';
 import { PasswordStrength } from './PasswordStrength';
 import { InputValidation } from './InputValidation';
 import segmentedClasses from '../../styles/GradientSegmentedControl.module.css';
 import selectClasses from '../../styles/ContainedInput.module.css';
+import { useCreateUser } from '../hooks/useCreateUser';
+import {
+  createUserSchema,
+  createUserInitialValues,
+  CreateUserFormValues,
+} from '../../../validations/createUser.schema';
 
-const schema = z.object({
-  email: z.string().email({ message: 'Invalid email' }),
-  password: z.string().min(6, 'Password must be at least 6 characters').optional(),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  phoneNumber: z.string().optional(),
-  birthDate: z.string().optional(),
-  companyId: z.string().optional(),
-});
+interface CreateUserFormProps {
+  onSuccess?: () => void;
+}
 
-export default function CreateUserForm() {
+export default function CreateUserForm({ onSuccess }: Readonly<CreateUserFormProps>) {
   const [userType, setUserType] = useState<'Client' | 'Company'>('Client');
+  const createUserMutation = useCreateUser();
 
-  const form = useForm({
-    validate: zodResolver(schema),
-    initialValues: {
-      email: '',
-      password: '',
-      firstName: '',
-      lastName: '',
-      phoneNumber: '',
-      birthDate: null,
-      companyId: '',
-    },
+  const form = useForm<CreateUserFormValues>({
+    validate: zodResolver(createUserSchema),
+    initialValues: createUserInitialValues,
   });
 
   const handleSubmit = (values: typeof form.values) => {
-    console.log('Form submitted:', { ...values, userType });
-    // Submit logic here
+    const formattedValues = {
+      ...values,
+      birthDate: new Date(values.birthDate).toISOString(),
+      ...(userType === 'Client' && { companyId: undefined }), 
+    };
+
+    createUserMutation.mutate(formattedValues, {
+      onSuccess: (data) => {
+        form.reset();
+        if (onSuccess) onSuccess(); 
+      },
+      onError: (error) => {
+        console.error('Error creating user:', error);
+      },
+    });
   };
 
   return (
@@ -62,9 +67,9 @@ export default function CreateUserForm() {
           classNames={segmentedClasses}
           mb="md"
         />
-  
+
         <InputValidation {...form.getInputProps('email')} />
-        
+
         <PasswordStrength
           value={form.values.password}
           {...form.getInputProps('password')}
@@ -98,6 +103,12 @@ export default function CreateUserForm() {
             {...form.getInputProps('birthDate')}
           />
 
+          <TextInput
+            label="Avatar URL"
+            placeholder="https://example.com/avatar.jpg"
+            {...form.getInputProps('avatar')}
+          />
+
           {userType === 'Company' && (
             <Select
               label="Select Company"
@@ -114,7 +125,9 @@ export default function CreateUserForm() {
         </Stack>
 
         <Group justify="flex-end" mt="xl">
-          <Button type="submit">Create User</Button>
+          <Button type="submit">
+            Create User
+          </Button>
         </Group>
       </form>
     </Box>

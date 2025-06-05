@@ -23,10 +23,11 @@ export default function Users() {
           <LeadGrid />
         </Stack>
       </Container>
-
+    
       <Modal opened={opened} onClose={close} title="Create a new user for" centered>
-        <CreateUserForm />
+        <CreateUserForm onSuccess={close} />
       </Modal>
+
     </>
   );
 }
