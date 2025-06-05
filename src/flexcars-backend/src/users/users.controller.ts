@@ -34,8 +34,6 @@ export class UsersController {
   @Get('/:id')
   @ApiParam({ name: 'id' })
   findById(@Param('id') id) {
-    console.log(id);
-
     return 'Find all users';
   }
 

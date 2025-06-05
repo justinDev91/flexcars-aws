@@ -28,6 +28,7 @@ import {
 } from '@tabler/icons-react';
 import { UpdateUser } from '@/types/user';
 import { useFindAllUsers, User } from '../hooks/useFindUsers';
+import { useUpdateUser } from '../hooks/useUpdateuser';
 
 const companies = [
   { label: 'Acme Corp', value: 'acme-001' },
@@ -41,16 +42,17 @@ const PAGE_SIZE_PAGINATION = PAGE_SIZE + 1;
 
 export function UsersStack() {
   const [search, setSearch] = useState('');
-  const [editUser, setEditUser] = useState<UpdateUser | null>(null);
-  const [formValues, setFormValues] = useState<UpdateUser>({
-    email: '',
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    companyId: '',
+  const [editUser, setEditUser] = useState<Omit<User, 'email' | 'birthDate'>| null>(null);
+  const [formValues, setFormValues] = useState<Omit<User, 'email' | 'birthDate'>>({
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    companyId: '',
+    avatar: '',
   });
   const [page, setPage] = useState(1);
   const [opened, { open, close }] = useDisclosure(false);
+  const updateUserMutation = useUpdateUser();
 
   const { users = [], isUsersLoading } = useFindAllUsers({
     page,
@@ -70,11 +72,12 @@ export function UsersStack() {
   );
 
   const handleEditClick = (user: User) => {
-    const updateUser: UpdateUser = {
-      email: user.email,
+    const updateUser: Omit<User, 'email' | 'birthDate'> = {
+      id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       phoneNumber: user.phoneNumber,
+      avatar: user.avatar,
       companyId: user.companyId || '',
     };
     setEditUser(updateUser);
@@ -82,14 +85,32 @@ export function UsersStack() {
     open();
   };
 
-  const handleFormChange = (field: keyof UpdateUser, value: string) => {
+  const handleFormChange = (field: keyof Omit<User, 'email' | 'birthDate'>, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
-    console.log('Updated user:', formValues);
-    close();
+    if (!editUser || !editUser.id) return;
+    const {id, ...rest} = formValues;
+
+    updateUserMutation.mutate(
+      {
+        id: editUser.id,
+        data: rest,
+      },
+      {
+        onSuccess: () => {
+          console.log('User updated successfully');
+          //add mantine appropriate icon or modal to display the message in 5 seconde 
+          close();
+        },
+        onError: (error) => {
+          console.error('Error updating user:', error);
+        },
+      }
+    );
   };
+
 
   const rows = paginatedUsers.map((user) => (
     <Table.Tr key={user.email}>
@@ -198,13 +219,24 @@ export function UsersStack() {
             value={formValues.phoneNumber}
             onChange={(e) => handleFormChange('phoneNumber', e.currentTarget.value)}
           />
-          <Select
-            label="Company"
-            placeholder="Select a company"
-            data={companies}
-            value={formValues.companyId}
-            onChange={(value) => handleFormChange('companyId', value || '')}
-          />
+
+        <TextInput
+          label="Avatar URL"
+          placeholder="https://example.com/avatar.jpg"
+          value={formValues.avatar}
+          onChange={(e) => handleFormChange('avatar', e.currentTarget.value)}
+        />
+
+      {/* {editUser?.companyId && (
+        <Select
+          label="Company"
+          placeholder="Select a company"
+          data={companies}
+          value={formValues.companyId}
+          onChange={(value) => handleFormChange('companyId', value || '')}
+        />
+      )} */}
+
           <Button onClick={handleSave}>Save</Button>
         </Stack>
       </Modal>
