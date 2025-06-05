@@ -11,8 +11,11 @@ import {
   TextInput,
   Pagination,
   Stack,
+  Modal,
+  Button,
+  Select,
 } from '@mantine/core';
-import { usePagination } from '@mantine/hooks';
+import { usePagination, useDisclosure } from '@mantine/hooks';
 import {
   IconDots,
   IconMessages,
@@ -22,6 +25,7 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
+import { UpdateUser } from '@/types/user';
 
 const data = [
   {
@@ -32,7 +36,7 @@ const data = [
     phoneNumber: '+33 6 12 34 56 78',
     birthDate: '1990-04-12',
     company: 'Acme Corp',
-    hasReservation: true,
+    companyId: 'acme-001',
   },
   {
     avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png',
@@ -42,7 +46,7 @@ const data = [
     phoneNumber: '+33 6 98 76 54 32',
     birthDate: '1985-09-23',
     company: null,
-    hasReservation: false,
+    companyId: '',
   },
   {
     avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
@@ -52,7 +56,7 @@ const data = [
     phoneNumber: '+33 7 45 67 89 01',
     birthDate: '1992-06-15',
     company: 'Globex Inc.',
-    hasReservation: true,
+    companyId: 'globex-002',
   },
   {
     avatar: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png',
@@ -62,14 +66,54 @@ const data = [
     phoneNumber: '+33 6 11 22 33 44',
     birthDate: '1988-11-30',
     company: 'Initech',
-    hasReservation: false,
+    companyId: 'initech-003',
   },
+];
+
+
+const companies = [
+  { label: 'Acme Corp', value: 'acme-001' },
+  { label: 'Globex Inc.', value: 'globex-002' },
+  { label: 'Initech', value: 'initech-003' },
+  { label: 'Umbrella Corp', value: 'umbrella-004' },
 ];
 
 const PAGE_SIZE = 3;
 
 export function UsersStack() {
   const [search, setSearch] = useState('');
+  const [editUser, setEditUser] = useState<UpdateUser | null>(null);
+  const [formValues, setFormValues] = useState<UpdateUser>({
+    email: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    companyId: '',
+  });
+  const [opened, { open, close }] = useDisclosure(false);
+
+  const handleEditClick = (user: any) => {
+    const updateUser: UpdateUser = {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      companyId: user.companyId || '',
+    };
+    setEditUser(updateUser);
+    setFormValues(updateUser);
+    open();
+  };
+
+  const handleFormChange = (field: keyof UpdateUser, value: string) => {
+    setFormValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = () => {
+    console.log('Updated user:', formValues);
+    close();
+  };
+
   const filteredData = data.filter((user) =>
     [user.firstName, user.lastName, user.email].some((field) =>
       field.toLowerCase().includes(search.toLowerCase())
@@ -101,33 +145,19 @@ export function UsersStack() {
       </Table.Td>
       <Table.Td>
         <Text fz="sm">{user.phoneNumber || '—'}</Text>
-        <Text fz="xs" c="dimmed">
-          Phone
-        </Text>
+        <Text fz="xs" c="dimmed">Phone</Text>
       </Table.Td>
       <Table.Td>
         <Text fz="sm">{user.birthDate || '—'}</Text>
-        <Text fz="xs" c="dimmed">
-          Birth Date
-        </Text>
+        <Text fz="xs" c="dimmed">Birth Date</Text>
       </Table.Td>
       <Table.Td>
         <Text fz="sm">{user.company || '—'}</Text>
-        <Text fz="xs" c="dimmed">
-          Company
-        </Text>
-      </Table.Td>
-      <Table.Td>
-        <Text fz="sm" c={user.hasReservation ? 'green' : 'red'}>
-          {user.hasReservation ? 'Actif' : 'Inactif'}
-        </Text>
-        <Text fz="xs" c="dimmed">
-          Reservation
-        </Text>
+        <Text fz="xs" c="dimmed">Company</Text>
       </Table.Td>
       <Table.Td>
         <Group gap={0} justify="flex-end">
-          <ActionIcon variant="subtle" color="gray">
+          <ActionIcon variant="subtle" color="gray" onClick={() => handleEditClick(user)}>
             <IconPencil size={16} stroke={1.5} />
           </ActionIcon>
           <Menu transitionProps={{ transition: 'pop' }} withArrow position="bottom-end" withinPortal>
@@ -177,6 +207,36 @@ export function UsersStack() {
           mt="md"
         />
       )}
+
+      <Modal opened={opened} onClose={close} title="Edit User" centered>
+        <Stack>
+          <TextInput
+            label="First Name"
+            value={formValues.firstName}
+            onChange={(e) => handleFormChange('firstName', e.currentTarget.value)}
+          />
+          <TextInput
+            label="Last Name"
+            value={formValues.lastName}
+            onChange={(e) => handleFormChange('lastName', e.currentTarget.value)}
+          />
+          <TextInput
+            label="Phone Number"
+            value={formValues.phoneNumber}
+            onChange={(e) => handleFormChange('phoneNumber', e.currentTarget.value)}
+          />
+          
+          <Select
+            label="Company"
+            placeholder="Select a company"
+            data={companies}
+            value={formValues.companyId}
+            onChange={(value) => handleFormChange('companyId', value || '')}
+          />
+
+          <Button onClick={handleSave}>Save</Button>
+        </Stack>
+      </Modal>
     </Stack>
   );
 }

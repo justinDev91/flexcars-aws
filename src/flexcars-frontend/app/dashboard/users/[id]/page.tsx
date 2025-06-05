@@ -7,6 +7,8 @@ import {
   SimpleGrid,
   Skeleton,
   Box,
+  Badge,
+  Group,
 } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { CardWithStats } from '../components/CardWithStats';
@@ -38,6 +40,11 @@ export default function Details({
 
     return (
     <Container my="md">
+      <Group justify="center" my="lg">
+        <Badge variant="filled" size="lg">
+          User Services Details
+        </Badge>
+      </Group>
       <Steppers />
       <FeaturesCards />
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">

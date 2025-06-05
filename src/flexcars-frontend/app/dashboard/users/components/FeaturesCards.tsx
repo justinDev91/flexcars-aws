@@ -61,12 +61,6 @@ export function FeaturesCards() {
 
   return (
     <Container size="lg" py="xl">
-      <Group justify="center">
-        <Badge variant="filled" size="lg">
-          User Services Details
-        </Badge>
-      </Group>
-
       <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl" mt={50}>
         {features}
       </SimpleGrid>

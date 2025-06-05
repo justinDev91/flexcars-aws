@@ -5,7 +5,7 @@ import { ReservedCarsCard } from './ReservedCarsCard';
 
 export function LocatedCarsCard() {
   return (
-    <Paper radius="md" withBorder className={classes.card} mt={20}>
+    <Paper radius="md" withBorder className={classes.card}>
       <ThemeIcon className={classes.icon} size={60} radius={60} color="blue">
         <IconMapPin size={32} stroke={1.5} />
       </ThemeIcon>

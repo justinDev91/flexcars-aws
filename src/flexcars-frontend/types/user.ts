@@ -13,3 +13,11 @@ export interface User {
   lastName: string;
   role: Role;
 }
+
+export interface UpdateUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string,
+  companyId: string
+}
