@@ -2,9 +2,9 @@
 
 import { useDisclosure } from '@mantine/hooks';
 import { Modal, Button, Stack, Group, Container } from '@mantine/core';
-import CreateUserForm from '../users/components/create-user-modal';
 import { FeaturesCards } from './components/FeaturesCards';
 import { CompaniesStack } from './components/CompaniesStack';
+import CreateCompanyForm from './components/CreateCompanyForm';
 
 export default function Users() {
   const [opened, { open, close }] = useDisclosure(false);
@@ -25,7 +25,7 @@ export default function Users() {
       </Container>
     
       <Modal opened={opened} onClose={close} title="Create a new user for" centered>
-        <CreateUserForm onSuccess={close} />
+        <CreateCompanyForm onSuccess={close} />
       </Modal>
 
     </>

@@ -10,7 +10,7 @@ const updateCompany = async (
   const url = new URL(`/companies/${id}`, process.env.NEXT_PUBLIC_API_URL);
 
   const response = await fetch(url.toString(), {
-    method: 'PATCH', 
+    method: 'PUT', 
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${access_token}`,
