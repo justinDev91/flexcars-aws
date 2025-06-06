@@ -30,14 +30,14 @@ import { LanguagePicker } from './components/LanguagePicker';
 const tabs = {
   'vehicle-rental': [
     { link: '/dashboard/users', label: 'Customers', icon: IconUsers },
-    { link: '', label: 'Companies', icon: IconBuilding },
-    { link: '', label: 'Vehicles', icon: IconCar },
-    { link: '', label: 'Reservation', icon: IconCalendarEvent },
-    { link: '', label: 'Incident', icon: IconAlertTriangle },
-    { link: '', label: 'CarSitters', icon: IconUserCheck },
-    { link: '', label: 'Vehicle Recommendation', icon: IconThumbUp },
-    { link: '', label: 'Notifications', icon: IconBellRinging },
-    { link: '', label: 'Other Settings', icon: IconSettings },
+    { link: '/dashboard/users', label: 'Companies', icon: IconBuilding },
+    { link: '/dashboard', label: 'Vehicles', icon: IconCar },
+    { link: '/dashboard/users', label: 'Reservation', icon: IconCalendarEvent },
+    { link: '/dashboard', label: 'Incident', icon: IconAlertTriangle },
+    { link: '/dashboard', label: 'CarSitters', icon: IconUserCheck },
+    { link: '/dashboard/users', label: 'Vehicle Recommendation', icon: IconThumbUp },
+    { link: '/dashboard/users', label: 'Notifications', icon: IconBellRinging },
+    { link: '/dashboard/users', label: 'Other Settings', icon: IconSettings },
   ],
   'admin-management': [
     { link: '', label: 'Invoices', icon: IconReceipt2 },
@@ -59,21 +59,23 @@ export default function NavbarSegmented({
   const [section, setSection] = useState<'vehicle-rental' | 'admin-management'>('vehicle-rental');
   const [active, setActive] = useState('Billing');
 
+ 
   const links = tabs[section].map((item) => (
-    <a
-      className={classes.link}
-      data-active={item.label === active || undefined}
-      href={item.link}
-      key={item.label}
-      onClick={(event) => {
-        event.preventDefault();
-        setActive(item.label);
-      }}
-    >
-      <item.icon className={classes.linkIcon} stroke={1.5} />
-      <span>{item.label}</span>
-    </a>
+    <Link
+      href={item.link || '#'}
+      key={item.label}
+      className={classes.link}
+      data-active={item.label === active || undefined}
+      onClick={(e) => {
+        if (!item.link) e.preventDefault();
+        setActive(item.label);
+      }}
+    >
+      <item.icon className={classes.linkIcon} stroke={1.5} />
+      <span>{item.label}</span>
+    </Link>
   ));
+
 
   return (
     <div className={classes.layout}>
@@ -100,17 +102,24 @@ export default function NavbarSegmented({
 
         <div className={classes.navbarMain}>{links}</div>
 
-        <div className={classes.footer}>
-          <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-            <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-            <span>Change account</span>
-          </a>
+      <div className={classes.footer}>
+        <Link
+          href="/change-account" 
+          className={classes.link}
+        >
+          <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
+          <span>Change account</span>
+        </Link>
 
-          <a href="#" className={classes.link} onClick={(event) => event.preventDefault()}>
-            <IconLogout className={classes.linkIcon} stroke={1.5} />
-            <span>Logout</span>
-          </a>
-        </div>
+        <Link
+          href="/logout" 
+          className={classes.link}
+        >
+          <IconLogout className={classes.linkIcon} stroke={1.5} />
+          <span>Logout</span>
+        </Link>
+      </div>
+
       </nav>
 
       <main className={classes.content}>
