@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
@@ -20,6 +20,12 @@ export class UsersService {
     return users.map(({ role, ...rest }) => rest);
   }
 
+  async findById(id: string) {
+   const record = await this.prisma.user.findUnique({ where: { id } });
+      if (!record) throw new NotFoundException('User not found');
+      return record;
+  }
+
   findOneByEmail(email: string) {
     return this.prisma.user.findFirst({
       where: {
@@ -35,13 +41,14 @@ export class UsersService {
     });
   }
 
-  updateUser(id: string, data: UpdateUserDto) {
-    return this.prisma.user.update({
+  async updateUser(id: string, data: UpdateUserDto) :  Promise<Omit<User, 'role' | 'password'>>{
+   const {role, password, ...rest} = await this.prisma.user.update({
       data,
       where: {
         id,
       },
     });
+    return rest;
   }
 
   async updatePassword(token: string, password: string) {

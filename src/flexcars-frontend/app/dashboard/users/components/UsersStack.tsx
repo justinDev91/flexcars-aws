@@ -29,6 +29,7 @@ import {
 import { UpdateUser } from '@/types/user';
 import { useFindAllUsers, User } from '../hooks/useFindUsers';
 import { useUpdateUser } from '../hooks/useUpdateuser';
+import Link from 'next/link';
 
 const companies = [
   { label: 'Acme Corp', value: 'acme-001' },
@@ -117,14 +118,14 @@ export function UsersStack() {
       <Table.Td>
         <Group gap="sm">
           <Avatar size={40} src={user.avatar} radius={40} />
-          <div>
+          <Link href={`/dashboard/users/${user.id}`}>
             <Text fz="sm" fw={500}>
               {user.firstName} {user.lastName}
             </Text>
             <Text c="dimmed" fz="xs">
               {user.email}
             </Text>
-          </div>
+          </Link>
         </Group>
       </Table.Td>
       <Table.Td>

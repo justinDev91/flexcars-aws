@@ -28,18 +28,18 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async findAll(@Query() query: FindAllUsersDto): Promise<Omit<User, 'role'>[]>  {
+  async findAll(@Query() query: FindAllUsersDto): Promise<Omit<User, 'role' | 'password'>[]>  {
     return await this.usersService.findAll(query);
   }
 
   @Get('/:id')
   @ApiParam({ name: 'id' })
-  findById(@Param('id') id) {
-    return 'Find all users';
+  async findById(@Param('id') id): Promise<Omit<User, 'role' | 'password'>> {
+    return await this.usersService.findById(id);
   }
 
   @Post()
-  async createUser(@Body() createUser: CreateOrUpdateUserDto) {
+  async createUser(@Body() createUser: CreateOrUpdateUserDto): Promise<Omit<User, 'role' | 'password'>> {
     return await this.usersService.createUser(createUser);
   }
 
@@ -56,7 +56,7 @@ export class UsersController {
   async updateUser(
     @Param('id') id: string,
     @Body() updateUser: UpdateUserDto,
-  ) {
+  ) : Promise<Omit<User, 'role' | 'password'>>{
     return await this.usersService.updateUser(id, updateUser);
   }
 
