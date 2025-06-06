@@ -30,6 +30,7 @@ import { UpdateUser } from '@/types/user';
 import { useFindAllUsers, User } from '../hooks/useFindUsers';
 import { useUpdateUser } from '../hooks/useUpdateuser';
 import Link from 'next/link';
+import { useGetCompanyById } from '../../companies/hooks/useGetCompanyById';
 
 const companies = [
   { label: 'Acme Corp', value: 'acme-001' },
@@ -40,6 +41,19 @@ const companies = [
 
 const PAGE_SIZE = 4;
 const PAGE_SIZE_PAGINATION = PAGE_SIZE + 1;
+
+
+type Props = {
+  companyId: string;
+};
+
+export function CompanyName({ companyId }: Props) {
+  const { company, isCompanyLoading } = useGetCompanyById(companyId);
+
+  if (isCompanyLoading) return <span>Loading...</span>;
+  return <Text fz="sm">{company?.name || '—'}</Text>;
+}
+
 
 export function UsersStack() {
   const [search, setSearch] = useState('');
@@ -138,10 +152,15 @@ export function UsersStack() {
         </Text>
         <Text fz="xs" c="dimmed">Birth Date</Text>
       </Table.Td>
+
       <Table.Td>
-        <Text fz="sm">{user.company || '—'}</Text>
-        <Text fz="xs" c="dimmed">Company</Text>
+        {user.companyId && (
+          <>
+            <CompanyName companyId={user.companyId} /><Text fz="xs" c="dimmed">Company</Text>
+          </>
+        )}
       </Table.Td>
+      
       <Table.Td>
         <Group gap={0} justify="flex-end">
           <ActionIcon variant="subtle" color="gray" onClick={() => handleEditClick(user)}>
