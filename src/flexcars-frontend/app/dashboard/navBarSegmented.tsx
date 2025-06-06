@@ -30,14 +30,14 @@ import { LanguagePicker } from './components/LanguagePicker';
 const tabs = {
   'vehicle-rental': [
     { link: '/dashboard/users', label: 'Customers', icon: IconUsers },
-    { link: '/dashboard/users', label: 'Companies', icon: IconBuilding },
-    { link: '/dashboard', label: 'Vehicles', icon: IconCar },
-    { link: '/dashboard/users', label: 'Reservation', icon: IconCalendarEvent },
-    { link: '/dashboard', label: 'Incident', icon: IconAlertTriangle },
-    { link: '/dashboard', label: 'CarSitters', icon: IconUserCheck },
-    { link: '/dashboard/users', label: 'Vehicle Recommendation', icon: IconThumbUp },
-    { link: '/dashboard/users', label: 'Notifications', icon: IconBellRinging },
-    { link: '/dashboard/users', label: 'Other Settings', icon: IconSettings },
+    { link: '/dashboard/companies', label: 'Companies', icon: IconBuilding },
+    { link: '/dashboard/vehicles', label: 'Vehicles', icon: IconCar },
+    { link: '/dashboard/reservation', label: 'Reservations', icon: IconCalendarEvent },
+    { link: '/dashboard/incident', label: 'Incidents', icon: IconAlertTriangle },
+    { link: '/dashboard/carSitters', label: 'CarSitters', icon: IconUserCheck },
+    { link: '/dashboard/vehicle-recommendations', label: 'Vehicle Recommendation', icon: IconThumbUp },
+    { link: '/dashboard/notifications', label: 'Notifications', icon: IconBellRinging },
+    { link: '/dashboard/others-settings', label: 'Other Settings', icon: IconSettings },
   ],
   'admin-management': [
     { link: '', label: 'Invoices', icon: IconReceipt2 },
