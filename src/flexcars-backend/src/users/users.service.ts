@@ -3,6 +3,7 @@ import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma.service';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -34,7 +35,7 @@ export class UsersService {
     });
   }
 
-  updateUser(id: string, data: Prisma.UserCreateInput) {
+  updateUser(id: string, data: UpdateUserDto) {
     return this.prisma.user.update({
       data,
       where: {

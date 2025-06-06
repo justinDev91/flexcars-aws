@@ -17,6 +17,7 @@ import { Public } from 'src/decorators/Public';
 import { CreateOrUpdateUserDto } from './dto/createOrUpdateUser';
 import { FindAllUsersDto } from './dto/usersList';
 import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 interface RequestWithUser extends Request {
   user: User;
@@ -54,7 +55,7 @@ export class UsersController {
   @Put(':id')
   async updateUser(
     @Param('id') id: string,
-    @Body() updateUser: CreateOrUpdateUserDto,
+    @Body() updateUser: UpdateUserDto,
   ) {
     return await this.usersService.updateUser(id, updateUser);
   }
