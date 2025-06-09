@@ -1,8 +1,6 @@
-
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IncidentSeverity, IncidentStatus } from '@prisma/client';
 import { IsString, IsOptional, IsEnum, IsDateString } from 'class-validator';
-
 
 export class CreateIncidentDto {
   @ApiProperty({ description: 'ID of the vehicle', example: 'vehicle-uuid' })
@@ -12,6 +10,16 @@ export class CreateIncidentDto {
   @ApiProperty({ description: 'ID of the user who reported the incident', example: 'user-uuid' })
   @IsString()
   reportedById: string;
+
+  @ApiPropertyOptional({ description: 'ID of the related reservation', example: 'reservation-uuid' })
+  @IsOptional()
+  @IsString()
+  reservationId?: string;
+
+  @ApiPropertyOptional({ description: 'Location of the incident', example: 'Paris, France' })
+  @IsOptional()
+  @IsString()
+  location?: string;
 
   @ApiPropertyOptional({ description: 'Description of the incident', example: 'Scratch on the left door' })
   @IsOptional()

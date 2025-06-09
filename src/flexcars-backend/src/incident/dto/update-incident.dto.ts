@@ -1,4 +1,3 @@
-
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IncidentSeverity, IncidentStatus } from '@prisma/client';
 import { IsString, IsOptional, IsEnum, IsDateString } from 'class-validator';
@@ -24,8 +23,23 @@ export class UpdateIncidentDto {
   @IsEnum(IncidentStatus)
   status?: IncidentStatus;
 
+  @ApiPropertyOptional({ description: 'Updated datetime when the incident was reported' })
+  @IsOptional()
+  @IsDateString()
+  reportedAt?: string;
+
   @ApiPropertyOptional({ description: 'Updated datetime when the incident was resolved' })
   @IsOptional()
   @IsDateString()
   resolvedAt?: string;
+
+  @ApiPropertyOptional({ description: 'Updated location of the incident' })
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @ApiPropertyOptional({ description: 'Updated reservation ID associated with the incident' })
+  @IsOptional()
+  @IsString()
+  reservationId?: string;
 }

@@ -202,6 +202,7 @@ model Reservation {
   rentalContract RentalContract?
   services       ReservationService[]
   invoice        Invoice?
+  Incident Incident[]
 }
 
 model RentalContract {
@@ -281,6 +282,9 @@ model Incident {
   reportedById   String
   reportedBy     User?             @relation(fields: [reportedById], references: [id])
   description    String?
+  reservationId     String?
+  location          String?
+  reservation       Reservation?          @relation(fields: [reservationId], references: [id])
   severity       IncidentSeverity?
   photosUrl      String?
   status         IncidentStatus   @default(OPEN)
