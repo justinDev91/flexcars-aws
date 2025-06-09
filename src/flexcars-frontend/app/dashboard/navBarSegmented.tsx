@@ -32,7 +32,7 @@ const tabs = {
     { link: '/dashboard/users', label: 'Customers', icon: IconUsers },
     { link: '/dashboard/companies', label: 'Companies', icon: IconBuilding },
     { link: '/dashboard/vehicles', label: 'Vehicles', icon: IconCar },
-    { link: '/dashboard/reservation', label: 'Reservations', icon: IconCalendarEvent },
+    { link: '/dashboard/reservations', label: 'Reservations', icon: IconCalendarEvent },
     { link: '/dashboard/incident', label: 'Incidents', icon: IconAlertTriangle },
     { link: '/dashboard/carSitters', label: 'CarSitters', icon: IconUserCheck },
     { link: '/dashboard/vehicle-recommendations', label: 'Vehicle Recommendation', icon: IconThumbUp },
