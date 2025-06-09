@@ -4,13 +4,14 @@ import { ReservationStatus } from '../types/Reservation';
 export const createReservationSchema = z.object({
   vehicleId: z.string(),
   customerId: z.string(),
-  startDatetime: z.string().datetime().optional().default('2025-06-09T10:58:54.631683'),
-  endDatetime: z.string().datetime().optional().default('2025-06-29T10:58:54.631704'),
+  startDatetime: z.string(),
+  endDatetime: z.string(),
   pickupLocation: z.string().optional(),
   dropoffLocation: z.string().optional(),
   status: z.nativeEnum(ReservationStatus).optional(),
   totalPrice: z.number().optional(),
 });
+
 
 export type CreateReservationFormValues = z.infer<typeof createReservationSchema>;
 

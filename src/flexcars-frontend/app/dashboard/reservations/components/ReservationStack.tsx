@@ -177,42 +177,66 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
         </>
       )}
 
-      <Modal opened={opened} onClose={close} title="Edit Reservation" centered>
-        <Stack>
-          <Select
-            label="Customer"
-            data={users.map((u) => ({ value: u.id, label: u.firstName }))}
-            value={formValues.customerId}
-            onChange={(value) => handleFormChange('customerId', value!)}
-          />
-          <Select
-            label="Vehicle"
-            data={vehicles.map((v) => ({ value: v.id, label: `${v.brand} ${v.model}` }))}
-            value={formValues.vehicleId}
-            onChange={(value) => handleFormChange('vehicleId', value!)}
-          />
-          <DateTimePicker
-            label="Start Datetime"
-            value={new Date(formValues.startDatetime as string)}
-            onChange={(value) => handleFormChange('startDatetime', value?.toISOString() || '')}
-          />
-          <DateTimePicker
-            label="End Datetime"
-            value={new Date(formValues.endDatetime as string)}
-            onChange={(value) => handleFormChange('endDatetime', value?.toISOString() || '')}
-          />
-          <TextInput label="Pickup Location" value={formValues.pickupLocation} onChange={(e) => handleFormChange('pickupLocation', e.currentTarget.value)} />
-          <TextInput label="Dropoff Location" value={formValues.dropoffLocation} onChange={(e) => handleFormChange('dropoffLocation', e.currentTarget.value)} />
-          <Select
-            label="Status"
-            data={Object.values(ReservationStatus).map((s) => ({ label: s, value: s }))}
-            value={formValues.status}
-            onChange={(value) => handleFormChange('status', value as ReservationStatus)}
-          />
-          <NumberInput label="Total Price (€)" value={formValues.totalPrice} onChange={(value) => handleFormChange('totalPrice', value || 0)} />
-          <Button onClick={handleSave}>Save</Button>
-        </Stack>
-      </Modal>
+    <Modal opened={opened} onClose={close} title="Edit Reservation" centered>
+      <Stack>
+        <TextInput
+          label="Customer"
+          value={userMap[formValues.customerId] || formValues.customerId}
+          readOnly
+          disabled
+        />
+
+        <TextInput
+          label="Vehicle"
+          value={vehicleMap[formValues.vehicleId] || formValues.vehicleId}
+          readOnly
+          disabled
+        />
+
+        <DateTimePicker
+          label="Start Datetime"
+          value={new Date(formValues.startDatetime as string)}
+          onChange={(value) => handleFormChange('startDatetime', new Date(value as string).toISOString() || '')}
+        />
+
+        <DateTimePicker
+          label="End Datetime"
+          value={new Date(formValues.endDatetime as string)}
+        
+          onChange={(value) => handleFormChange('endDatetime',  new Date(value as string).toISOString() || '')}
+        />
+
+        <TextInput
+          label="Pickup Location"
+          value={formValues.pickupLocation}
+          onChange={(e) => handleFormChange('pickupLocation', e.currentTarget.value)}
+        />
+
+        <TextInput
+          label="Dropoff Location"
+          value={formValues.dropoffLocation}
+          onChange={(e) => handleFormChange('dropoffLocation', e.currentTarget.value)}
+        />
+
+        <Select
+          label="Status"
+          data={Object.values(ReservationStatus).map((s) => ({ label: s, value: s }))}
+          value={formValues.status}
+          onChange={(value) => handleFormChange('status', value as ReservationStatus)}
+        />
+
+        {/* Display total price (read-only) */}
+        <NumberInput
+          label="Total Price (€)"
+          value={formValues.totalPrice}
+          readOnly
+          disabled
+        />
+
+        <Button onClick={handleSave}>Save</Button>
+      </Stack>
+    </Modal>
+
     </Stack>
   );
 }

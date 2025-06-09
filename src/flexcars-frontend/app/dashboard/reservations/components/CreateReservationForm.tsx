@@ -10,17 +10,17 @@ import {
   TextInput,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
-import { zodResolver } from 'mantine-form-zod-resolver';
 import { useForm } from '@mantine/form';
 import { useCreateReservation } from '../hooks/useCreateReservation';
 import {
-  createReservationSchema,
   createReservationInitialValues,
   CreateReservationFormValues,
+  createReservationSchema,
 } from '@/app/validations/createReservation.schema';
 import { useGetAllVehicle } from '../../vehicles/hooks/useGetAllVehicle';
-import { Reservation, ReservationStatus } from '@/app/types/Reservation';
 import { useGetAllUser } from '../../users/hooks/useGetAllUsers';
+import { Reservation, ReservationStatus } from '@/app/types/Reservation';
+import { zodResolver } from 'mantine-form-zod-resolver';
 
 interface CreateReservationFormProps {
   onSuccess?: (reservation: Reservation) => void;
@@ -37,10 +37,16 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
   });
 
   const handleSubmit = (values: typeof form.values) => {
-    createReservationMutation.mutate(values, {
+    const parsedValues = {
+      ...values,
+      startDatetime: new Date(values.startDatetime).toISOString(),
+      endDatetime: new Date(values.endDatetime).toISOString(),
+    };
+
+    createReservationMutation.mutate(parsedValues, {
       onSuccess: (newReservation) => {
         form.reset();
-        if (onSuccess) onSuccess(newReservation);
+        onSuccess?.(newReservation);
       },
       onError: (error) => {
         console.error('Error creating reservation:', error);
@@ -81,18 +87,18 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
           <DateTimePicker
             label="Start Datetime"
             placeholder="Pick start date and time"
-            value={form.values.startDatetime ? new Date(form.values.startDatetime) : null}
+            value={form.values.startDatetime}
             onChange={(date) =>
-              form.setFieldValue('startDatetime', date?.toISOString() || '')
+              form.setFieldValue('startDatetime', date as string )
             }
           />
 
           <DateTimePicker
             label="End Datetime"
             placeholder="Pick end date and time"
-            value={form.values.endDatetime ? new Date(form.values.endDatetime) : null}
+            value={form.values.endDatetime}
             onChange={(date) =>
-              form.setFieldValue('endDatetime', date?.toISOString() || '')
+              form.setFieldValue('endDatetime', date as string)
             }
           />
 
@@ -126,7 +132,9 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
         </Stack>
 
         <Group justify="flex-end" mt="xl">
-          <Button type="submit">Create Reservation</Button>
+          <Button type="submit">
+            Create Reservation
+          </Button>
         </Group>
       </form>
     </Box>
