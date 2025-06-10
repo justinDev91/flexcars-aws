@@ -225,7 +225,6 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
           onChange={(value) => handleFormChange('status', value as ReservationStatus)}
         />
 
-        {/* Display total price (read-only) */}
         <NumberInput
           label="Total Price (€)"
           value={formValues.totalPrice}

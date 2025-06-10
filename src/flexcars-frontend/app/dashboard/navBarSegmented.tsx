@@ -34,7 +34,7 @@ const tabs = {
     { link: '/dashboard/vehicles', label: 'Vehicles', icon: IconCar },
     { link: '/dashboard/reservations', label: 'Reservations', icon: IconCalendarEvent },
     { link: '/dashboard/incidents', label: 'Incidents', icon: IconAlertTriangle },
-    { link: '/dashboard/carSitters', label: 'CarSitters', icon: IconUserCheck },
+    { link: '/dashboard/car-sitters', label: 'CarSitters', icon: IconUserCheck },
     { link: '/dashboard/vehicle-recommendations', label: 'Vehicle Recommendation', icon: IconThumbUp },
     { link: '/dashboard/notifications', label: 'Notifications', icon: IconBellRinging },
     { link: '/dashboard/others-settings', label: 'Other Settings', icon: IconSettings },

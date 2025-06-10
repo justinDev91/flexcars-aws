@@ -162,14 +162,15 @@ export function IncidentsStack({ incidents, setIncidents }: Readonly<IncidentsSt
 
       <Modal opened={opened} onClose={close} title="Edit Incident" centered>
         <Stack>
-          <TextInput label="Reported By" value={userMap[formValues.reportedById] || formValues.reportedById} readOnly />
-          <TextInput label="Vehicle" value={vehicleMap[formValues.vehicleId] || formValues.vehicleId} readOnly />
-          <TextInput label="Reservation" value={reservationMap[formValues.reservationId ?? ''] || ''} readOnly />
+          <TextInput label="Reported By" value={userMap[formValues.reportedById] || formValues.reportedById} disabled />
+          <TextInput label="Vehicle" value={vehicleMap[formValues.vehicleId] || formValues.vehicleId} disabled />
+          <TextInput label="Reservation" value={reservationMap[formValues.reservationId ?? ''] || ''} disabled />
 
           <DateTimePicker
             label="Reported At"
             value={formValues.reportedAt ? new Date(formValues.reportedAt) : null}
             onChange={(value) => handleFormChange('reportedAt', new Date(value as string).toISOString())}
+            disabled
           />
 
           <DateTimePicker
