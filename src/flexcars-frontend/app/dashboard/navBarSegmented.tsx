@@ -10,9 +10,7 @@ import {
   IconCreditCard,
   IconFileAnalytics,
   IconFileText,
-  IconLicense,
   IconLogout,
-  IconMessage2,
   IconMessages,
   IconReceipt2,
   IconReceiptRefund,
@@ -40,14 +38,12 @@ const tabs = {
     { link: '/dashboard/others-settings', label: 'Other Settings', icon: IconSettings },
   ],
   'admin-management': [
-    { link: '', label: 'Invoices', icon: IconReceipt2 },
-    { link: '', label: 'Rental Contracts', icon: IconFileText },
-    { link: '', label: 'Receipts', icon: IconLicense },
-    { link: '', label: 'Reviews', icon: IconMessage2 },
-    { link: '', label: 'Payments', icon: IconCreditCard },
+    { link: '/dashboard/invoices', label: 'Invoices', icon: IconReceipt2 },
+    { link: '/dashboard/rental-contracts', label: 'Rental Contracts', icon: IconFileText },
+    { link: '/dashboard/payments', label: 'Payments', icon: IconCreditCard },
     { link: '', label: 'Messages', icon: IconMessages },
     { link: '', label: 'Refunds', icon: IconReceiptRefund },
-    { link: '', label: 'Files & Documents', icon: IconFileAnalytics },
+    { link: '/dashboard/documents', label: 'Files & Documents', icon: IconFileAnalytics },
   ],
 };
 
