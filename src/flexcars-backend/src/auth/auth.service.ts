@@ -29,7 +29,21 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService
   ) {}
-
+  
+  private async sendEmail(
+      to: string,
+      subject: string,
+      template: string,
+      context: Record<string, any>
+    ): Promise<void> {
+      await this.mailerService.sendMail({
+        to,
+        subject,
+        template,
+        context,
+      });
+  }
+  
   async signIn(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findOneByEmail(email);
   
@@ -41,17 +55,14 @@ export class AuthService {
       throw new UnauthorizedException('Veuillez confirmer votre adresse email avant de vous connecter.');
     }
     
-    const resetUrl = `http://localhost:3001/auth/forgot-password`;
+    const resetUrl = `http://localhost:3000/auth/forgot-password`;
 
-    await this.mailerService.sendMail({
-       to: email,
-       subject: 'Notification de connexion',
-       template: 'login-notification',
-       context: {
-        firstName: user.firstName,
-        url: resetUrl
-       },
-    });
+    await this.sendEmail(
+        email,
+        'Notification de connexion',
+        'login-notification',
+        { firstName: user.firstName, url: resetUrl }
+      );
       
     const payload: JwtPayload = {
       sub: user.id,
@@ -87,17 +98,15 @@ export class AuthService {
       },
     });
 
-    const confirmUrl = `http://localhost:3001/auth/confirm-email?token=${emailConfirmToken}`;
+    const confirmUrl = `http://localhost:3000/auth/confirm-email?token=${emailConfirmToken}`;
 
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Confirmez votre adresse email',
-      template: 'welcome-student',
-      context: {
-        firstName,
-        url: confirmUrl,
-      },
-    });
+    
+    await this.sendEmail(
+      email,
+      'Confirmez votre adresse email',
+      'welcome-customer',
+      { firstName, url: confirmUrl }
+    );
 
     return { message: 'User registered. Please confirm your email.' };
   }
@@ -125,6 +134,15 @@ export class AuthService {
           emailConfirmExpires: null,
         },
       });
+
+    const resetUrl = `http://localhost:3000/auth/login`;
+
+    await this.sendEmail(
+        user.email,
+        'Confirmation de mail confirmé',
+        'email-confirmed',
+        { firstName: user.firstName, url: resetUrl }
+      );
   
       return { message: 'Email confirmé avec succès !' };
     }
@@ -145,18 +163,17 @@ export class AuthService {
         passwordResetExpires: resetExpires,
       },
     });
+    
+    const resetUrl = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
   
-    const resetUrl = `http://localhost:3001/auth/reset-password?token=${resetToken}`;
   
-    await this.mailerService.sendMail({
-      to: email,
-      subject: 'Réinitialisation de votre mot de passe',
-      template: 'reset-password',
-      context: {
-        firstName: user.firstName,
-        url: resetUrl,
-      },
-    });
+    await this.sendEmail(
+      email,
+      'Réinitialisation de votre mot de passe',
+      'reset-password',
+      { firstName: user.firstName, url: resetUrl }
+    );
+  
   
     return { message: 'Un email de réinitialisation a été envoyé.' };
   }
@@ -186,18 +203,16 @@ export class AuthService {
       },
     });
     
-    const resetUrl = `http://localhost:3001/auth/forgot-password`;
+    const resetUrl = `http://localhost:3000/auth/forgot-password`;
 
-    await this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Réinitialisation de votre mot de passe',
-      template: 'password-reseted',
-      context: {
-        firstName: user.firstName,
-        url: resetUrl,
-      },
-    });
     
+    await this.sendEmail(
+      user.email,
+      'Réinitialisation de votre mot de passe',
+      'password-reseted',
+      { firstName: user.firstName, url: resetUrl }
+    );
+  
     return { message: 'Mot de passe réinitialisé avec succès.' };
   }
   

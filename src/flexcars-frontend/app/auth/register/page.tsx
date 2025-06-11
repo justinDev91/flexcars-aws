@@ -3,9 +3,11 @@
 import api from "@/lib/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Register() {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -22,7 +24,12 @@ export default function Register() {
       password,
     });
 
-    router.push("/login");
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    router.push("/auth/login");
   };
 
   return (
@@ -86,12 +93,28 @@ export default function Register() {
         </form>
         <div className="mt-6 text-center text-sm text-gray-600">
           Déjà un compte?{" "}
-          <Link href="/login" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/auth/login" className="text-blue-600 font-semibold hover:underline">
             Connectez-vous
           </Link>
         </div>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Confirmation envoyée 📧</h3>
+            <p className="text-gray-600 mb-6">
+              Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception pour activer votre compte.
+            </p>
+            <button
+              onClick={handleCloseModal}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-  
 }

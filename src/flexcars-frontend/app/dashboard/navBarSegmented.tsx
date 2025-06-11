@@ -110,7 +110,7 @@ export default function NavbarSegmented({
         </Link>
 
         <Link
-          href="/logout" 
+          href="/auth/logout" 
           className={classes.link}
         >
           <IconLogout className={classes.linkIcon} stroke={1.5} />

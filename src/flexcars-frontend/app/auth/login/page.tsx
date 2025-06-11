@@ -30,7 +30,7 @@ export default function Login() {
     window.localStorage.setItem("user", JSON.stringify(result.data.user));
     setUser(result.data.user);
 
-    router.push("/chat/chat-list");
+    router.push("/dashboard");
   };
 
   return (
@@ -63,6 +63,11 @@ export default function Login() {
               required
             />
           </div>
+          <div className="text-right text-sm">
+            <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </div>
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
@@ -71,13 +76,12 @@ export default function Login() {
           </button>
         </form>
         <div className="mt-6 text-center text-sm text-gray-600">
-          Pas encore de compte?{" "}
-          <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+          Pas encore de compte ?{" "}
+          <Link href="/auth/register" className="text-blue-600 font-semibold hover:underline">
             Inscrivez-vous
           </Link>
         </div>
       </div>
     </div>
   );
-  
 }
