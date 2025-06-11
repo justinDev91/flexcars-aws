@@ -41,12 +41,15 @@ export class AuthService {
       throw new UnauthorizedException('Veuillez confirmer votre adresse email avant de vous connecter.');
     }
     
+    const resetUrl = `http://localhost:3001/auth/forgot-password`;
+
     await this.mailerService.sendMail({
        to: email,
        subject: 'Notification de connexion',
        template: 'login-notification',
        context: {
-         firstName: user.firstName,
+        firstName: user.firstName,
+        url: resetUrl
        },
     });
       
@@ -125,6 +128,77 @@ export class AuthService {
   
       return { message: 'Email confirmé avec succès !' };
     }
-  
 
+  async forgotMyPassword(email: string): Promise<{ message: string }> {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException("Aucun utilisateur trouvé avec cet email.");
+    }
+  
+    const resetToken = randomBytes(32).toString('hex');
+    const resetExpires = addHours(new Date(), 1); 
+  
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpires: resetExpires,
+      },
+    });
+  
+    const resetUrl = `http://localhost:3001/auth/reset-password?token=${resetToken}`;
+  
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Réinitialisation de votre mot de passe',
+      template: 'reset-password',
+      context: {
+        firstName: user.firstName,
+        url: resetUrl,
+      },
+    });
+  
+    return { message: 'Un email de réinitialisation a été envoyé.' };
+  }
+  
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpires: {
+          gte: new Date(),
+        },
+      },
+    });
+  
+    if (!user) {
+      throw new BadRequestException('Token invalide ou expiré.');
+    }
+  
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+      },
+    });
+    
+    const resetUrl = `http://localhost:3001/auth/forgot-password`;
+
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Réinitialisation de votre mot de passe',
+      template: 'password-reseted',
+      context: {
+        firstName: user.firstName,
+        url: resetUrl,
+      },
+    });
+    
+    return { message: 'Mot de passe réinitialisé avec succès.' };
+  }
+  
 }

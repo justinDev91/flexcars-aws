@@ -126,6 +126,8 @@ model User {
   emailConfirmed       Boolean  @default(false)
   emailConfirmToken    String?
   emailConfirmExpires  DateTime?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
   role         Role     @default(USER)
   companyId    String?
   company      Company? @relation(fields: [companyId], references: [id])
