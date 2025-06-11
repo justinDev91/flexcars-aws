@@ -1,4 +1,30 @@
-<p>Bienvenue {{firstName}} !</p>
-<p>Nous sommes ravis de vous accueillir dans notre communauté d'apprentissage.</p>
-<p>Pour finaliser la création de votre compte, rendez-vous sur ce lien:</p>
-<a href='{{url}}'>Cliquez ici</a>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Bienvenue !</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; padding: 20px; color: #333;">
+  <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <h2 style="color: #2c3e50;">Bienvenue {{firstName}} 🎉</h2>
+    <p style="font-size: 16px; line-height: 1.6;">
+      Nous sommes ravis de vous accueillir dans notre communauté d'apprentissage. Votre aventure commence ici, et nous sommes impatients de vous accompagner à chaque étape.
+    </p>
+    <p style="font-size: 16px; line-height: 1.6;">
+      Pour finaliser la création de votre compte, veuillez cliquer sur le lien ci-dessous :
+    </p>
+    <div style="margin: 25px 0;">
+      <a href="{{url}}" style="display: inline-block; padding: 12px 24px; background-color: #28a745; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        Finaliser mon inscription
+      </a>
+    </div>
+    <p style="font-size: 14px; color: #888;">
+      Si vous n'avez pas demandé cette inscription, vous pouvez ignorer cet email.
+    </p>
+    <p style="margin-top: 30px; font-size: 14px; color: #aaa;">
+      Merci et à très bientôt,<br>
+      L'équipe de formation 🚀
+    </p>
+  </div>
+</body>
+</html>
