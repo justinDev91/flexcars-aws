@@ -1,8 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
 import { UsersService } from 'src/users/users.service';
+import { addHours } from 'date-fns';
 
 interface registerData {
   email: string;
@@ -47,15 +49,40 @@ export class AuthService {
     };
   }
 
-  async register(params: registerData) {
-    const { email, password, firstName, lastName } = params;
-    return this.prisma.user.create({
-      data: {
-        email,
-        password: await bcrypt.hash(password, 10),
-        firstName,
-        lastName,
-      },
-    });
-  }
+ 
+  async register(params: registerData) {
+    const { email, password, firstName, lastName } = params;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const emailConfirmToken = randomBytes(32).toString('hex');
+    const emailConfirmExpires = addHours(new Date(), 24); 
+
+    await this.prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        emailConfirmToken,
+        emailConfirmExpires,
+      },
+    });
+
+    //Utiliser la varaible: http://localhost:3001/confirm-email/
+
+    const confirmUrl = `https://yourdomain.com/confirm-email?token=${emailConfirmToken}`;
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Confirmez votre adresse email',
+      template: 'welcome-student',
+      context: {
+        firstName,
+        url: confirmUrl,
+      },
+    });
+
+    return { message: 'User registered. Please confirm your email.' };
+  }
+
 }

@@ -59,7 +59,7 @@ import { VehicleRecommendationModule } from './vehiclerecommendation/vehicle-rec
         secure: false,
       },
       defaults: {
-        from: '"MyGuez" <myguez@contact.com>',
+        from: '"Justin Katasi" <justinkatasi.dev@gmail.com>',
       },
       template: {
         dir: process.cwd() + '/src/templates',

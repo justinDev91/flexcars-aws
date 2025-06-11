@@ -123,6 +123,9 @@ model User {
   phoneNumber  String?
   birthDate    DateTime?
   avatar       String?
+  emailConfirmed       Boolean  @default(false)
+  emailConfirmToken    String?
+  emailConfirmExpires  DateTime?
   role         Role     @default(USER)
   companyId    String?
   company      Company? @relation(fields: [companyId], references: [id])
