@@ -10,8 +10,8 @@ import {
 } from '@mantine/core';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { useForm } from '@mantine/form';
-import { createCompanySchema, createCompanyInitialValues, CreateCompanyFormValues } from '../../../validations/createCompany.schema';
 import { useCreateCompany } from '../hooks/useCreateCompany';
+import { CreateCompanyFormValues, createCompanyInitialValues, createCompanySchema } from '@/app/validations/createCompany.schema';
 
 interface CreateCompanyFormProps {
   onSuccess?: () => void;

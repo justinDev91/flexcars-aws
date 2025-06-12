@@ -18,11 +18,7 @@ import { InputValidation } from './InputValidation';
 import segmentedClasses from '../../styles/GradientSegmentedControl.module.css';
 import selectClasses from '../../styles/ContainedInput.module.css';
 import { useCreateUser } from '../hooks/useCreateUser';
-import {
-  createUserSchema,
-  createUserInitialValues,
-  CreateUserFormValues,
-} from '../../../validations/createUser.schema';
+import { CreateUserFormValues, createUserInitialValues, createUserSchema } from '@/app/validations/createUser.schema';
 
 interface CreateUserFormProps {
   onSuccess?: () => void;
