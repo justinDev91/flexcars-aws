@@ -28,7 +28,7 @@ export default function Details({ params }: Readonly<DetailsProps>) {
 
   useEffect(() => {
     if (!params?.id) {
-      redirect('/login');
+      redirect('/auth/login');
     }
   }, [params]);
 

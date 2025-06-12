@@ -22,7 +22,7 @@ export default function Header() {
   const handleLogout = () => {
     window.localStorage.removeItem("token");
     window.localStorage.removeItem("user");
-    router.push("/login");
+    router.push("/auth/login");
   };
   return (
     <Sidebar>

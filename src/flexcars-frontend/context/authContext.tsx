@@ -25,7 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (userJson) {
       setUser(JSON.parse(userJson));
     } else {
-      router.push("/login");
+      router.push("/auth/login");
     }
   }, []);
 
