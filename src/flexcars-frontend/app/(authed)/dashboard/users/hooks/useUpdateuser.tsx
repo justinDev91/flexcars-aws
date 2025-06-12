@@ -23,11 +23,10 @@ const updateUser = async (
 };
 
 export const useUpdateUser = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Omit<User, 'email' | 'birthDate' | 'id'> }) =>
-      updateUser(id, data /*, access_token*/),
+      updateUser(id, data , access_token as string),
   });
 };

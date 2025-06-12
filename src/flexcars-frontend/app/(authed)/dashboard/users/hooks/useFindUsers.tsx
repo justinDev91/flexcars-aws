@@ -1,6 +1,5 @@
 
 import { useQuery } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 export interface FindAllUsersDto {
   page: number;
@@ -43,14 +42,13 @@ const fetchUsers = async (
 };
 
 export const useFindAllUsers = (params: FindAllUsersDto) => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   const query = useQuery({
     queryKey: [USERS_KEY, params],
-    queryFn: () => fetchUsers(params),
+    queryFn: () => fetchUsers(params, access_token as string),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token,
+    enabled: !!access_token,
   });
   return {
     users: query.data || [],

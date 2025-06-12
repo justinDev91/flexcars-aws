@@ -1,6 +1,5 @@
 import { Vehicle } from '@/app/types/Vehicle';
 import { useQuery } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const VEHICLES_KEY = 'vehicles';
 
@@ -21,14 +20,13 @@ const fetchAllVehicle = async (access_token?: string): Promise<Vehicle[]> => {
 };
 
 export const useGetAllVehicle = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   const query = useQuery({
     queryKey: [VEHICLES_KEY],
-    queryFn: () => fetchAllVehicle(),
+    queryFn: () => fetchAllVehicle(access_token as string),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token,
+    enabled: !!access_token,
   });
 
   return {

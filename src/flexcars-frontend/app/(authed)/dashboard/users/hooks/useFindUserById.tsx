@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { User } from './useFindUsers';
-// import { useSession } from "next-auth/react"
 
 export const USER_KEY = 'user';
 
@@ -24,15 +23,13 @@ const fetchUserById = async (
 };
 
 export const useFindUserById = (id: string | null) => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   const query = useQuery({
     queryKey: [USER_KEY, id],
-    queryFn: () => fetchUserById(id),
-    enabled: !!id, // Only run if ID is provided
+    queryFn: () => fetchUserById(id, access_token as string),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token && !!id,
+    enabled: !!access_token && !!id,
   });
 
   return {

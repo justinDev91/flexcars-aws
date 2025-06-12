@@ -19,11 +19,10 @@ const createReservation = async (Data: Omit<Reservation, 'id'>, access_token?: s
 };
 
 export const useCreateReservation = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: (Data: Omit<Reservation, 'id'>) =>
-      createReservation(Data /*, access_token */),
+      createReservation(Data , access_token as string ),
   });
 };

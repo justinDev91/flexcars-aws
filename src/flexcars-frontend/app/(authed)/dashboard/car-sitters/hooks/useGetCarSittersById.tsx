@@ -20,9 +20,11 @@ const fetchCarSitterById = async (id: string, access_token?: string): Promise<Ca
 };
 
 export const useGetCarSitterById = (id: string) => {
+  const access_token = window.localStorage.getItem("token");
+
   const query = useQuery({
     queryKey: [CAR_SITTER_KEY, id],
-    queryFn: () => fetchCarSitterById(id),
+    queryFn: () => fetchCarSitterById(id, access_token as string),
     enabled: !!id,
     refetchOnWindowFocus: false,
   });

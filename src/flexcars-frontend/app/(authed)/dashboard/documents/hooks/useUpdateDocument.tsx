@@ -26,10 +26,11 @@ const updateDocument = async (
 
 export const useUpdateDocument = () => {
   const queryClient = useQueryClient();
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Document> }) =>
-      updateDocument(id, data),
+      updateDocument(id, data, access_token as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
     },

@@ -24,10 +24,9 @@ const createUser = async (userData: CreateUser, access_token?: string) => {
 };
 
 export const useCreateUser = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
-    mutationFn: (userData: CreateUser) => createUser(userData /*, access_token*/),
+    mutationFn: (userData: CreateUser) => createUser(userData , access_token as string),
   });
 };

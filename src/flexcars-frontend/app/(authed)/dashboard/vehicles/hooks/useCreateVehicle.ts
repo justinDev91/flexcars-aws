@@ -19,11 +19,10 @@ const createVehicle = async (companyData: Omit<Vehicle, 'id'>, access_token?: st
 };
 
 export const useCreateVehicle = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: (vehicleData: Omit<Vehicle, 'id'>) =>
-      createVehicle(vehicleData /*, access_token */),
+      createVehicle(vehicleData , access_token as string),
   });
 };

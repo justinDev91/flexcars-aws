@@ -18,9 +18,11 @@ const fetchAllDocuments = async (access_token?: string): Promise<Document[]> => 
 };
 
 export const useGetAllDocuments = () => {
+  const access_token = window.localStorage.getItem("token");
+
   const query = useQuery({
     queryKey: ['documents'],
-    queryFn: () => fetchAllDocuments(),
+    queryFn: () => fetchAllDocuments(access_token as string),
     refetchOnWindowFocus: false,
   });
 

@@ -19,7 +19,9 @@ const createCarSitter = async (data: Omit<CarSitter, 'id'>, access_token?: strin
 };
 
 export const useCreateCarSitter = () => {
+  const access_token = window.localStorage.getItem("token");
+
   return useMutation({
-    mutationFn: (data: Omit<CarSitter, 'id'>) => createCarSitter(data),
+    mutationFn: (data: Omit<CarSitter, 'id'>) => createCarSitter(data, access_token as string),
   });
 };

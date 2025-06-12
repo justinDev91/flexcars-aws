@@ -1,6 +1,5 @@
 import { Vehicle } from '@/app/types/Vehicle';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const updateVehicle = async (
   id: string,
@@ -27,12 +26,11 @@ const updateVehicle = async (
 
 export const useUpdateVehicle = () => {
   const queryClient = useQueryClient();
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Vehicle> }) =>
-      updateVehicle(id, data),
+      updateVehicle(id, data, access_token as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
     },

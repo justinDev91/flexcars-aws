@@ -19,7 +19,9 @@ const createDocument = async (data: Omit<Document, 'id'>, access_token?: string)
 };
 
 export const useCreateDocument = () => {
+  const access_token = window.localStorage.getItem("token");
+
   return useMutation({
-    mutationFn: (data: Omit<Document, 'id'>) => createDocument(data),
+    mutationFn: (data: Omit<Document, 'id'>) => createDocument(data, access_token as string),
   });
 };

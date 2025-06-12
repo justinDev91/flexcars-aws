@@ -22,8 +22,10 @@ const createRentalContract = async (
 };
 
 export const useCreateRentalContract = () => {
+  const access_token = window.localStorage.getItem("token");
+
   return useMutation({
     mutationFn: (data: Omit<RentalContract, 'id'>) =>
-      createRentalContract(data),
+      createRentalContract(data, access_token as string),
   });
 };

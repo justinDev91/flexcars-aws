@@ -20,9 +20,12 @@ const fetchAllCarSitters = async (access_token?: string): Promise<CarSitter[]> =
 };
 
 export const useGetAllCarSitters = () => {
+  const access_token = window.localStorage.getItem("token");
+
+
   const query = useQuery({
     queryKey: [CAR_SITTERS_KEY],
-    queryFn: () => fetchAllCarSitters(),
+    queryFn: () => fetchAllCarSitters(access_token as string),
     refetchOnWindowFocus: false,
   });
 

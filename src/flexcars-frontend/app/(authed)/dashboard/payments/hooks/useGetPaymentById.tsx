@@ -23,9 +23,11 @@ const fetchPaymentById = async (
 };
 
 export const useGetPaymentById = (id: string) => {
+  const access_token = window.localStorage.getItem("token");
+
   const query = useQuery({
     queryKey: [PAYMENT_KEY, id],
-    queryFn: () => fetchPaymentById(id),
+    queryFn: () => fetchPaymentById(id, access_token as string),
     enabled: !!id,
     refetchOnWindowFocus: false,
   });

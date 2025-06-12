@@ -19,11 +19,10 @@ const createInvoice = async (Data: Omit<Invoice, 'id'>, access_token?: string) =
 };
 
 export const useCreateInvoice = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: (Data: Omit<Invoice, 'id'>) =>
-      createInvoice(Data /*, access_token */),
+      createInvoice(Data , access_token as string),
   });
 };

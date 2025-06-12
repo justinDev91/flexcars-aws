@@ -19,11 +19,10 @@ const createIncident = async (Data: Omit<Incident, 'id'>, access_token?: string)
 };
 
 export const useCreateIncident = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: (Data: Omit<Incident, 'id'>) =>
-      createIncident(Data /*, access_token */),
+      createIncident(Data , access_token as string),
   });
 };

@@ -26,10 +26,11 @@ const updateRentalContract = async (
 
 export const useUpdateRentalContract = () => {
   const queryClient = useQueryClient();
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<RentalContract> }) =>
-      updateRentalContract(id, data),
+      updateRentalContract(id, data, access_token as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rental-contracts'] });
     },

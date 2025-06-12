@@ -26,10 +26,11 @@ const updateCarSitter = async (
 
 export const useUpdateCarSitter = () => {
   const queryClient = useQueryClient();
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<CarSitter> }) =>
-      updateCarSitter(id, data),
+      updateCarSitter(id, data, access_token as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carSitters'] });
     },

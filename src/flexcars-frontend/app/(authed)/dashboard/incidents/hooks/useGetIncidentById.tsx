@@ -1,6 +1,5 @@
 import { Incident } from '@/app/types/Incident';
 import { useQuery } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const INCIDENT_KEY = 'incidents';
 
@@ -24,15 +23,13 @@ const fetchIncidentById = async (
 };
 
 export const useGetIncidentById = (id: string) => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   const query = useQuery({
     queryKey: [INCIDENT_KEY, id],
-    queryFn: () => fetchIncidentById(id),
-    enabled: !!id,
+    queryFn: () => fetchIncidentById(id, access_token as string),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token && !!id,
+    enabled: !!access_token && !!id,
   });
 
   return {

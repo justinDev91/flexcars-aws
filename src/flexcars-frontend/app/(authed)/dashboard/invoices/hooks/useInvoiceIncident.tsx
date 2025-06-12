@@ -1,6 +1,5 @@
 import { Invoice } from '@/app/types/Invoice';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const updateInvoice = async (
   id: string,
@@ -27,12 +26,11 @@ const updateInvoice = async (
 
 export const useUpdateInvoice = () => {
   const queryClient = useQueryClient();
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Invoice> }) =>
-      updateInvoice(id, data),
+      updateInvoice(id, data, access_token as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
     },

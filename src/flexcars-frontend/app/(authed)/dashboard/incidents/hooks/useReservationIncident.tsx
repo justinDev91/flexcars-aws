@@ -1,6 +1,5 @@
 import { Incident } from '@/app/types/Incident';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const updateIncident = async (
   id: string,
@@ -27,12 +26,11 @@ const updateIncident = async (
 
 export const useUpdateIncident = () => {
   const queryClient = useQueryClient();
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Incident> }) =>
-      updateIncident(id, data),
+      updateIncident(id, data, access_token as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
     },

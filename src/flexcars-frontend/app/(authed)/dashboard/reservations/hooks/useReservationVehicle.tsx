@@ -1,6 +1,5 @@
 import { Reservation } from '@/app/types/Reservation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const updateReservation = async (
   id: string,
@@ -27,12 +26,12 @@ const updateReservation = async (
 
 export const useUpdateReservation = () => {
   const queryClient = useQueryClient();
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
+
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Reservation> }) =>
-      updateReservation(id, data),
+      updateReservation(id, data, access_token as string),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
     },

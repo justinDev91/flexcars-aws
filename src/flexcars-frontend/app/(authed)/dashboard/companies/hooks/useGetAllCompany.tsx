@@ -1,6 +1,5 @@
 import { Company } from '@/app/types/company';
 import { useQuery } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const COMPANIES_KEY = 'companies';
 
@@ -21,14 +20,13 @@ const fetchAllCompanies = async (access_token?: string): Promise<Company[]> => {
 };
 
 export const useGetAllCompany = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   const query = useQuery({
     queryKey: [COMPANIES_KEY],
-    queryFn: () => fetchAllCompanies(),
+    queryFn: () => fetchAllCompanies(access_token as string),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token,
+    enabled: !!access_token,
   });
 
   return {

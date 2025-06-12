@@ -1,6 +1,5 @@
 import { Reservation } from '@/app/types/Reservation';
 import { useQuery } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const RESERVATIONS_KEY = 'reservations';
 
@@ -21,14 +20,13 @@ const fetchAllReservation = async (access_token?: string): Promise<Reservation[]
 };
 
 export const useGetAllReservation = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   const query = useQuery({
     queryKey: [RESERVATIONS_KEY],
-    queryFn: () => fetchAllReservation(),
+    queryFn: () => fetchAllReservation(access_token as string),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token,
+    enabled: !!access_token,
   });
 
   return {

@@ -21,9 +21,11 @@ const fetchDocumentById = async (
 };
 
 export const useGetDocumentById = (id: string) => {
+  const access_token = window.localStorage.getItem("token");
+
   const query = useQuery({
     queryKey: ['documents', id],
-    queryFn: () => fetchDocumentById(id),
+    queryFn: () => fetchDocumentById(id, access_token as string),
     enabled: !!id,
     refetchOnWindowFocus: false,
   });

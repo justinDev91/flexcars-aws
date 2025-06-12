@@ -19,11 +19,10 @@ const createCompany = async (companyData: Omit<Company, 'id'>, access_token?: st
 };
 
 export const useCreateCompany = () => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   return useMutation({
     mutationFn: (companyData: Omit<Company, 'id'>) =>
-      createCompany(companyData /*, access_token */),
+      createCompany(companyData , access_token as string),
   });
 };

@@ -22,7 +22,9 @@ const createPayment = async (
 };
 
 export const useCreatePayment = () => {
+  const access_token = window.localStorage.getItem("token");
+
   return useMutation({
-    mutationFn: (data: Omit<Payment, 'id'>) => createPayment(data),
+    mutationFn: (data: Omit<Payment, 'id'>) => createPayment(data, access_token as string),
   });
 };

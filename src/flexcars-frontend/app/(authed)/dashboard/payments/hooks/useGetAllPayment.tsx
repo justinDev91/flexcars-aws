@@ -22,9 +22,11 @@ const fetchAllPayments = async (
 };
 
 export const useGetAllPayments = () => {
+  const access_token = window.localStorage.getItem("token");
+
   const query = useQuery({
     queryKey: [PAYMENTS_KEY],
-    queryFn: () => fetchAllPayments(),
+    queryFn: () => fetchAllPayments(access_token as string),
     refetchOnWindowFocus: false,
   });
 

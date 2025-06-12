@@ -22,9 +22,11 @@ const fetchAllRentalContracts = async (
 };
 
 export const useGetAllRentalContracts = () => {
+  const access_token = window.localStorage.getItem("token");
+
   const query = useQuery({
     queryKey: [RENTAL_CONTRACTS_KEY],
-    queryFn: () => fetchAllRentalContracts(),
+    queryFn: () => fetchAllRentalContracts(access_token as string),
     refetchOnWindowFocus: false,
   });
 

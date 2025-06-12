@@ -1,6 +1,5 @@
 import { Invoice } from '@/app/types/Invoice';
 import { useQuery } from '@tanstack/react-query';
-// import { useSession } from "next-auth/react"
 
 const INVOICES_KEY = 'invoices';
 
@@ -24,15 +23,13 @@ const fetchInvoiceById = async (
 };
 
 export const useGetInvoiceById = (id: string) => {
-  // const { data: session } = useSession();
-  // const access_token = session?.access_token;
+  const access_token = window.localStorage.getItem("token");
 
   const query = useQuery({
     queryKey: [INVOICES_KEY, id],
-    queryFn: () => fetchInvoiceById(id),
-    enabled: !!id,
+    queryFn: () => fetchInvoiceById(id, access_token as string),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token && !!id,
+    enabled: !!access_token && !!id,
   });
 
   return {
