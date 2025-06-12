@@ -24,6 +24,8 @@ import { SegmentedControl, Text } from '@mantine/core';
 import classes from './styles/NavbarSegmented.module.css';
 import Link from 'next/link';
 import { LanguagePicker } from './components/LanguagePicker';
+import { logout } from '../logout';
+
 
 const tabs = {
   'vehicle-rental': [
@@ -109,13 +111,13 @@ export default function NavbarSegmented({
           <span>Change account</span>
         </Link>
 
-        <Link
-          href="/auth/logout" 
+        <button
+          onClick={logout}
           className={classes.link}
         >
           <IconLogout className={classes.linkIcon} stroke={1.5} />
           <span>Logout</span>
-        </Link>
+        </button>
       </div>
 
       </nav>
