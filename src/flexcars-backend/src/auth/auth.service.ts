@@ -7,6 +7,7 @@ import { UsersService } from 'src/users/users.service';
 import { addHours, addMinutes } from 'date-fns';
 import { MailerService } from '@nestjs-modules/mailer';
 import { sendEmail } from 'src/utils/sendEmail';
+import { generateRandomPassword } from 'src/utils/generateRandomPassword';
 
 interface registerData {
   email: string;
@@ -266,6 +267,59 @@ export class AuthService {
     );
   
     return { message: 'Mot de passe réinitialisé avec succès.' };
+  }
+
+  async profiderFindOrCreateUser(profile: any): Promise<{ access_token: string; user: any }> {
+    const {
+      email_verified,
+      email,
+      given_name: firstName,
+      family_name: lastName,
+      sub: providerId,
+      picture: avatar,
+    } = profile._json;
+
+    if (!email_verified) {
+      throw new UnauthorizedException('Email Google non vérifié.');
+    }
+
+    let user = await this.prisma.user.findFirst({
+      where: {
+        provider: 'google',
+        providerId,
+      },
+    });
+
+    if (!user) {
+      const randomPassword = generateRandomPassword(12);
+
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          firstName,
+          lastName,
+          password: randomPassword,
+          provider: 'google',
+          providerId,
+          avatar,
+          emailConfirmed: true,
+        },
+      });
+    }
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    };
+
+    const access_token = await this.jwtService.signAsync(payload);
+
+    return {
+      access_token,
+      user,
+    };
   }
   
 }

@@ -1,9 +1,11 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiExcludeEndpoint, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/decorators/Public';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/registerDto';
 import { SignInDto } from './dto/signInDto';
+import { AuthGuard } from '@nestjs/passport';
+import { GoogleOAuthGuard } from './google-oauth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -64,4 +66,23 @@ export class AuthController {
   ) {
     return this.authService.resetPassword(token, password);
   }
+
+  @Get('google')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth() {
+    // Passport redirige automatiquement
+  }
+
+  @ApiExcludeEndpoint()
+  @Get('google/redirect')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuthRedirect(@Req() req) {
+    const { user } = req;
+    return {
+      message: 'Authentification Google réussie',
+      access_token: user.access_token,
+      user: user.user,
+    };
+  }
+
 }
