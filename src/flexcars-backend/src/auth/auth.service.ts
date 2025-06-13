@@ -278,7 +278,6 @@ export class AuthService {
       sub: providerId,
       picture: avatar,
     } = profile._json;
-
     if (!email_verified) {
       throw new UnauthorizedException('Email Google non vérifié.');
     }

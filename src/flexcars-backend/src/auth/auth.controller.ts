@@ -68,6 +68,7 @@ export class AuthController {
   }
 
   @Get('google')
+  @Public()
   @UseGuards(GoogleOAuthGuard)
   async googleAuth() {
     // Passport redirige automatiquement
@@ -75,6 +76,7 @@ export class AuthController {
 
   @ApiExcludeEndpoint()
   @Get('google/redirect')
+  @Public()
   @UseGuards(GoogleOAuthGuard)
   async googleAuthRedirect(@Req() req) {
     const { user } = req;

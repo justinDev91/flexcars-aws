@@ -5,6 +5,7 @@ import { AuthService } from '../auth.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+
   constructor(private readonly authService: AuthService) {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
@@ -14,7 +15,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  
+    
     async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
       try {
         const result = await this.authService.profiderFindOrCreateUser(profile);
@@ -23,5 +24,4 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         done(err, false);
       }
     }
-    
 }
