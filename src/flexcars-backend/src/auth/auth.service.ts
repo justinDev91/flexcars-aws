@@ -4,8 +4,9 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
 import { UsersService } from 'src/users/users.service';
-import { addHours } from 'date-fns';
+import { addHours, addMinutes } from 'date-fns';
 import { MailerService } from '@nestjs-modules/mailer';
+import { sendEmail } from 'src/utils/sendEmail';
 
 interface registerData {
   email: string;
@@ -30,40 +31,87 @@ export class AuthService {
     private readonly mailerService: MailerService
   ) {}
   
-  private async sendEmail(
-      to: string,
-      subject: string,
-      template: string,
-      context: Record<string, any>
-    ): Promise<void> {
-      await this.mailerService.sendMail({
-        to,
-        subject,
-        template,
-        context,
-      });
-  }
-  
   async signIn(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findOneByEmail(email);
   
-    if (!user?.password || !(await bcrypt.compare(pass, user.password))) {
+    if (!user) {
+      throw new UnauthorizedException('Email ou mot de passe incorrect');
+    }
+  
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      
+      const resetUrl = `http://localhost:3000/auth/forgot-password`;
+
+      await sendEmail(
+        this.mailerService,
+        email,
+        'Compte temporairement bloqué',
+        'account-locked',
+        {
+          firstName: user.firstName,
+          lockUntil: user.lockUntil.toLocaleString('fr-FR'),
+          url: resetUrl,
+        }
+      );
+
+      throw new UnauthorizedException('Compte temporairement bloqué. Réessayez plus tard.');
+    }
+  
+    const isPasswordValid = await bcrypt.compare(pass, user.password as string);
+
+    if (!isPasswordValid) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedLoginAttempts: { increment: 1 },
+          lockUntil: user.failedLoginAttempts + 1 >= 5 ? addMinutes(new Date(), 15) : undefined,
+        },
+      });
       throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
   
     if (!user.emailConfirmed) {
       throw new UnauthorizedException('Veuillez confirmer votre adresse email avant de vous connecter.');
     }
-    
-    const resetUrl = `http://localhost:3000/auth/forgot-password`;
-
-    await this.sendEmail(
-        email,
-        'Notification de connexion',
-        'login-notification',
-        { firstName: user.firstName, url: resetUrl }
-      );
+  
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+  
+    if (user.passwordLastReset < sixtyDaysAgo) {
       
+      const resetUrl = `http://localhost:3000/auth/reset-password`;
+
+        await sendEmail(
+          this.mailerService,
+          email,
+          'Votre mot de passe a expiré',
+          'password-expired',
+          {
+            firstName: user.firstName,
+            url: resetUrl,
+          }
+        );
+      throw new UnauthorizedException('Veuillez réinitialiser votre mot de passe. Cela fait plus de 60 jours.');
+    }
+  
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        failedLoginAttempts: 0,
+        lockUntil: null,
+      },
+    });
+  
+    const resetUrl = `http://localhost:3000/auth/forgot-password`;
+  
+    await sendEmail(
+      this.mailerService,
+      email,
+      'Notification de connexion',
+      'login-notification',
+      { firstName: user.firstName, url: resetUrl }
+    );
+  
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -71,8 +119,8 @@ export class AuthService {
       lastName: user.lastName,
     };
   
-    const { password,role, ...rest } = user;
-    
+    const { password, role, ...rest } = user;
+  
     return {
       access_token: await this.jwtService.signAsync(payload),
       user: rest,
@@ -101,7 +149,8 @@ export class AuthService {
     const confirmUrl = `http://localhost:3000/auth/confirm-email?token=${emailConfirmToken}`;
 
     
-    await this.sendEmail(
+    await sendEmail(
+      this.mailerService,
       email,
       'Confirmez votre adresse email',
       'welcome-customer',
@@ -137,7 +186,8 @@ export class AuthService {
 
     const resetUrl = `http://localhost:3000/auth/login`;
 
-    await this.sendEmail(
+    await sendEmail(
+        this.mailerService,
         user.email,
         'Confirmation de mail confirmé',
         'email-confirmed',
@@ -167,7 +217,8 @@ export class AuthService {
     const resetUrl = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
   
   
-    await this.sendEmail(
+    await sendEmail(
+      this.mailerService,
       email,
       'Réinitialisation de votre mot de passe',
       'reset-password',
@@ -193,20 +244,21 @@ export class AuthService {
     }
   
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
+
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
         password: hashedPassword,
         passwordResetToken: null,
         passwordResetExpires: null,
+        passwordLastReset: new Date(),
       },
     });
     
     const resetUrl = `http://localhost:3000/auth/forgot-password`;
 
-    
-    await this.sendEmail(
+    await sendEmail(
+      this.mailerService,
       user.email,
       'Réinitialisation de votre mot de passe',
       'password-reseted',

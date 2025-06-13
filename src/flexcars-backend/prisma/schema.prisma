@@ -128,6 +128,9 @@ model User {
   emailConfirmExpires  DateTime?
   passwordResetToken     String?
   passwordResetExpires   DateTime?
+  passwordLastReset       DateTime @default(now())
+  failedLoginAttempts Int      @default(0)
+  lockUntil           DateTime?
   role         Role     @default(USER)
   companyId    String?
   company      Company? @relation(fields: [companyId], references: [id])
