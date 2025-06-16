@@ -191,8 +191,6 @@ model Vehicle {
   PricingRule PricingRule[]
   CarSitter CarSitter[]
   MaintenanceAlert MaintenanceAlert[]
-
-  MaintenanceAlerts MaintenanceAlerts[]
 }
 
 model VehicleMaintenance {
@@ -207,8 +205,6 @@ model VehicleMaintenance {
   status         MaintenanceStatus  @default(PENDING)
   notes          String?
   MaintenanceAlert MaintenanceAlert[]
-
-  MaintenanceAlerts MaintenanceAlerts[]
 }
 
 
@@ -225,18 +221,6 @@ model MaintenanceAlert {
   createdAt       DateTime           @default(now())
 }
 
-model MaintenanceAlerts {
-  id              String             @id @default(uuid())
-  vehicleId       String
-  vehicle         Vehicle?            @relation(fields: [vehicleId], references: [id])
-  maintenanceId   String
-  maintenance     VehicleMaintenance? @relation(fields: [maintenanceId], references: [id])
-  alertDate       DateTime
-  alertType       AlertType          @default(UPCOMING)       
-  message         String
-  resolved        Boolean            @default(false)
-  createdAt       DateTime           @default(now())
-}
 
 model Reservation {
   id             String           @id @default(uuid())

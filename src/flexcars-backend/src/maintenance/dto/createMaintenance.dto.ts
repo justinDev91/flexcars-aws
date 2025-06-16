@@ -40,6 +40,18 @@ export class CreateMaintenanceDto {
   @IsDateString()
   scheduledDate?: string;
 
+  @ApiProperty({
+    description: 'Mileage at which the alert should be triggered',
+    example: 15000,
+  })
+  @IsNumber()
+  mileageTrigger: number;  
+
+  @IsOptional()
+  @IsBoolean()
+  recurring?: boolean;
+
+
   @ApiPropertyOptional({
     description: 'Date when the maintenance was completed (ISO format)',
     default: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),

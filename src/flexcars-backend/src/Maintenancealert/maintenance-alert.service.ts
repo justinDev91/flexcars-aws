@@ -22,7 +22,7 @@ export class MaintenanceAlertService {
     return alert;
   }
 
-  async createMaintenanceAlert(data: Prisma.MaintenanceAlertsCreateInput): Promise<MaintenanceAlert> {
+  async createMaintenanceAlert(data: Prisma.MaintenanceAlertCreateInput): Promise<MaintenanceAlert> {
     return this.prisma.maintenanceAlert.create({ data });
   }
 

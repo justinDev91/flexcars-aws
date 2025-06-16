@@ -18,24 +18,12 @@ export class CreateMaintenanceAlertDto {
   vehicleId: string;
 
   @ApiProperty({
-    description: 'Mileage at which the alert should be triggered',
-    example: 15000,
-  })
-  @IsNumber()
-  mileageTrigger: number;  
-
-  @IsOptional()
-  @IsBoolean()
-  recurring?: boolean;
-
-  @ApiPropertyOptional({
     description: 'ID of the related maintenance record (if applicable)',
     example: 'maintenance-uuid-5678',
   })
-  @IsOptional()
   @IsString()
   @Type(() => String)
-  maintenanceId?: string;
+  maintenanceId: string;
 
   @ApiProperty({
     description: 'Date when the alert should be triggered (ISO format)',

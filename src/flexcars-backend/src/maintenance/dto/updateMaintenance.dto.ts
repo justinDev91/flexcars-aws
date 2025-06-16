@@ -1,6 +1,6 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, IsDateString, IsBoolean } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsDateString, IsBoolean, IsNumber } from 'class-validator';
 
 export enum MaintenanceType {
   OIL_CHANGE = 'OIL_CHANGE',
@@ -48,7 +48,14 @@ export class UpdateMaintenanceDto {
   @IsOptional()
   @IsEnum(MaintenanceStatus)
   status?: MaintenanceStatus;
-      
+   
+  @ApiProperty({
+    description: 'Mileage at which the alert should be triggered',
+    example: 15000,
+  })
+  @IsNumber()
+  mileageTrigger: number;  
+    
   @ApiPropertyOptional({
     description: 'Updated notes or comments about the maintenance',
     example: 'Brake pads replaced and system tested.',

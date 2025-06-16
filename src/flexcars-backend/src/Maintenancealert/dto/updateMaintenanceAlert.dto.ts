@@ -34,10 +34,6 @@ export class UpdateMaintenanceAlertDto {
   @IsString()
   @Type(() => String)
   message?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  recurring?: boolean  
   
   @ApiPropertyOptional({
     description: 'Whether the alert has been resolved',
