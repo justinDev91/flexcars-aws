@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsDateString, IsNumber, IsBoolean } from 'class-validator';
 
 export enum MaintenanceType {
   OIL_CHANGE = 'OIL_CHANGE',

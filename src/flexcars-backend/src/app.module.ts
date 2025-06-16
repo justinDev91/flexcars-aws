@@ -28,6 +28,7 @@ import { IncidentModule } from './incident/incident.module';
 import { CarSitterModule } from './carsitter/cars-sitter.module';
 import { NotificationModule } from './notification/notification.module';
 import { VehicleRecommendationModule } from './vehiclerecommendation/vehicle-recommendation.module';
+import { MaintenanceAlertModule } from './Maintenancealert/maintenance-alert.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { VehicleRecommendationModule } from './vehiclerecommendation/vehicle-rec
     CompaniesModule,
     VehiclesModule,
     MaintenancesModule,
+    MaintenanceAlertModule,
     ReservationsModule,
     RentalContractsModule,
     InvoicesModule,

@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsDateString, IsBoolean } from 'class-validator';
 
 export enum MaintenanceType {
   OIL_CHANGE = 'OIL_CHANGE',
@@ -48,7 +48,7 @@ export class UpdateMaintenanceDto {
   @IsOptional()
   @IsEnum(MaintenanceStatus)
   status?: MaintenanceStatus;
-
+      
   @ApiPropertyOptional({
     description: 'Updated notes or comments about the maintenance',
     example: 'Brake pads replaced and system tested.',
