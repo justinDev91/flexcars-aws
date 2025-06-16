@@ -3,12 +3,13 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import '@mantine/core/styles.css';
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
+import { SessionProvider } from "next-auth/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AuthProvider } from "@/context/authContext";
 import "./globals.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,16 +31,14 @@ export default function RootLayout({
       <head>
         <ColorSchemeScript />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider>
-          <AuthProvider>
-            <main>{children}</main>
-          </AuthProvider>
-        </MantineProvider>
-      </QueryClientProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <SessionProvider>
+          <QueryClientProvider client={queryClient}>
+            <MantineProvider>
+              <main>{children}</main>
+            </MantineProvider>
+          </QueryClientProvider>
+        </SessionProvider>
       </body>
     </html>
   );

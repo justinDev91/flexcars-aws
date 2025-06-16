@@ -1,5 +1,6 @@
-
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { useQuery } from '@tanstack/react-query';
+
 
 export interface FindAllUsersDto {
   page: number;
@@ -26,7 +27,7 @@ const fetchUsers = async (
 ): Promise<User[]> => {
   const url = new URL('/users', process.env.NEXT_PUBLIC_API_URL);
   url.searchParams.set('page', params.page.toString());
-  url.searchParams.set('limit',  params.limit ? params.limit.toString(): "4");
+  url.searchParams.set('limit', params.limit ? params.limit.toString() : "4");
 
   const response = await fetch(url.toString(), {
     headers: {
@@ -42,14 +43,15 @@ const fetchUsers = async (
 };
 
 export const useFindAllUsers = (params: FindAllUsersDto) => {
-  const access_token = window.localStorage.getItem("token");
-
+  const { access_token, isAuthenticated } = useAuthSession();
+  console.log("access_token", access_token)
   const query = useQuery({
     queryKey: [USERS_KEY, params],
-    queryFn: () => fetchUsers(params, access_token as string),
+    queryFn: () => fetchUsers(params, access_token),
+    enabled: isAuthenticated && !!access_token,
     refetchOnWindowFocus: false,
-    enabled: !!access_token,
   });
+
   return {
     users: query.data || [],
     isUsersLoading: query.isLoading,

@@ -2,33 +2,35 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { authContext } from "@/context/authContext";
-import api from "@/lib/api";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
   const router = useRouter();
   const { setUser } = useContext(authContext);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email");
-    const password = formData.get("password");
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-    const result = await api.post("/auth/login", {
+    const result = await signIn("credentials", {
+      redirect: false,
       email,
       password,
     });
 
-    if (result.status !== 200) {
-      console.error("Login failed");
+    if (result?.error) {
+      setError("Échec de la connexion. Vérifiez vos identifiants.");
       return;
     }
 
-    window.localStorage.setItem("token", result.data.access_token);
-    window.localStorage.setItem("user", JSON.stringify(result.data.user));
-    setUser(result.data.user);
+    setError(null);
+    // Optionally fetch user info here if needed
+    // setUser(...)
 
     router.push("/dashboard");
   };
@@ -63,6 +65,7 @@ export default function Login() {
               required
             />
           </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="text-right text-sm">
             <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
               Mot de passe oublié ?
