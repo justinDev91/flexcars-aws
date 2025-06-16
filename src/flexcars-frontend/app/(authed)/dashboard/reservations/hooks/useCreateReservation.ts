@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Reservation } from '@/app/types/Reservation';
 import { useMutation } from '@tanstack/react-query';
 
@@ -19,7 +20,7 @@ const createReservation = async (Data: Omit<Reservation, 'id'>, access_token?: s
 };
 
 export const useCreateReservation = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: (Data: Omit<Reservation, 'id'>) =>

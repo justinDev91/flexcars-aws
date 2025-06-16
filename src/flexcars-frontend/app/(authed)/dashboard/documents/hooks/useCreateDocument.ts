@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Document } from '@/app/types/Document';
 import { useMutation } from '@tanstack/react-query';
 
@@ -19,7 +20,7 @@ const createDocument = async (data: Omit<Document, 'id'>, access_token?: string)
 };
 
 export const useCreateDocument = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: (data: Omit<Document, 'id'>) => createDocument(data, access_token as string),

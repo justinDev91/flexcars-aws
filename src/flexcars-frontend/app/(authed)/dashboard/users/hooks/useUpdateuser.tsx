@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { User } from "./useFindUsers";
+import { useAuthSession } from "@/app/auth/hooks/useAuthSession";
 
 const updateUser = async (
   id: string,
@@ -24,17 +25,10 @@ const updateUser = async (
 };
 
 export const useUpdateUser = () => {
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedToken = window.localStorage.getItem("token");
-      setToken(storedToken);
-    }
-  }, []);
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Omit<User, "email" | "birthDate" | "id"> }) =>
-      updateUser(id, data, token || undefined),
+      updateUser(id, data, access_token),
   });
 };

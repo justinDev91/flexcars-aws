@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { IMaintenance } from '@/app/types/Maintenance';
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 
 const MAINTENANCE_KEY = 'maintenances';
 
@@ -18,9 +19,10 @@ const createMaintenance = async (data: Omit<IMaintenance, 'id'>, access_token?: 
 };
 
 export const useCreateMaintenance = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
+
   return useMutation({
-    mutationFn: (data: Omit<IMaintenance, 'id'>) => createMaintenance(data, access_token as string),
+    mutationFn: (data: Omit<IMaintenance, 'id'>) => createMaintenance(data, access_token),
   });
 };
 
@@ -33,11 +35,12 @@ const fetchAllMaintenance = async (access_token?: string): Promise<IMaintenance[
 };
 
 export const useGetAllMaintenance = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
+
   return useQuery({
     queryKey: [MAINTENANCE_KEY],
-    queryFn: () => fetchAllMaintenance(access_token as string),
-    enabled: !!access_token,
+    queryFn: () => fetchAllMaintenance(access_token),
+    enabled: !!isAuthenticated,
   });
 };
 
@@ -50,11 +53,12 @@ const fetchMaintenanceById = async (id: string, access_token?: string): Promise<
 };
 
 export const useGetMaintenanceById = (id: string) => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
+
   return useQuery({
     queryKey: [MAINTENANCE_KEY, id],
-    queryFn: () => fetchMaintenanceById(id, access_token as string),
-    enabled: !!access_token && !!id,
+    queryFn: () => fetchMaintenanceById(id, access_token),
+    enabled: !!isAuthenticated && !!id,
   });
 };
 
@@ -73,10 +77,11 @@ const updateMaintenance = async (id: string, data: Partial<IMaintenance>, access
 
 export const useUpdateMaintenance = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
+
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<IMaintenance> }) =>
-      updateMaintenance(id, data, access_token as string),
+      updateMaintenance(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [MAINTENANCE_KEY] });
     },

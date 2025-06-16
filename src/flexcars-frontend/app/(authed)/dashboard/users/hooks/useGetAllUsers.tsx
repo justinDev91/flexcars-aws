@@ -1,8 +1,8 @@
 "use client";
 
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { User } from '@/types/user';
 import { useQuery } from '@tanstack/react-query';
-import { useSession } from "next-auth/react"
 
 const USERS_KEY = 'users';
 
@@ -23,16 +23,13 @@ const fetchAllUser = async (access_token?: string): Promise<User[]> => {
 };
 
 export const useGetAllUser = () => {
-  const { data: session, status } = useSession()
-  // const access_token = session?.access_token
-  // const access_token = window.localStorage.getItem("token");
-  console.log("access_token", session)
-
+  const { access_token, isAuthenticated } = useAuthSession();
+  
   const query = useQuery({
     queryKey: [USERS_KEY],
-    queryFn: () => fetchAllUser(),
+    queryFn: () => fetchAllUser(access_token),
     refetchOnWindowFocus: false,
-    // enabled: !!access_token,
+    enabled: !!isAuthenticated,
   });
 
   return {

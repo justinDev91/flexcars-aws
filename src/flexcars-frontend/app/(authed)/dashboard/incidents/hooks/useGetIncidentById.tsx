@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Incident } from '@/app/types/Incident';
 import { useQuery } from '@tanstack/react-query';
 
@@ -23,13 +24,13 @@ const fetchIncidentById = async (
 };
 
 export const useGetIncidentById = (id: string) => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [INCIDENT_KEY, id],
-    queryFn: () => fetchIncidentById(id, access_token as string),
+    queryFn: () => fetchIncidentById(id, access_token),
     refetchOnWindowFocus: false,
-    enabled: !!access_token && !!id,
+    enabled: !!isAuthenticated && !!id,
   });
 
   return {

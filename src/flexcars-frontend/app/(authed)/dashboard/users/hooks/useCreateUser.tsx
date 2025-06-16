@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { User } from './useFindUsers';
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 
 
 export interface CreateUser extends User {
@@ -24,9 +25,9 @@ const createUser = async (userData: CreateUser, access_token?: string) => {
 };
 
 export const useCreateUser = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
-    mutationFn: (userData: CreateUser) => createUser(userData , access_token as string),
+    mutationFn: (userData: CreateUser) => createUser(userData , access_token),
   });
 };

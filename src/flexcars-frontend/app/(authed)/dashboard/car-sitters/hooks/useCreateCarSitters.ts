@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { CarSitter } from '@/app/types/CarSitters';
 import { useMutation } from '@tanstack/react-query';
 
@@ -19,9 +20,9 @@ const createCarSitter = async (data: Omit<CarSitter, 'id'>, access_token?: strin
 };
 
 export const useCreateCarSitter = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
-    mutationFn: (data: Omit<CarSitter, 'id'>) => createCarSitter(data, access_token as string),
+    mutationFn: (data: Omit<CarSitter, 'id'>) => createCarSitter(data, access_token),
   });
 };

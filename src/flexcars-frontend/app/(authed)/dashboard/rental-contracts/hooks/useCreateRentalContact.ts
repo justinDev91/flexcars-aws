@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { RentalContract } from '@/app/types/RentalContract';
 import { useMutation } from '@tanstack/react-query';
 
@@ -22,7 +23,7 @@ const createRentalContract = async (
 };
 
 export const useCreateRentalContract = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: (data: Omit<RentalContract, 'id'>) =>

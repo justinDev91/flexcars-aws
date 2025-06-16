@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { User } from './useFindUsers';
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 
 export const USER_KEY = 'user';
 
@@ -23,13 +24,13 @@ const fetchUserById = async (
 };
 
 export const useFindUserById = (id: string | null) => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [USER_KEY, id],
     queryFn: () => fetchUserById(id, access_token as string),
     refetchOnWindowFocus: false,
-    enabled: !!access_token && !!id,
+    enabled: !!isAuthenticated && !!id,
   });
 
   return {

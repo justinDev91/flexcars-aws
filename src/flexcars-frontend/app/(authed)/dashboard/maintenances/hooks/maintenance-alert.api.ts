@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { IMaintenanceAlert } from '@/app/types/MaintenanceAlert';
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 
 const ALERT_KEY = 'maintenance-alerts';
 
@@ -18,9 +19,10 @@ const createAlert = async (data: Omit<IMaintenanceAlert, 'id'>, access_token?: s
 };
 
 export const useCreateMaintenanceAlert = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
+
   return useMutation({
-    mutationFn: (data: Omit<IMaintenanceAlert, 'id'>) => createAlert(data, access_token as string),
+    mutationFn: (data: Omit<IMaintenanceAlert, 'id'>) => createAlert(data, access_token),
   });
 };
 
@@ -33,11 +35,12 @@ const fetchAllAlerts = async (access_token?: string): Promise<IMaintenanceAlert[
 };
 
 export const useGetAllMaintenanceAlerts = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
+
   return useQuery({
     queryKey: [ALERT_KEY],
     queryFn: () => fetchAllAlerts(access_token as string),
-    enabled: !!access_token,
+    enabled: !!isAuthenticated,
   });
 };
 
@@ -50,11 +53,12 @@ const fetchAlertById = async (id: string, access_token?: string): Promise<IMaint
 };
 
 export const useGetMaintenanceAlertById = (id: string) => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
+
   return useQuery({
     queryKey: [ALERT_KEY, id],
     queryFn: () => fetchAlertById(id, access_token as string),
-    enabled: !!access_token && !!id,
+    enabled: !!isAuthenticated && !!id,
   });
 };
 
@@ -73,10 +77,11 @@ const updateAlert = async (id: string, data: Partial<IMaintenanceAlert>, access_
 
 export const useUpdateMaintenanceAlert = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
+
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<IMaintenanceAlert> }) =>
-      updateAlert(id, data, access_token as string),
+      updateAlert(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ALERT_KEY] });
     },

@@ -38,7 +38,6 @@ const tabs = {
     { link: '/dashboard/car-sitters', label: 'CarSitters', icon: IconUserCheck },
     { link: '/dashboard/vehicle-recommendations', label: 'Vehicle Recommendation', icon: IconThumbUp },
     { link: '/dashboard/notifications', label: 'Notifications', icon: IconBellRinging },
-    { link: '/dashboard/vehicle-maintenances', label: 'Vehicle Maintenance', icon: IconSettings },
     { link: '/dashboard/others-settings', label: 'Other Settings', icon: IconSettings },
 
   ],

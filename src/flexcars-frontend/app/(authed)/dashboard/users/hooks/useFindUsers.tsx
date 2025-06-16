@@ -44,7 +44,7 @@ const fetchUsers = async (
 
 export const useFindAllUsers = (params: FindAllUsersDto) => {
   const { access_token, isAuthenticated } = useAuthSession();
-  console.log("access_token", access_token)
+
   const query = useQuery({
     queryKey: [USERS_KEY, params],
     queryFn: () => fetchUsers(params, access_token),

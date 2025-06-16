@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Vehicle } from '@/app/types/Vehicle';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,13 +21,13 @@ const fetchAllVehicle = async (access_token?: string): Promise<Vehicle[]> => {
 };
 
 export const useGetAllVehicle = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [VEHICLES_KEY],
-    queryFn: () => fetchAllVehicle(access_token as string),
+    queryFn: () => fetchAllVehicle(access_token),
     refetchOnWindowFocus: false,
-    enabled: !!access_token,
+    enabled: !!isAuthenticated,
   });
 
   return {

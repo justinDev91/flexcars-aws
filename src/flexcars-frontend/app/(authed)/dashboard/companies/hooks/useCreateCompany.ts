@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Company } from '@/app/types/company';
 import { useMutation } from '@tanstack/react-query';
 
@@ -19,10 +20,9 @@ const createCompany = async (companyData: Omit<Company, 'id'>, access_token?: st
 };
 
 export const useCreateCompany = () => {
-  const access_token = window.localStorage.getItem("token");
-
+  const { access_token } = useAuthSession();
   return useMutation({
     mutationFn: (companyData: Omit<Company, 'id'>) =>
-      createCompany(companyData , access_token as string),
+      createCompany(companyData , access_token),
   });
 };

@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { CarSitter } from '@/app/types/CarSitters';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -26,11 +27,11 @@ const updateCarSitter = async (
 
 export const useUpdateCarSitter = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<CarSitter> }) =>
-      updateCarSitter(id, data, access_token as string),
+      updateCarSitter(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['carSitters'] });
     },

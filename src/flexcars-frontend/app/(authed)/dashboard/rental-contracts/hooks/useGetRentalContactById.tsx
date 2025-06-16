@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { RentalContract } from '@/app/types/RentalContract';
 import { useQuery } from '@tanstack/react-query';
 
@@ -23,12 +24,12 @@ const fetchRentalContractById = async (
 };
 
 export const useGetRentalContractById = (id: string) => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [RENTAL_CONTRACT_KEY, id],
     queryFn: () => fetchRentalContractById(id, access_token as string),
-    enabled: !!id,
+    enabled: !!id && !!isAuthenticated,
     refetchOnWindowFocus: false,
   });
 

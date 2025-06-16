@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Incident } from '@/app/types/Incident';
 import { useMutation } from '@tanstack/react-query';
 
@@ -19,10 +20,10 @@ const createIncident = async (Data: Omit<Incident, 'id'>, access_token?: string)
 };
 
 export const useCreateIncident = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: (Data: Omit<Incident, 'id'>) =>
-      createIncident(Data , access_token as string),
+      createIncident(Data , access_token),
   });
 };

@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Invoice } from '@/app/types/Invoice';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -26,11 +27,11 @@ const updateInvoice = async (
 
 export const useUpdateInvoice = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Invoice> }) =>
-      updateInvoice(id, data, access_token as string),
+      updateInvoice(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
     },

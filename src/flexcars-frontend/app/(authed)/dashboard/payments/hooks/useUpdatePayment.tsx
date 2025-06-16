@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Payment } from '@/app/types/Payment';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -26,7 +27,7 @@ const updatePayment = async (
 
 export const useUpdatePayment = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Payment> }) =>

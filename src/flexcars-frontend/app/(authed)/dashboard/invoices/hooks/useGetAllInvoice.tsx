@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Invoice } from '@/app/types/Invoice';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,13 +21,13 @@ const fetchAllInvoices = async (access_token?: string): Promise<Invoice[]> => {
 };
 
 export const useGetAllInvoice = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [INVOICES_KEY],
     queryFn: () => fetchAllInvoices(access_token as string),
     refetchOnWindowFocus: false,
-    enabled: !!access_token,
+    enabled: !!isAuthenticated,
   });
 
   return {

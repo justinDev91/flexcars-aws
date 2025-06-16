@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Document } from '@/app/types/Document';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -26,11 +27,11 @@ const updateDocument = async (
 
 export const useUpdateDocument = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Document> }) =>
-      updateDocument(id, data, access_token as string),
+      updateDocument(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
     },

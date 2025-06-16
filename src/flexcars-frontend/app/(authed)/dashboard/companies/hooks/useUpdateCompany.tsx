@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Company } from '@/app/types/company';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -26,11 +27,11 @@ const updateCompany = async (
 
 export const useUpdateCompany = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Company> }) =>
-      updateCompany(id, data, access_token as string),
+      updateCompany(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
     },

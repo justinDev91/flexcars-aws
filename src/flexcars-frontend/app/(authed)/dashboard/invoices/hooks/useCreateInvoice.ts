@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Invoice } from '@/app/types/Invoice';
 import { useMutation } from '@tanstack/react-query';
 
@@ -19,7 +20,7 @@ const createInvoice = async (Data: Omit<Invoice, 'id'>, access_token?: string) =
 };
 
 export const useCreateInvoice = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: (Data: Omit<Invoice, 'id'>) =>

@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Document } from '@/app/types/Document';
 import { useQuery } from '@tanstack/react-query';
 
@@ -18,12 +19,13 @@ const fetchAllDocuments = async (access_token?: string): Promise<Document[]> => 
 };
 
 export const useGetAllDocuments = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: ['documents'],
     queryFn: () => fetchAllDocuments(access_token as string),
     refetchOnWindowFocus: false,
+    enabled: !!isAuthenticated
   });
 
   return {

@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Payment } from '@/app/types/Payment';
 import { useMutation } from '@tanstack/react-query';
 
@@ -22,9 +23,9 @@ const createPayment = async (
 };
 
 export const useCreatePayment = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
-    mutationFn: (data: Omit<Payment, 'id'>) => createPayment(data, access_token as string),
+    mutationFn: (data: Omit<Payment, 'id'>) => createPayment(data, access_token),
   });
 };

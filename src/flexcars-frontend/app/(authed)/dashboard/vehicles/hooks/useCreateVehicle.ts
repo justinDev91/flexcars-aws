@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Vehicle } from '@/app/types/Vehicle';
 import { useMutation } from '@tanstack/react-query';
 
@@ -19,10 +20,9 @@ const createVehicle = async (companyData: Omit<Vehicle, 'id'>, access_token?: st
 };
 
 export const useCreateVehicle = () => {
-  const access_token = window.localStorage.getItem("token");
-
+  const { access_token } = useAuthSession();
   return useMutation({
     mutationFn: (vehicleData: Omit<Vehicle, 'id'>) =>
-      createVehicle(vehicleData , access_token as string),
+      createVehicle(vehicleData , access_token),
   });
 };

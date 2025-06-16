@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { RentalContract } from '@/app/types/RentalContract';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -26,11 +27,11 @@ const updateRentalContract = async (
 
 export const useUpdateRentalContract = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<RentalContract> }) =>
-      updateRentalContract(id, data, access_token as string),
+      updateRentalContract(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rental-contracts'] });
     },

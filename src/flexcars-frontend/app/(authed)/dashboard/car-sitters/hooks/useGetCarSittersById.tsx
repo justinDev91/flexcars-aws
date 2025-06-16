@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { CarSitter } from '@/app/types/CarSitters';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,12 +21,12 @@ const fetchCarSitterById = async (id: string, access_token?: string): Promise<Ca
 };
 
 export const useGetCarSitterById = (id: string) => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [CAR_SITTER_KEY, id],
     queryFn: () => fetchCarSitterById(id, access_token as string),
-    enabled: !!id,
+    enabled: !!isAuthenticated,
     refetchOnWindowFocus: false,
   });
 

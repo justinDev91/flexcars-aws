@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Incident } from '@/app/types/Incident';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -26,11 +27,11 @@ const updateIncident = async (
 
 export const useUpdateIncident = () => {
   const queryClient = useQueryClient();
-  const access_token = window.localStorage.getItem("token");
+  const { access_token } = useAuthSession();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Incident> }) =>
-      updateIncident(id, data, access_token as string),
+      updateIncident(id, data, access_token),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
     },

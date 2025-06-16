@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Payment } from '@/app/types/Payment';
 import { useQuery } from '@tanstack/react-query';
 
@@ -22,12 +23,13 @@ const fetchAllPayments = async (
 };
 
 export const useGetAllPayments = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [PAYMENTS_KEY],
     queryFn: () => fetchAllPayments(access_token as string),
     refetchOnWindowFocus: false,
+    enabled: !!isAuthenticated
   });
 
   return {

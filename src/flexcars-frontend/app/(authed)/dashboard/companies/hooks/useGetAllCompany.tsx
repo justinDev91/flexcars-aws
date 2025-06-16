@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Company } from '@/app/types/company';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,13 +21,13 @@ const fetchAllCompanies = async (access_token?: string): Promise<Company[]> => {
 };
 
 export const useGetAllCompany = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [COMPANIES_KEY],
-    queryFn: () => fetchAllCompanies(access_token as string),
+    queryFn: () => fetchAllCompanies(access_token),
     refetchOnWindowFocus: false,
-    enabled: !!access_token,
+    enabled: !!isAuthenticated,
   });
 
   return {

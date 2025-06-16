@@ -1,3 +1,4 @@
+import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { Reservation } from '@/app/types/Reservation';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,13 +21,13 @@ const fetchAllReservation = async (access_token?: string): Promise<Reservation[]
 };
 
 export const useGetAllReservation = () => {
-  const access_token = window.localStorage.getItem("token");
+  const { access_token, isAuthenticated } = useAuthSession();
 
   const query = useQuery({
     queryKey: [RESERVATIONS_KEY],
     queryFn: () => fetchAllReservation(access_token as string),
     refetchOnWindowFocus: false,
-    enabled: !!access_token,
+    enabled: !!isAuthenticated,
   });
 
   return {
