@@ -22,6 +22,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconDots, IconPencil, IconSearch } from '@tabler/icons-react';
 import { FuelType, Vehicle, VehicleStatus } from '@/app/types/Vehicle';
 import { useUpdateVehicle } from '../hooks/useUpdateVehicle';
+import Link from 'next/link';
 
 const PAGE_SIZE = 4;
 
@@ -96,7 +97,9 @@ export function VehiclesStack({ vehicles, setVehicles }: Readonly<VehiclesStackP
       <Table.Td>
         <Group gap="sm">
           <Avatar size={40} src={vehicle.imageUrl} radius={40} />
-          <Text fz="sm" fw={500}>{vehicle.brand} {vehicle.model}</Text>
+          <Link href={`/dashboard/vehicles/${vehicle.id}`}>
+            <Text fz="sm" fw={500}>{vehicle.brand} {vehicle.model}</Text>
+          </Link>
         </Group>
       </Table.Td>
       <Table.Td>
