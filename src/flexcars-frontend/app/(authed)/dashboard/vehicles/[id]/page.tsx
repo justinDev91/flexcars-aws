@@ -8,12 +8,12 @@ import {
   Badge,
   Group,
 } from '@mantine/core';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useGetVehicleById } from '../hooks/useGetVehicleById';
-import { FeaturesCards } from '../../users/components/FeaturesCards';
 import { CardWithStats } from '../../users/components/CardWithStats';
 import { VehicleStatus } from '@/app/types/Vehicle';
 import { VehicleMap } from '../components/VehicleMap';
+import { useVehiclePosition } from '../hooks/useVehiclePosition'; 
 
 interface DetailsProps {
   params: { id?: string };
@@ -22,31 +22,13 @@ interface DetailsProps {
 export default function Details({ params }: Readonly<DetailsProps>) {
   const vehicleId = useMemo(() => params?.id ?? null, [params]);
   const { vehicle, isVehicleLoading, isError } = useGetVehicleById(vehicleId ?? '');
-
-  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const position = useVehiclePosition(vehicleId ?? '');
 
   useEffect(() => {
     if (!params?.id) {
       redirect('/auth/login');
     }
   }, [params]);
-
-  useEffect(() => {
-    if (
-      vehicle?.status === VehicleStatus.RENTED &&
-      vehicle.gpsEnabled &&
-      vehicle.locationLat !== undefined &&
-      vehicle.locationLng !== undefined
-    ) {
-      setPosition({ lat: vehicle.locationLat, lng: vehicle.locationLng });
-
-      const interval = setInterval(() => {
-        setPosition({ lat: vehicle.locationLat!, lng: vehicle.locationLng! });
-      }, 10000);
-
-      return () => clearInterval(interval);
-    }
-  }, [vehicle]);
 
   if (isVehicleLoading) {
     return (
@@ -73,8 +55,7 @@ export default function Details({ params }: Readonly<DetailsProps>) {
   const showMap =
     vehicle.status === VehicleStatus.RENTED &&
     vehicle.gpsEnabled &&
-    vehicle.locationLat !== undefined &&
-    vehicle.locationLng !== undefined;
+    position !== null;
 
   return (
     <Container my="md">
@@ -84,7 +65,7 @@ export default function Details({ params }: Readonly<DetailsProps>) {
         </Badge>
       </Group>
 
-      {showMap && position && (
+      {showMap && (
         <Container my="md">
           <Badge color="green" size="lg" mb="sm">
             Suivi en temps réel
