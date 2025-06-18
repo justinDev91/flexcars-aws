@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { Stepper, Button, Group, Modal, Stack, Title } from '@mantine/core';
 import CreateReservationForm from '../../reservations/components/CreateReservationForm';
 import CreateDocumentForm from '../../documents/components/CreateDocumentForm';
-import CreatePaymentForm from '../../payments/components/CreatePaymentForm'; // Adjust path if needed
+import CreatePaymentForm from '../../payments/components/CreatePaymentForm';
 import { Payment } from '@/app/types/Payment';
+import { RentalContract } from '@/app/types/RentalContract';
+import CreateRentalContractForm from '../../rental-contracts/components/CreateRentalContractForm';
 
 export default function RentalStepper() {
   const [active, setActive] = useState(0);
@@ -13,6 +15,7 @@ export default function RentalStepper() {
   const [driverLicenseCreated, setDriverLicenseCreated] = useState(false);
   const [idCardCreated, setIdCardCreated] = useState(false);
   const [paymentCreated, setPaymentCreated] = useState(false);
+  const [contractCreated, setContractCreated] = useState(false);
 
   const nextStep = () => setActive((current) => (current < 6 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
@@ -32,6 +35,13 @@ export default function RentalStepper() {
   const handlePaymentSuccess = (payment: Payment) => {
     console.log('Payment created:', payment);
     setPaymentCreated(true);
+    setModalOpened(false);
+    nextStep();
+  };
+
+  const handleContractSuccess = (contract: RentalContract) => {
+    console.log('Contract created:', contract);
+    setContractCreated(true);
     setModalOpened(false);
     nextStep();
   };
@@ -73,6 +83,8 @@ export default function RentalStepper() {
             ? 'Step 2: Upload Required Documents'
             : active === 2
             ? 'Step 3: Create Payment'
+            : active === 3
+            ? 'Step 4: Create Rental Contract'
             : 'Step Modal'
         }
         size="lg"
@@ -98,6 +110,10 @@ export default function RentalStepper() {
 
         {active === 2 && (
           <CreatePaymentForm onSuccess={handlePaymentSuccess} />
+        )}
+
+        {active === 3 && (
+          <CreateRentalContractForm onSuccess={handleContractSuccess} />
         )}
       </Modal>
     </>
