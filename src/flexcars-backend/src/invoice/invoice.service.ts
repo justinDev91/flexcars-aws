@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma, Invoice } from '@prisma/client';
+import { CreateInvoiceDto } from './dto/createInvoice.dto';
 
 @Injectable()
 export class InvoiceService {
@@ -16,7 +17,7 @@ export class InvoiceService {
     return invoice;
   }
 
-  async create(data: Prisma.InvoiceCreateInput): Promise<Invoice> {
+  async create(data: CreateInvoiceDto): Promise<Invoice> {
     return this.prisma.invoice.create({ data });
   }
 

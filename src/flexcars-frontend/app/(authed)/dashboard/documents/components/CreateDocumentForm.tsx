@@ -81,11 +81,6 @@ export default function CreateDocumentForm({ onSuccess }: Readonly<CreateDocumen
             {...form.getInputProps('fileUrl')}
           />
 
-          <Checkbox
-            label="Verified"
-            {...form.getInputProps('verified', { type: 'checkbox' })}
-          />
-
         </Stack>
 
         <Group justify="flex-end" mt="xl">

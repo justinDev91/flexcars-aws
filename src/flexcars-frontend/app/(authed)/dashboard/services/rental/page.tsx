@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Stepper, Button, Group, Modal } from '@mantine/core';
+import { Stepper, Button, Group, Modal, Stack, Title } from '@mantine/core';
 import CreateReservationForm from '../../reservations/components/CreateReservationForm';
+import CreateDocumentForm from '../../documents/components/CreateDocumentForm';
 
 export default function RentalStepper() {
   const [active, setActive] = useState(0);
-  const [modalOpened, setModalOpened] = useState(true); 
+  const [modalOpened, setModalOpened] = useState(true);
+  const [driverLicenseCreated, setDriverLicenseCreated] = useState(false);
+  const [idCardCreated, setIdCardCreated] = useState(false);
 
-  const nextStep = () => setActive((current) => (current < 9 ? current + 1 : current));
+  const nextStep = () => setActive((current) => (current < 6 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
   const handleReservationSuccess = (reservation: any) => {
@@ -16,6 +19,14 @@ export default function RentalStepper() {
     setModalOpened(false);
     nextStep();
   };
+
+  const handleDocumentSuccess = (type: 'DRIVER_LICENSE' | 'ID_CARD') => {
+    console.log(`${type} document created`);
+    if (type === 'DRIVER_LICENSE') setDriverLicenseCreated(true);
+    if (type === 'ID_CARD') setIdCardCreated(true);
+  };
+
+  const allDocumentsCreated = driverLicenseCreated && idCardCreated;
 
   return (
     <>
@@ -33,16 +44,46 @@ export default function RentalStepper() {
       <Group justify="center" mt="xl">
         <Button variant="default" onClick={prevStep}>Back</Button>
         <Button onClick={() => setModalOpened(true)}>Open Step Modal</Button>
+        {active === 1 && allDocumentsCreated && (
+          <Button onClick={() => {
+            setModalOpened(false);
+            nextStep();
+          }}>
+            Continue to Invoice
+          </Button>
+        )}
       </Group>
 
       <Modal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
-        title="Step 1: Create Reservation"
+        title={
+          active === 0
+            ? 'Step 1: Create Reservation'
+            : active === 1
+            ? 'Step 2: Upload Required Documents'
+            : 'Step Modal'
+        }
         size="lg"
         centered
       >
         {active === 0 && <CreateReservationForm onSuccess={handleReservationSuccess} />}
+
+        {active === 1 && (
+          <Stack>
+            <Title order={4}>Required Documents</Title>
+            {!driverLicenseCreated && (
+              <CreateDocumentForm
+                onSuccess={() => handleDocumentSuccess('DRIVER_LICENSE')}
+              />
+            )}
+            {!idCardCreated && (
+              <CreateDocumentForm
+                onSuccess={() => handleDocumentSuccess('ID_CARD')}
+              />
+            )}
+          </Stack>
+        )}
       </Modal>
     </>
   );
