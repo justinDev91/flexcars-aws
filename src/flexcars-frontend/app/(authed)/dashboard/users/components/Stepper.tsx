@@ -15,15 +15,15 @@ export default function Steppers() {
         </Stepper.Step>
         <Stepper.Step label="Final step" description="Get full access">
         </Stepper.Step>
-        {/* <Stepper.Completed>
+        <Stepper.Completed>
           Completed, click back button to get to previous step
-        </Stepper.Completed> */}
+        </Stepper.Completed>
       </Stepper>
-      {/* 
+      {
       <Group justify="center" mt="xl">
         <Button variant="default" onClick={prevStep}>Back</Button>
         <Button onClick={nextStep}>Next step</Button>
-      </Group> */}
+      </Group> }
     </>
   );
 }

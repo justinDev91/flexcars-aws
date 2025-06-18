@@ -7,5 +7,6 @@ import { PricingRuleService } from './pricing.rule.service';
 @Module({
   controllers: [PricingRuleController],
   providers: [PricingRuleService, PrismaService],
+  exports: [PricingRuleService]
 })
 export class PricingRuleModule {}

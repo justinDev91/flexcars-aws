@@ -4,12 +4,16 @@ import { Prisma, Reservation } from '@prisma/client';
 import { FindAllReservationsDto } from './dto/findAllReservations.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import * as qrcode from 'qrcode';
+import { CreateReservationDto } from './dto/createReservation.dto';
+import { VehicleStatus } from 'src/vehicle/dto/createVehicule.dto';
+import { PricingRuleService } from 'src/pricingrule/pricing.rule.service';
 
 @Injectable()
 export class ReservationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
+    private readonly pricingRuleService: PricingRuleService
   ) {}
 
   async findAll(params: FindAllReservationsDto): Promise<Reservation[]> {
@@ -26,9 +30,23 @@ export class ReservationService {
     return record;
   }
 
-  async createReservation(data: Prisma.ReservationCreateInput): Promise<Reservation> {
-    return this.prisma.reservation.create({ data });
+  async createReservation(data: CreateReservationDto): Promise<Reservation> {    
+    await this.prisma.vehicle.update({
+      where: { id: data.vehicleId },
+      data: {
+        status: VehicleStatus.RESERVED,
+      },
+    });
+
+    const totalPrice = await this.pricingRuleService.calculateTotalPrice(data.vehicleId, data.startDatetime, data.endDatetime)
+    
+    const reservationData = {
+        ...data,
+        totalPrice,
+     };
+    return this.prisma.reservation.create({data: reservationData});
   }
+
 
   async updateReservation(id: string, data: Prisma.ReservationUpdateInput): Promise<Reservation> {
   const existing = await this.prisma.reservation.findUnique({ where: { id } });

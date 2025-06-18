@@ -1,8 +1,8 @@
-
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { CreatePricingRuleDto } from './dto/createPricingRule.dto';
 import { UpdatePricingRuleDto } from './dto/updatePricingRule.dto';
+import { CalculateTotalPriceDto } from './dto/calculateTotalPrice.dto';
 import { PricingRuleService } from './pricing.rule.service';
 
 @ApiBearerAuth('access-token') 
@@ -33,5 +33,12 @@ export class PricingRuleController {
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.pricingRuleService.delete(id);
+  }
+
+  @Post('calculate-price')
+  @ApiBody({ type: CalculateTotalPriceDto })
+  async calculateTotalPrice(@Body() dto: CalculateTotalPriceDto) {
+    const { vehicleId, startDate, endDate } = dto;
+    return this.pricingRuleService.calculateTotalPrice(vehicleId, startDate, endDate);
   }
 }

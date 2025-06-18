@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsDateString, IsNumber, IsEnum, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsEnum, IsBoolean } from 'class-validator';
 
 export enum ReservationStatus {
   PENDING = 'PENDING',
@@ -31,21 +31,19 @@ export class CreateReservationDto {
   @IsString()
   customerId: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Start datetime of the reservation in ISO format',
     example: new Date().toISOString(),
   })
-  @IsOptional()
   @IsDateString()
-  startDatetime?: string;
+  startDatetime: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'End datetime of the reservation in ISO format (20 days from now)',
     example: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
   })
-  @IsOptional()
   @IsDateString()
-  endDatetime?: string;
+  endDatetime: string;
 
   @ApiPropertyOptional({
     description: 'Location where the vehicle will be picked up',
@@ -73,14 +71,6 @@ export class CreateReservationDto {
   @IsOptional()
   @IsEnum(ReservationStatus)
   status?: ReservationStatus;
-
-  @ApiPropertyOptional({
-    description: 'Total price of the reservation in euros',
-    example: 299.99,
-  })
-  @IsOptional()
-  @IsNumber()
-  totalPrice?: number;
 
   @ApiPropertyOptional({
     description: 'Whether car sitting option is selected',

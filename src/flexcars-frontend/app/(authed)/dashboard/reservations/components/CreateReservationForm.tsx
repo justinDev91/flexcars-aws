@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { useEffect } from 'react';
 import { useCreateReservation } from '../hooks/useCreateReservation';
 import {
   createReservationInitialValues,
@@ -19,8 +20,11 @@ import {
 } from '@/app/validations/createReservation.schema';
 import { useGetAllVehicle } from '../../vehicles/hooks/useGetAllVehicle';
 import { useGetAllUser } from '../../users/hooks/useGetAllUsers';
-import { Reservation, ReservationStatus, Location } from '@/app/types/Reservation';
+import { Reservation, Location } from '@/app/types/Reservation';
 import { zodResolver } from 'mantine-form-zod-resolver';
+import { useUpdateVehicle } from '../../vehicles/hooks/useUpdateVehicle';
+import { VehicleStatus } from '@/app/types/Vehicle';
+import { useCalculateTotalPrice } from '../../pricing-rules/hooks/pricing-rules-api';
 
 interface CreateReservationFormProps {
   onSuccess?: (reservation: Reservation) => void;
@@ -30,11 +34,33 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
   const createReservationMutation = useCreateReservation();
   const { data: vehicles = [], isLoading: isVehiclesLoading } = useGetAllVehicle();
   const { data: users = [], isLoading: isUsersLoading } = useGetAllUser();
+  const updateVehicleMutation = useUpdateVehicle();
+  const { mutate: calculatePrice, data: calculatedPrice } = useCalculateTotalPrice();
 
   const form = useForm<CreateReservationFormValues>({
     validate: zodResolver(createReservationSchema),
     initialValues: createReservationInitialValues,
   });
+
+  // Trigger price calculation when vehicle and dates are selected
+  useEffect(() => {
+    const { vehicleId, startDatetime, endDatetime } = form.values;
+
+    if (vehicleId && startDatetime && endDatetime) {
+      calculatePrice({
+        vehicleId,
+        startDate: new Date(startDatetime).toISOString(),
+        endDate: new Date(endDatetime).toISOString(),
+      });
+    }
+  }, [form.values.vehicleId, form.values.startDatetime, form.values.endDatetime]);
+
+  // Update form field when price is calculated
+  useEffect(() => {
+    if (calculatedPrice !== undefined) {
+      form.setFieldValue('totalPrice', calculatedPrice);
+    }
+  }, [calculatedPrice]);
 
   const handleSubmit = (values: typeof form.values) => {
     const parsedValues = {
@@ -122,20 +148,11 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
             {...form.getInputProps('dropoffLocation')}
           />
 
-          <Select
-            label="Status"
-            placeholder="Select status"
-            data={Object.values(ReservationStatus).map((status) => ({
-              value: status,
-              label: status.charAt(0) + status.slice(1).toLowerCase(),
-            }))}
-            {...form.getInputProps('status')}
-          />
-
           <NumberInput
             label="Total Price (€)"
             placeholder="e.g. 299.99"
             {...form.getInputProps('totalPrice')}
+            disabled
           />
 
           <Checkbox
