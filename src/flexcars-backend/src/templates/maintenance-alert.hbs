@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Alerte de maintenance</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
+  <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #c0392b;">Alerte de maintenance {{action}}</h2>
+    <p style="font-size: 16px; line-height: 1.6;">
+      Bonjour {{recipientName}},
+    </p>
+    <p style="font-size: 16px; line-height: 1.6;">
+      Une alerte de maintenance a été {{action}} pour le véhicule <strong>{{vehicleId}}</strong>.
+    </p>
+    <p style="font-size: 16px; line-height: 1.6;">
+      <strong>Type d'alerte :</strong> {{alertType}}<br>
+      <strong>Message :</strong> {{message}}<br>
+      <strong>Date de l'alerte :</strong> {{alertDate}}<br>
+      <strong>Résolue :</strong> {{resolved}}
+    </p>
+    <div style="margin: 25px 0;">
+      <a href="{{url}}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">
+        Voir les détails
+      </a>
+    </div>
+    <p style="font-size: 14px; color: #888;">
+      Si vous avez des questions, veuillez contacter notre support.
+    </p>
+    <p style="margin-top: 30px; font-size: 14px; color: #aaa;">
+      Merci,<br>L'équipe support
+    </p>
+  </div>
+</body>
+</html>
