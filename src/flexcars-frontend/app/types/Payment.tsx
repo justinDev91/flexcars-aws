@@ -15,6 +15,5 @@ export interface Payment {
   invoiceId: string;
   method: PaymentMethod;
   transactionId?: string;
-  paidAt: string; // ISO 8601 string
   status?: PaymentStatus;
 }

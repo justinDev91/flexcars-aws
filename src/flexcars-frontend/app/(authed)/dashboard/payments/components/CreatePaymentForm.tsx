@@ -8,7 +8,6 @@ import {
   Select,
   TextInput,
 } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { useGetAllInvoice } from '../../invoices/hooks/useGetAllInvoice';
@@ -34,12 +33,7 @@ export default function CreatePaymentForm({ onSuccess }: Readonly<CreatePaymentF
   });
 
   const handleSubmit = (values: typeof form.values) => {
-    const parsedValues = {
-      ...values,
-      paidAt: new Date(values.paidAt).toISOString(),
-    };
-
-    createPaymentMutation.mutate(parsedValues, {
+    createPaymentMutation.mutate(values, {
       onSuccess: (newPayment) => {
         form.reset();
         onSuccess?.(newPayment);
@@ -89,14 +83,6 @@ export default function CreatePaymentForm({ onSuccess }: Readonly<CreatePaymentF
               label: status.charAt(0) + status.slice(1).toLowerCase(),
             }))}
             {...form.getInputProps('status')}
-          />
-
-          <DateInput
-            label="Paid At"
-            value={new Date(form.values.paidAt)}
-            onChange={(date) =>
-              form.setFieldValue('paidAt', date ?? '')
-            }
           />
         </Stack>
 

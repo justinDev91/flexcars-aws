@@ -25,6 +25,7 @@ export class DocumentService {
   }
 
   async create(data: CreateDocumentDto) {
+    //TODO: Implemente AI documents vérification Model and Change this condition to true
     if (!data.verified) {
       const reservation = await this.prisma.reservation.findFirst({
         where: {
@@ -32,7 +33,6 @@ export class DocumentService {
           status: 'PENDING',
         },
       });
-      console.log("reservation", reservation)
       if (
         reservation &&
         reservation.startDatetime &&
@@ -46,12 +46,10 @@ export class DocumentService {
 
         const invoice = await this.invoiceService.create({
           reservationId: reservation.id,
-          invoiceNumber: '598162XX',
           amount,
           status: InvoiceStatus.UNPAID,
           dueDate: new Date().toISOString(),
         });
-        console.log("invoice", invoice)
       }
     }
 

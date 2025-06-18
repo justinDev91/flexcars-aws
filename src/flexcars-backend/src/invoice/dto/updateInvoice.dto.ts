@@ -3,11 +3,6 @@ import { IsString, IsOptional, IsNumber, IsDateString, IsEnum } from 'class-vali
 import { InvoiceStatus } from './createInvoice.dto';
 
 export class UpdateInvoiceDto {
-  @ApiPropertyOptional({ description: 'Updated invoice number', example: 'INV-2025-002' })
-  @IsOptional()
-  @IsString()
-  invoiceNumber?: string;
-
   @ApiPropertyOptional({ description: 'Updated amount', example: 599.99 })
   @IsOptional()
   @IsNumber()

@@ -12,11 +12,6 @@ export class CreateInvoiceDto {
   @IsString()
   reservationId: string;
 
-  @ApiPropertyOptional({ description: 'Invoice number', example: 'INV-2025-001' })
-  @IsOptional()
-  @IsString()
-  invoiceNumber?: string;
-
   @ApiPropertyOptional({ description: 'Total amount of the invoice', example: 499.99 })
   @IsOptional()
   @IsNumber()
