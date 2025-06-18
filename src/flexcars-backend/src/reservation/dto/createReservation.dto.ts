@@ -1,11 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsDateString, IsNumber, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsNumber, IsEnum, IsBoolean } from 'class-validator';
 
 export enum ReservationStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
+}
+
+export enum Location {
+  PARIS_11 = 'PARIS_11',
+  PARIS_19 = 'PARIS_19',
+  ISSY_LES_MOULINEAUX = 'ISSY_LES_MOULINEAUX',
+  BOULOGNE = 'BOULOGNE',
+  SAINT_DENIS = 'SAINT_DENIS',
 }
 
 export class CreateReservationDto {
@@ -23,17 +31,17 @@ export class CreateReservationDto {
   @IsString()
   customerId: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Start datetime of the reservation in ISO format',
-    default: new Date().toISOString(),
+    example: new Date().toISOString(),
   })
   @IsOptional()
   @IsDateString()
-  startDatetime?: string = new Date().toISOString();
+  startDatetime?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'End datetime of the reservation in ISO format (20 days from now)',
-    default: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    example: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
   })
   @IsOptional()
   @IsDateString()
@@ -41,19 +49,21 @@ export class CreateReservationDto {
 
   @ApiPropertyOptional({
     description: 'Location where the vehicle will be picked up',
-    example: '123 Main Street, Paris',
+    enum: Location,
+    example: Location.SAINT_DENIS,
   })
   @IsOptional()
-  @IsString()
-  pickupLocation?: string;
+  @IsEnum(Location)
+  pickupLocation?: Location;
 
   @ApiPropertyOptional({
     description: 'Location where the vehicle will be dropped off',
-    example: '456 Avenue de la République, Paris',
+    enum: Location,
+    example: Location.ISSY_LES_MOULINEAUX,
   })
   @IsOptional()
-  @IsString()
-  dropoffLocation?: string;
+  @IsEnum(Location)
+  dropoffLocation?: Location;
 
   @ApiPropertyOptional({
     description: 'Current status of the reservation',
@@ -71,4 +81,12 @@ export class CreateReservationDto {
   @IsOptional()
   @IsNumber()
   totalPrice?: number;
+
+  @ApiPropertyOptional({
+    description: 'Whether car sitting option is selected',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  carSittingOption?: boolean;
 }

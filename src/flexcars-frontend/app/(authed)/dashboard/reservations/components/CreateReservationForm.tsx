@@ -7,7 +7,7 @@ import {
   Stack,
   Select,
   NumberInput,
-  TextInput,
+  Checkbox,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -19,7 +19,7 @@ import {
 } from '@/app/validations/createReservation.schema';
 import { useGetAllVehicle } from '../../vehicles/hooks/useGetAllVehicle';
 import { useGetAllUser } from '../../users/hooks/useGetAllUsers';
-import { Reservation, ReservationStatus } from '@/app/types/Reservation';
+import { Reservation, ReservationStatus, Location } from '@/app/types/Reservation';
 import { zodResolver } from 'mantine-form-zod-resolver';
 
 interface CreateReservationFormProps {
@@ -89,7 +89,7 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
             placeholder="Pick start date and time"
             value={form.values.startDatetime}
             onChange={(date) =>
-              form.setFieldValue('startDatetime', date as string )
+              form.setFieldValue('startDatetime', date as string)
             }
           />
 
@@ -102,15 +102,23 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
             }
           />
 
-          <TextInput
+          <Select
             label="Pickup Location"
-            placeholder="e.g. 123 Main Street, Paris"
+            placeholder="Select pickup location"
+            data={Object.values(Location).map((loc) => ({
+              value: loc,
+              label: loc.replace(/_/g, ' '),
+            }))}
             {...form.getInputProps('pickupLocation')}
           />
 
-          <TextInput
+          <Select
             label="Dropoff Location"
-            placeholder="e.g. 456 Avenue de la République, Paris"
+            placeholder="Select dropoff location"
+            data={Object.values(Location).map((loc) => ({
+              value: loc,
+              label: loc.replace(/_/g, ' '),
+            }))}
             {...form.getInputProps('dropoffLocation')}
           />
 
@@ -129,12 +137,15 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
             placeholder="e.g. 299.99"
             {...form.getInputProps('totalPrice')}
           />
+
+          <Checkbox
+            label="Car Sitting Option"
+            {...form.getInputProps('carSittingOption', { type: 'checkbox' })}
+          />
         </Stack>
 
         <Group justify="flex-end" mt="xl">
-          <Button type="submit">
-            Create Reservation
-          </Button>
+          <Button type="submit">Create Reservation</Button>
         </Group>
       </form>
     </Box>

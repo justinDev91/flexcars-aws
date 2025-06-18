@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsDateString, IsNumber, IsEnum } from 'class-validator';
-import { ReservationStatus } from './createReservation.dto';
+import { IsString, IsOptional, IsDateString, IsNumber, IsEnum, IsBoolean } from 'class-validator';
+import { ReservationStatus, Location } from './createReservation.dto';
 
 export class UpdateReservationDto {
   @ApiPropertyOptional({
@@ -21,19 +21,21 @@ export class UpdateReservationDto {
 
   @ApiPropertyOptional({
     description: 'Updated pickup location for the reservation',
-    example: '123 Main Street, Paris',
+    enum: Location,
+    example: Location.SAINT_DENIS,
   })
   @IsOptional()
-  @IsString()
-  pickupLocation?: string;
+  @IsEnum(Location)
+  pickupLocation?: Location;
 
   @ApiPropertyOptional({
     description: 'Updated dropoff location for the reservation',
-    example: '456 Avenue de la République, Paris',
+    enum: Location,
+    example: Location.ISSY_LES_MOULINEAUX,
   })
   @IsOptional()
-  @IsString()
-  dropoffLocation?: string;
+  @IsEnum(Location)
+  dropoffLocation?: Location;
 
   @ApiPropertyOptional({
     description: 'Updated status of the reservation',
@@ -51,4 +53,12 @@ export class UpdateReservationDto {
   @IsOptional()
   @IsNumber()
   totalPrice?: number;
+
+  @ApiPropertyOptional({
+    description: 'Updated car sitting option',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  carSittingOption?: boolean;
 }

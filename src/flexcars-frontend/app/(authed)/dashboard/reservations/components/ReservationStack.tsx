@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import {
   ActionIcon,
   Button,
+  Checkbox,
   Group,
   Loader,
   Modal,
@@ -19,7 +20,7 @@ import {
 import { DateTimePicker } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDots, IconPencil, IconSearch } from '@tabler/icons-react';
-import { Reservation, ReservationStatus } from '@/app/types/Reservation';
+import { Reservation, ReservationStatus, Location } from '@/app/types/Reservation';
 import { useUpdateReservation } from '../hooks/useReservationVehicle';
 import { useGetAllVehicle } from '../../vehicles/hooks/useGetAllVehicle';
 import { useGetAllUser } from '../../users/hooks/useGetAllUsers';
@@ -39,10 +40,11 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
     customerId: '',
     startDatetime: '',
     endDatetime: '',
-    pickupLocation: '',
-    dropoffLocation: '',
+    pickupLocation: Location.SAINT_DENIS,
+    dropoffLocation: Location.ISSY_LES_MOULINEAUX,
     status: ReservationStatus.PENDING,
     totalPrice: undefined,
+    carSittingOption: false,
   });
   const [page, setPage] = useState(1);
   const [opened, { open, close }] = useDisclosure(false);
@@ -51,7 +53,6 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
   const { data: users = [] } = useGetAllUser();
   const { data: vehicles = [] } = useGetAllVehicle();
 
-  
   const userMap = useMemo(() => Object.fromEntries(users.map(u => [u.id, u.firstName])), [users]);
   const vehicleMap = useMemo(() => Object.fromEntries(vehicles.map(v => [v.id, `${v.brand} ${v.model}`])), [vehicles]);
 
@@ -177,65 +178,83 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
         </>
       )}
 
-    <Modal opened={opened} onClose={close} title="Edit Reservation" centered>
-      <Stack>
-        <TextInput
-          label="Customer"
-          value={userMap[formValues.customerId] || formValues.customerId}
-          readOnly
-          disabled
-        />
+      <Modal opened={opened} onClose={close} title="Edit Reservation" centered>
+        <Stack>
+          <TextInput
+            label="Customer"
+            value={userMap[formValues.customerId] || formValues.customerId}
+            readOnly
+            disabled
+          />
 
-        <TextInput
-          label="Vehicle"
-          value={vehicleMap[formValues.vehicleId] || formValues.vehicleId}
-          readOnly
-          disabled
-        />
+          <TextInput
+            label="Vehicle"
+            value={vehicleMap[formValues.vehicleId] || formValues.vehicleId}
+            readOnly
+            disabled
+          />
 
-        <DateTimePicker
-          label="Start Datetime"
-          value={new Date(formValues.startDatetime as string)}
-          onChange={(value) => handleFormChange('startDatetime', new Date(value as string).toISOString() || '')}
-        />
+          <DateTimePicker
+            label="Start Datetime"
+            value={new Date(formValues.startDatetime as string)}
+            onChange={(value) =>
+              handleFormChange('startDatetime', new Date(value as string).toISOString() || '')
+            }
+          />
 
-        <DateTimePicker
-          label="End Datetime"
-          value={new Date(formValues.endDatetime as string)}
-        
-          onChange={(value) => handleFormChange('endDatetime',  new Date(value as string).toISOString() || '')}
-        />
+          <DateTimePicker
+            label="End Datetime"
+            value={new Date(formValues.endDatetime as string)}
+            onChange={(value) =>
+              handleFormChange('endDatetime', new Date(value as string).toISOString() || '')
+            }
+          />
 
-        <TextInput
-          label="Pickup Location"
-          value={formValues.pickupLocation}
-          onChange={(e) => handleFormChange('pickupLocation', e.currentTarget.value)}
-        />
+          <Select
+            label="Pickup Location"
+            data={Object.values(Location).map((loc) => ({
+              value: loc,
+              label: loc.replace(/_/g, ' '),
+            }))}
+            value={formValues.pickupLocation}
+            onChange={(value) => handleFormChange('pickupLocation', value as Location)}
+          />
 
-        <TextInput
-          label="Dropoff Location"
-          value={formValues.dropoffLocation}
-          onChange={(e) => handleFormChange('dropoffLocation', e.currentTarget.value)}
-        />
+          <Select
+            label="Dropoff Location"
+            data={Object.values(Location).map((loc) => ({
+              value: loc,
+              label: loc.replace(/_/g, ' '),
+            }))}
+            value={formValues.dropoffLocation}
+            onChange={(value) => handleFormChange('dropoffLocation', value as Location)}
+          />
 
-        <Select
-          label="Status"
-          data={Object.values(ReservationStatus).map((s) => ({ label: s, value: s }))}
-          value={formValues.status}
-          onChange={(value) => handleFormChange('status', value as ReservationStatus)}
-        />
+          <Select
+            label="Status"
+            data={Object.values(ReservationStatus).map((s) => ({ label: s, value: s }))}
+            value={formValues.status}
+            onChange={(value) => handleFormChange('status', value as ReservationStatus)}
+          />
 
-        <NumberInput
-          label="Total Price (€)"
-          value={formValues.totalPrice}
-          readOnly
-          disabled
-        />
+          <NumberInput
+            label="Total Price (€)"
+            value={formValues.totalPrice}
+            readOnly
+            disabled
+          />
 
-        <Button onClick={handleSave}>Save</Button>
-      </Stack>
-    </Modal>
+          <Checkbox
+            label="Car Sitting Option"
+            checked={formValues.carSittingOption}
+            onChange={(event) =>
+              handleFormChange('carSittingOption', event.currentTarget.checked)
+            }
+          />
 
+          <Button onClick={handleSave}>Save</Button>
+        </Stack>
+      </Modal>
     </Stack>
   );
 }

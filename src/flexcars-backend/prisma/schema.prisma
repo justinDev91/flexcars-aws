@@ -121,6 +121,14 @@ enum AlertType {
   MILEAGE
 }
 
+enum Location {
+  PARIS_11
+  PARIS_19
+  ISSY_LES_MOULINEAUX
+  BOULOGNE
+  SAINT_DENIS
+}
+
 
 model User {
   id           String   @id @default(uuid())
@@ -230,8 +238,9 @@ model Reservation {
   customer       User?             @relation(fields: [customerId], references: [id])
   startDatetime  DateTime?
   endDatetime    DateTime?
-  pickupLocation String?
-  dropoffLocation String?
+  pickupLocation Location?           @default(SAINT_DENIS)
+  dropoffLocation Location?          @default(ISSY_LES_MOULINEAUX)
+  carSittingOption Boolean          @default(false)
   status         ReservationStatus @default(PENDING)
   totalPrice     Float?
   createdAt      DateTime         @default(now())
