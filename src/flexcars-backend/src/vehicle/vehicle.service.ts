@@ -34,6 +34,24 @@ export class VehiclesService {
     });
   }
 
+  
+  async pickup(id: string) {
+    const vehicle = await this.prisma.vehicle.findUnique({
+      where: { id },
+    });
+
+    if (!vehicle) {
+      throw new NotFoundException(`Vehicle with ID ${id} not found`);
+    }
+
+    return this.prisma.vehicle.update({
+      where: { id },
+      data: { status: 'RENTED' },
+    });
+
+  }
+
+
   async updateVehicle(id: string, data: Prisma.VehicleCreateInput) {
     return this.prisma.vehicle.update({
       where: { id },
