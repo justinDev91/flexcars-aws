@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { QrReader } from 'react-qr-reader';
+import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner';
 import { Loader, Paper, Text, Button, Box } from '@mantine/core';
 import { useScanReservation } from '../../../reservations/hooks/useScanReservation';
 
@@ -16,10 +16,11 @@ export default function ScanReservation() {
     refetch,
   } = useScanReservation(identifier ?? '');
 
-  const handleScan = (result: any) => {
-    if (result?.text && !identifier) {
-      setIdentifier(result.text);
-    }
+  const handleScan = (detectedCodes:IDetectedBarcode[]) => {
+    console.log('result', detectedCodes)
+    // if (text && !identifier) {
+    //   setIdentifier(text);
+    // }
   };
 
   return (
@@ -40,21 +41,18 @@ export default function ScanReservation() {
             border: '4px solid #2c3e50',
           }}
         >
-          <QrReader
-            constraints={{ facingMode: 'user' }} // Use 'user' for laptop webcam
-            onResult={(result, error) => {
-              if (result) handleScan(result);
-            }}
-            containerStyle={{ width: '100%' }}
-            videoContainerStyle={{ paddingTop: '100%' }}
-            videoStyle={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
+          <Scanner
+            onScan={(detectedCodes:IDetectedBarcode[]) => handleScan(detectedCodes)}
+            onError={(err) => console.error('Scan error:', err)}
+            constraints={{ facingMode: 'user' }}
+            sound = {true}
+            scanDelay = {6000}
+            components = {
+              {
+               finder: true,
+               zoom: true
+              }}
+            allowMultiple={true}
           />
         </Box>
       )}
