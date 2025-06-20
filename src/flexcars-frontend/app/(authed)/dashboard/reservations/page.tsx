@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { Reservation } from '@/app/types/Reservation';
 import { useGetAllReservation } from './hooks/useGetAllReservation';
 import { ReservationsStack } from './components/ReservationStack';
+import ServicesCards from './components/ServicesCards';
 
 export default function ReservationPage() {
   const [opened, { open, close }] = useDisclosure(false);
@@ -27,9 +28,9 @@ export default function ReservationPage() {
   return (
     <>
       <Container fluid px="md" py="md">
-        <FeaturesCards />
+        <ServicesCards />
 
-        <Group justify="flex-end" mb="sm">
+        <Group justify="flex-end" m="sm">
           <Button variant="default" onClick={open}>
             Create Reservation
           </Button>
@@ -41,6 +42,7 @@ export default function ReservationPage() {
             setReservations={setReservations}
           />
         </Stack>
+        <FeaturesCards />
       </Container>
 
       <Modal opened={opened} onClose={close} title="Create a new reservation" centered>
