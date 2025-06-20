@@ -57,7 +57,7 @@ export class ReservationService {
   if (data.status === 'CONFIRMED' && reservation.status !== 'CONFIRMED') {
     const customer = await this.prisma.user.findUnique({ where: { id: reservationUpdated.customerId } });
     const vehicle = await this.prisma.vehicle.findUnique({ where: { id: reservationUpdated.vehicleId } });
-
+    //TODO: Generate uniquement reservation NUMBER
     const qrContent = `
       reservationId: ${reservation.id}
       customer: '${customer?.firstName}' ' ${customer?.lastName}'

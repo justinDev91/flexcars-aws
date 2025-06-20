@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
 import { differenceInDays, differenceInHours, differenceInWeeks } from 'date-fns';
+import { PricingType } from './dto/createPricingRule.dto';
 
 @Injectable()
 export class PricingRuleService {
@@ -51,6 +52,40 @@ export class PricingRuleService {
       : 1;
     
     return duration * base * multiplier;
+  }
+
+  
+  async calculatePenaltyAmount(vehicleId: string, type: PricingType, from: Date, to: Date): Promise<number> {
+      const pricingRule = await this.prisma.pricingRule.findFirst({
+        where: {
+          vehicleId,
+          type,
+        },
+      });
+
+      if (!pricingRule) {
+        throw new NotFoundException(`No pricing rule found for type ${type}`);
+      }
+
+      let duration = 0;
+      switch (pricingRule.durationType) {
+        case 'HOURLY':
+          duration = differenceInHours(to, from);
+          break;
+        case 'DAILY':
+          duration = differenceInDays(to, from);
+          break;
+        case 'WEEKLY':
+          duration = differenceInWeeks(to, from);
+          break;
+      }
+
+      const base = pricingRule.basePrice ?? 1;
+      const multiplier = pricingRule.dynamicMultiplier && pricingRule.dynamicMultiplier !== 0
+        ? pricingRule.dynamicMultiplier
+        : 1;
+
+      return duration * base * multiplier;
   }
 
   create(data: Prisma.PricingRuleCreateInput) {

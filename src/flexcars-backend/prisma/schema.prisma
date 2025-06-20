@@ -130,6 +130,12 @@ enum Location {
 }
 
 
+enum PricingType {
+  RENTAL
+  ACCIDENT
+  LATER_PENALTY
+}
+
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -309,7 +315,6 @@ model ReservationService {
   serviceId      String
   service        RentalService?    @relation(fields: [serviceId], references: [id])
 }
-
 model PricingRule {
   id             String           @id @default(uuid())
   vehicleId      String
@@ -317,6 +322,7 @@ model PricingRule {
   durationType   DurationType      @default(HOURLY)
   basePrice      Float?
   dynamicMultiplier Float?
+  type           PricingType?   @default(RENTAL)
   season         String?
 }
 

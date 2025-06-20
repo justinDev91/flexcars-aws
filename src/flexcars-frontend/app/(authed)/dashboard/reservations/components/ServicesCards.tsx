@@ -30,7 +30,7 @@ const services = [
     progress: 52,
     color: 'red',
     icon: IconKey,
-    link: '/dashboard/services/dropoff',
+    link: '/dashboard/services/drop',
   },
 ] as const;
 

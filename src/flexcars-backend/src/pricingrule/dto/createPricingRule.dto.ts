@@ -7,6 +7,13 @@ export enum DurationType {
   WEEKLY = 'WEEKLY',
 }
 
+export enum PricingType {
+  RENTAL = 'RENTAL',
+  ACCIDENT = 'ACCIDENT',
+  LATER_PENALTY = 'LATER_PENALTY'
+}
+
+
 export class CreatePricingRuleDto {
   @ApiProperty()
   @IsString()
@@ -21,6 +28,11 @@ export class CreatePricingRuleDto {
   @IsOptional()
   @IsNumber()
   basePrice?: number;
+
+  @ApiPropertyOptional({ enum: PricingType, default: PricingType.RENTAL })
+  @IsOptional()
+  @IsString()
+  type?: PricingType;
 
   @ApiPropertyOptional()
   @IsOptional()

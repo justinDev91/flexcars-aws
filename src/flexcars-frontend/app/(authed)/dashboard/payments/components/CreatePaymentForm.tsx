@@ -20,16 +20,23 @@ import {
 import { Payment, PaymentMethod, PaymentStatus } from '@/app/types/Payment';
 
 interface CreatePaymentFormProps {
+  invoiceId?: string;
   onSuccess?: (payment: Payment) => void;
 }
 
-export default function CreatePaymentForm({ onSuccess }: Readonly<CreatePaymentFormProps>) {
+export default function CreatePaymentForm({
+  invoiceId,
+  onSuccess,
+}: Readonly<CreatePaymentFormProps>) {
   const createPaymentMutation = useCreatePayment();
   const { data: invoices = [], isLoading: isInvoicesLoading } = useGetAllInvoice();
 
   const form = useForm<CreatePaymentFormValues>({
     validate: zodResolver(createPaymentSchema),
-    initialValues: createPaymentInitialValues,
+    initialValues: {
+      ...createPaymentInitialValues,
+      invoiceId: invoiceId ?? '',
+    },
   });
 
   const handleSubmit = (values: typeof form.values) => {
@@ -56,8 +63,8 @@ export default function CreatePaymentForm({ onSuccess }: Readonly<CreatePaymentF
               label: `${inv.invoiceNumber} - €${inv.amount}`,
             }))}
             searchable
-            clearable
-            disabled={isInvoicesLoading}
+            clearable={!invoiceId}
+            disabled={isInvoicesLoading || !!invoiceId}
             {...form.getInputProps('invoiceId')}
           />
 
@@ -87,7 +94,9 @@ export default function CreatePaymentForm({ onSuccess }: Readonly<CreatePaymentF
         </Stack>
 
         <Group justify="flex-end" mt="xl">
-          <Button type="submit">Create Payment</Button>
+          <Button type="submit">
+            Create Payment
+          </Button>
         </Group>
       </form>
     </Box>
