@@ -24,7 +24,7 @@ export default function Users() {
         </Stack>
       </Container>
     
-      <Modal opened={opened} onClose={close} title="Create a new user for" centered>
+      <Modal opened={opened} onClose={close} title="Create a Company" centered>
         <CreateCompanyForm onSuccess={close} />
       </Modal>
 

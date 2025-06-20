@@ -70,6 +70,7 @@
     "postcss-simple-vars": "^7.0.1",
     "prisma": "^6.9.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

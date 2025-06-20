@@ -42,7 +42,6 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
     initialValues: createReservationInitialValues,
   });
 
-  // Trigger price calculation when vehicle and dates are selected
   useEffect(() => {
     const { vehicleId, startDatetime, endDatetime } = form.values;
 
@@ -55,7 +54,6 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
     }
   }, [form.values.vehicleId, form.values.startDatetime, form.values.endDatetime]);
 
-  // Update form field when price is calculated
   useEffect(() => {
     if (calculatedPrice !== undefined) {
       form.setFieldValue('totalPrice', calculatedPrice);
@@ -87,7 +85,9 @@ export default function CreateReservationForm({ onSuccess }: Readonly<CreateRese
           <Select
             label="Vehicle"
             placeholder={isVehiclesLoading ? 'Loading vehicles...' : 'Select a vehicle'}
-            data={vehicles.map((v) => ({
+            data={vehicles
+              .filter((v) => v.status === 'AVAILABLE') 
+              .map((v) => ({
               value: v.id,
               label: `${v.brand} ${v.model} (${v.plateNumber})`,
             }))}
