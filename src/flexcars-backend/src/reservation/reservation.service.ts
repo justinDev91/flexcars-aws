@@ -19,8 +19,8 @@ export class ReservationService {
   async findAll(params: FindAllReservationsDto): Promise<Reservation[]> {
     const { page, limit } = params;
     return this.prisma.reservation.findMany({
-      skip: limit * (page - 1),
-      take: limit,
+      // skip: limit * (page - 1),
+      // take: limit,
     });
   }
 
