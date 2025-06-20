@@ -49,22 +49,22 @@ export class ReservationService {
 
 
   async updateReservation(id: string, data: Prisma.ReservationUpdateInput): Promise<Reservation> {
-  const existing = await this.prisma.reservation.findUnique({ where: { id } });
-  if (!existing) throw new NotFoundException('Reservation not found');
+  const reservation = await this.prisma.reservation.findUnique({ where: { id } });
+  if (!reservation) throw new NotFoundException('Reservation not found');
 
-  const updated = await this.prisma.reservation.update({ where: { id }, data });
+  const reservationUpdated = await this.prisma.reservation.update({ where: { id }, data });
 
-  if (data.status === 'CONFIRMED' && existing.status !== 'CONFIRMED') {
-    const customer = await this.prisma.user.findUnique({ where: { id: updated.customerId } });
-    const vehicle = await this.prisma.vehicle.findUnique({ where: { id: updated.vehicleId } });
+  if (data.status === 'CONFIRMED' && reservation.status !== 'CONFIRMED') {
+    const customer = await this.prisma.user.findUnique({ where: { id: reservationUpdated.customerId } });
+    const vehicle = await this.prisma.vehicle.findUnique({ where: { id: reservationUpdated.vehicleId } });
 
     const qrContent = `
-      vehicleId: ${updated.vehicleId}
-      customerId: ${updated.customerId}
-      startDatetime: ${updated.startDatetime}
-      endDatetime: ${updated.endDatetime}
-      pickupLocation: ${updated.pickupLocation}
-      dropoffLocation: ${updated.dropoffLocation}
+      reservationId: ${reservation.id}
+      customer: '${customer?.firstName}' ' ${customer?.lastName}'
+      startDatetime: ${reservationUpdated.startDatetime}
+      endDatetime: ${reservationUpdated.endDatetime}
+      pickupLocation: ${reservationUpdated.pickupLocation}
+      dropoffLocation: ${reservationUpdated.dropoffLocation}
     `;
 
     const qrCodeBase64 = await qrcode.toDataURL(qrContent);
@@ -79,10 +79,10 @@ export class ReservationService {
         vehicleModel: vehicle?.model,
         plateNumber: vehicle?.plateNumber,
         fuelType: vehicle?.fuelType,
-        startDatetime: updated.startDatetime?.toLocaleString('fr-FR'),
-        endDatetime: updated.endDatetime?.toLocaleString('fr-FR'),
-        pickupLocation: updated.pickupLocation,
-        dropoffLocation: updated.dropoffLocation,
+        startDatetime: reservationUpdated.startDatetime?.toLocaleString('fr-FR'),
+        endDatetime: reservationUpdated.endDatetime?.toLocaleString('fr-FR'),
+        pickupLocation: reservationUpdated.pickupLocation,
+        dropoffLocation: reservationUpdated.dropoffLocation,
         qrCodeBase64: qrCodeBase64.replace(/^data:image\/png;base64,/, ''),
       },
       attachments: [
@@ -96,9 +96,8 @@ export class ReservationService {
     });
   }
 
-  return updated;
+  return reservationUpdated;
   }
-
 
 
   async deleteReservation(id: string): Promise<void> {

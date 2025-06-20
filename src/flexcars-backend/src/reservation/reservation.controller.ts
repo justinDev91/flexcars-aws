@@ -5,7 +5,7 @@ import { UpdateReservationDto } from './dto/updateReservation.dto';
 import { FindAllReservationsDto } from './dto/findAllReservations.dto';
 import { ReservationService } from './reservation.service';
 import { Response } from 'express';
-import { Reservation } from '@prisma/client';
+import { Reservation, Vehicle } from '@prisma/client';
 import { VehiclesService } from 'src/vehicle/vehicle.service';
 
 @ApiBearerAuth('access-token') 
@@ -37,8 +37,9 @@ export class ReservationController {
     return this.reservationService.updateReservation(id, data);
   }
   
+ 
   @Get('scan/:identifier')
-  async scanReservation(@Param('identifier') identifier: string) {
+  async scanReservation(@Param('identifier') identifier: string): Promise<{ reservation: Reservation, vehicle: Vehicle }> {
     const reservation = await this.reservationService.findById(identifier);
     const vehicle = await this.vehicleService.pickup(reservation.vehicleId);
     return { reservation, vehicle };

@@ -7,20 +7,37 @@ import { useScanReservation } from '../../../reservations/hooks/useScanReservati
 
 export default function ScanReservation() {
   const [identifier, setIdentifier] = useState<string | null>(null);
+  const [customerName, setCustomerName] = useState<string | null>(null);
   const [showScanner, setShowScanner] = useState(false);
 
   const {
-    scannedReservation,
-    isScanning,
-    error,
-    refetch,
+    scannedReservation,
+    scannedVehicle,
+    isScanning,
+    error,
+    refetch,
   } = useScanReservation(identifier ?? '');
 
-  const handleScan = (detectedCodes:IDetectedBarcode[]) => {
-    console.log('result', detectedCodes)
-    // if (text && !identifier) {
-    //   setIdentifier(text);
-    // }
+
+  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+    if (!detectedCodes.length) return;
+
+    const rawValue = detectedCodes[0].rawValue;
+    console.log('Scanned QR content:', rawValue);
+
+    const idMatch = rawValue.match(/reservationId:\s*(\S+)/);
+    if (idMatch && idMatch[1]) {
+      const reservationId = idMatch[1].trim();
+      if (!identifier) {
+        setIdentifier(reservationId);
+      }
+    }
+
+    const customerMatch = rawValue.match(/customer:\s*'([^']+)'\s*'\s*([^']+)'/);
+    if (customerMatch && customerMatch[1] && customerMatch[2]) {
+      const fullName = `${customerMatch[1]} ${customerMatch[2]}`;
+      setCustomerName(fullName);
+    }
   };
 
   return (
@@ -42,16 +59,15 @@ export default function ScanReservation() {
           }}
         >
           <Scanner
-            onScan={(detectedCodes:IDetectedBarcode[]) => handleScan(detectedCodes)}
+            onScan={handleScan}
             onError={(err) => console.error('Scan error:', err)}
             constraints={{ facingMode: 'user' }}
-            sound = {true}
-            scanDelay = {6000}
-            components = {
-              {
-               finder: true,
-               zoom: true
-              }}
+            sound={true}
+            scanDelay={6000}
+            components={{
+              finder: true,
+              zoom: true,
+            }}
             allowMultiple={true}
           />
         </Box>
@@ -65,17 +81,27 @@ export default function ScanReservation() {
         </Text>
       )}
 
-      {scannedReservation && (
+      {identifier && customerName && (
         <Paper shadow="xs" p="md" mt="md">
           <Text fw={500}>Réservation trouvée :</Text>
-          <Text>Client : {scannedReservation.customerId}</Text>
-          <Text>Véhicule : {scannedReservation.vehicleId}</Text>
-          <Text>Pickup Location : {scannedReservation.pickupLocation}</Text>
-          <Button mt="md" onClick={() => refetch()}>
-            Rafraîchir
-          </Button>
+          <Text>Client : {customerName}</Text>
+          <Text>Réservation ID : {identifier}</Text>
+
+          {scannedReservation && (
+            <>
+              <Text>Véhicule : {scannedVehicle?.brand} {scannedVehicle?.model}</Text>
+              <Text>Début : {scannedReservation.startDatetime}</Text>
+              <Text>Fin : {scannedReservation.endDatetime}</Text>
+              <Text>Lieu de prise en charge : {scannedReservation.pickupLocation}</Text>
+              <Text>Lieu de retour : {scannedReservation.dropoffLocation}</Text>
+              <Button mt="md" onClick={() => refetch()}>
+                Rafraîchir
+              </Button>
+            </>
+          )}
         </Paper>
       )}
+
     </>
   );
 }
