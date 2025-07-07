@@ -201,11 +201,10 @@ export default function NavbarSegmented({
         ))}
       </AppShell.Navbar>
 
-      <AppShell.Main>
-        <Container size="xl">
+      <Container size="xl" className="px-48 py-48 flex justify-center items-center">
           {children}
-        </Container>
-      </AppShell.Main>
+      </Container>
+
     </AppShell>
   );
 }
