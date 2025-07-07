@@ -34,9 +34,9 @@ import { logout } from '../logout';
 
 
 const clientTabs = [
-  { value: 'browse-vehicles', label: 'Browse Vehicles', icon: IconCar, link: '/browse-vehicles' },
-  { value: 'my-reservations', label: 'My Reservations', icon: IconCalendarEvent, link: '/my-reservations' },
-  { value: 'location-history', label: 'Location History', icon: IconCreditCard, link: '/payment-history' },
+  { value: 'browse-vehicles', label: 'Browse Vehicles', icon: IconCar, link: '/home' },
+  { value: 'my-reservations', label: 'My Reservations', icon: IconCalendarEvent, link: '/home/my-reservations' },
+  { value: 'location-history', label: 'Location History', icon: IconCreditCard, link: '/home/payment-history' },
   { value: 'messages', label: 'Messages', icon: IconMessages, link: '/messages' },
   { value: 'profile', label: 'My Profile', icon: IconUsers, link: '/profile' },
 ];

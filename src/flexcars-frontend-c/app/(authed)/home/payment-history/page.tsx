@@ -237,7 +237,7 @@ export default function PaymentHistory() {
           <Text className="text-gray-500 mb-4">
             You haven't made any payments yet. Start by making a reservation.
           </Text>
-          <Button component="a" href="/browse-vehicles">
+          <Button component="a" href="/home">
             Browse Vehicles
           </Button>
         </Card>

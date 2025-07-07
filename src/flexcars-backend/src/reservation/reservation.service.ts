@@ -103,4 +103,12 @@ export class ReservationService {
   async deleteReservation(id: string): Promise<void> {
     await this.prisma.reservation.delete({ where: { id } });
   }
+
+  async findAllByCustomerId(customerId: string): Promise<Reservation[]> {
+    const customerExists = await this.prisma.user.findUnique({ where: { id: customerId } });
+    if (!customerExists) return [];                         
+    return this.prisma.reservation.findMany({
+      where: { customerId },
+    });
+  }
 }

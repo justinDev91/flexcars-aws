@@ -16,7 +16,7 @@ import {
   Textarea,
   Rating
 } from '@mantine/core';
-import { useGetAllReservation } from '@/app/(authed)/home/reservations/hooks/useGetAllReservation';
+import { useGetAllCustomerReservationByCustomerId } from '@/app/(authed)/home/reservations/hooks/useGetAllCustomerReservationByCustomerId';
 import { useGetAllVehicles } from '@/app/(authed)/home/vehicle/hooks/useGetAllVehicles';
 import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
 import { useUpdateReservation } from '@/app/(authed)/home/reservations/hooks/useUpdateReservationVehicle';
@@ -26,7 +26,7 @@ import { notifications } from '@mantine/notifications';
 
 export default function MyReservations() {
   const { user } = useAuthSession();
-  const { reservations, isReservationsLoading } = useGetAllReservation();
+  const { reservations, isReservationsLoading } = useGetAllCustomerReservationByCustomerId(user?.id);
   const { vehicles } = useGetAllVehicles();
   const { mutate: updateReservation } = useUpdateReservation();
   
@@ -34,9 +34,6 @@ export default function MyReservations() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
-
-  // Filter reservations for the current user
-  const userReservations = reservations.filter(r => r.customerId === user?.id);
 
   const getVehicleDetails = (vehicleId: string) => {
     return vehicles.find(v => v.id === vehicleId);
@@ -112,7 +109,7 @@ export default function MyReservations() {
         My Reservations
       </Title>
 
-      {userReservations.length === 0 ? (
+      {reservations.length === 0 ? (
         <Card padding="xl" className="text-center">
           <IconCar size={48} className="mx-auto mb-4 text-gray-400" />
           <Title order={3} className="text-gray-600 mb-2">
@@ -121,13 +118,13 @@ export default function MyReservations() {
           <Text className="text-gray-500 mb-4">
             You haven't made any reservations yet. Start by browsing our available vehicles.
           </Text>
-          <Button component="a" href="/browse-vehicles">
+          <Button component="a" href="/home">
             Browse Vehicles
           </Button>
         </Card>
       ) : (
         <Stack gap="md">
-          {userReservations.map((reservation) => {
+          {reservations.map((reservation) => {
             const vehicle = getVehicleDetails(reservation.vehicleId);
             
             return (
