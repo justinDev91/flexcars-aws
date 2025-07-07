@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, Dispatch, SetStateAction } from 'react';
-import { Container, Title, Select, TextInput, ActionIcon, useMantineTheme } from '@mantine/core';
+import { Container, Title, TextInput, ActionIcon, useMantineTheme } from '@mantine/core';
 import { IconArrowRight, IconSearch } from '@tabler/icons-react';
 import VehicleCard from '@/app/(authed)/home/components/VehicleCard';
 import { useGetAllVehicles } from '@/app/(authed)/home/vehicle/hooks/useGetAllVehicles';
@@ -102,109 +102,179 @@ export default function VehicleStack() {
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Filters Section */}
-        <div className="w-full md:w-1/4 bg-white p-4 rounded-lg shadow-md">
-          <Title order={4} className="mb-4 text-gray-700">
-            Filters
-          </Title>
-          <Select
-            placeholder="Fuel Type"
-            data={['', 'PETROL', 'DIESEL', 'ELECTRIC', 'HYBRID']}
-            value={filterFuelType}
-            onChange={handleSelectChange(setFilterFuelType)}
-            size="md"
-            className="mb-4"
-          />
-          <Select
-            placeholder="Status"
-            data={['', 'AVAILABLE', 'RESERVED', 'RENTED', 'MAINTENANCE']}
-            value={filterStatus}
-            onChange={handleSelectChange(setFilterStatus)}
-            size="md"
-            className="mb-4"
-          />
-          <Select
-            placeholder="Location"
-            data={['', 'PARIS_11', 'PARIS_19', 'ISSY_LES_MOULINEAUX', 'BOULOGNE', 'SAINT_DENIS']}
-            value={filterLocation}
-            onChange={handleSelectChange(setFilterLocation)}
-            size="md"
-            className="mb-4"
-          />
-          <Select
-            placeholder="Transmission"
-            data={['', 'AUTOMATIC', 'MANUAL']}
-            value={filterTransmission}
-            onChange={handleSelectChange(setFilterTransmission)}
-            size="md"
-            className="mb-4"
-          />
-          <Select
-            placeholder="Seating Capacity"
-            data={['', '2', '4', '5', '7', '8']}
-            value={filterSeatingCapacity}
-            onChange={handleSelectChange(setFilterSeatingCapacity)}
-            size="md"
-            className="mb-4"
-          />
-          <Select
-            placeholder="Vehicle Type"
-            data={['', 'SUV', 'SEDAN', 'HATCHBACK', 'TRUCK']}
-            value={filterVehicleType}
-            onChange={handleSelectChange(setFilterVehicleType)}
-            size="md"
-            className="mb-4"
-          />
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price Range
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="1000"
-              value={filterPriceRange[0]}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterPriceRange([parseInt(e.target.value), filterPriceRange[1]])}
-              className="w-full mb-2"
-            />
-            <input
-              type="range"
-              min="0"
-              max="1000"
-              value={filterPriceRange[1]}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterPriceRange([filterPriceRange[0], parseInt(e.target.value)])}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>${filterPriceRange[0]}</span>
-              <span>${filterPriceRange[1]}</span>
+        <aside className="w-full md:w-1/4 bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-6 md:mb-0 flex flex-col gap-6 sticky top-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 tracking-tight">Filters</h2>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fuel Type</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={filterFuelType}
+                onChange={e => setFilterFuelType(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="PETROL">Petrol</option>
+                <option value="DIESEL">Diesel</option>
+                <option value="ELECTRIC">Electric</option>
+                <option value="HYBRID">Hybrid</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={filterStatus}
+                onChange={e => setFilterStatus(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="RESERVED">Reserved</option>
+                <option value="RENTED">Rented</option>
+                <option value="MAINTENANCE">Maintenance</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={filterLocation}
+                onChange={e => setFilterLocation(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="PARIS_11">Paris 11</option>
+                <option value="PARIS_19">Paris 19</option>
+                <option value="ISSY_LES_MOULINEAUX">Issy-les-Moulineaux</option>
+                <option value="BOULOGNE">Boulogne</option>
+                <option value="SAINT_DENIS">Saint-Denis</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Transmission</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={filterTransmission}
+                onChange={e => setFilterTransmission(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="AUTOMATIC">Automatic</option>
+                <option value="MANUAL">Manual</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Seating Capacity</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={filterSeatingCapacity}
+                onChange={e => setFilterSeatingCapacity(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                value={filterVehicleType}
+                onChange={e => setFilterVehicleType(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="SUV">SUV</option>
+                <option value="SEDAN">Sedan</option>
+                <option value="HATCHBACK">Hatchback</option>
+                <option value="TRUCK">Truck</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price Range (€)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  max="1000"
+                  value={filterPriceRange[0]}
+                  onChange={e => setFilterPriceRange([parseInt(e.target.value), filterPriceRange[1]])}
+                  className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-gray-500">-</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="1000"
+                  value={filterPriceRange[1]}
+                  onChange={e => setFilterPriceRange([filterPriceRange[0], parseInt(e.target.value)])}
+                  className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1000"
+                value={filterPriceRange[0]}
+                onChange={e => setFilterPriceRange([parseInt(e.target.value), filterPriceRange[1]])}
+                className="w-full mt-2 accent-blue-500"
+              />
+              <input
+                type="range"
+                min="0"
+                max="1000"
+                value={filterPriceRange[1]}
+                onChange={e => setFilterPriceRange([filterPriceRange[0], parseInt(e.target.value)])}
+                className="w-full accent-blue-500"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>€{filterPriceRange[0]}</span>
+                <span>€{filterPriceRange[1]}</span>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mileage Range (km)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  max="200000"
+                  value={filterMileageRange[0]}
+                  onChange={e => setFilterMileageRange([parseInt(e.target.value), filterMileageRange[1]])}
+                  className="w-24 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-gray-500">-</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="200000"
+                  value={filterMileageRange[1]}
+                  onChange={e => setFilterMileageRange([filterMileageRange[0], parseInt(e.target.value)])}
+                  className="w-24 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="200000"
+                value={filterMileageRange[0]}
+                onChange={e => setFilterMileageRange([parseInt(e.target.value), filterMileageRange[1]])}
+                className="w-full mt-2 accent-blue-500"
+              />
+              <input
+                type="range"
+                min="0"
+                max="200000"
+                value={filterMileageRange[1]}
+                onChange={e => setFilterMileageRange([filterMileageRange[0], parseInt(e.target.value)])}
+                className="w-full accent-blue-500"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>{filterMileageRange[0]} km</span>
+                <span>{filterMileageRange[1]} km</span>
+              </div>
             </div>
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Mileage Range
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="200000"
-              value={filterMileageRange[0]}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterMileageRange([parseInt(e.target.value), filterMileageRange[1]])}
-              className="w-full mb-2"
-            />
-            <input
-              type="range"
-              min="0"
-              max="200000"
-              value={filterMileageRange[1]}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterMileageRange([filterMileageRange[0], parseInt(e.target.value)])}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>{filterMileageRange[0]} km</span>
-              <span>{filterMileageRange[1]} km</span>
-            </div>
-          </div>
-        </div>
+        </aside>
 
         {/* Vehicle Grid Section */}
         <div className="flex-1">
