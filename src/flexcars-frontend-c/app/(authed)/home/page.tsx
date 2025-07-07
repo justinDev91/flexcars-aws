@@ -2,8 +2,11 @@
 
 import VehicleStack from "./vehicle/components/vehicleStack";
 
-export default function ReservationHome() {
+
+export default function BrowseVehicles() {
   return (
-    <VehicleStack />
+    <div className="min-h-screen bg-gray-50">
+      <VehicleStack />
+    </div>
   );
 }

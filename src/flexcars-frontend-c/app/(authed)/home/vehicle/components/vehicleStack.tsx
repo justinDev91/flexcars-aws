@@ -65,16 +65,9 @@ export default function VehicleStack() {
       return (
         (!filterFuelType || vehicle.fuelType === filterFuelType) &&
         (!filterStatus || vehicle.status === filterStatus) &&
-        (!filterLocation || vehicle.location === filterLocation) &&
-        (!filterTransmission || vehicle.transmission === filterTransmission) &&
-        (!filterSeatingCapacity || vehicle.seatingCapacity === parseInt(filterSeatingCapacity)) &&
-        (!filterVehicleType || vehicle.type === filterVehicleType) &&
-        (vehicle.price >= filterPriceRange[0] && vehicle.price <= filterPriceRange[1]) &&
-        (vehicle.currentMileage >= filterMileageRange[0] && vehicle.currentMileage <= filterMileageRange[1]) &&
         (!searchQuery ||
           vehicle.brand?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          vehicle.model?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          vehicle.type?.toLowerCase().includes(searchQuery.toLowerCase()))
+          vehicle.model?.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     });
   }, [
@@ -221,8 +214,8 @@ export default function VehicleStack() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {filteredVehicles.length > 0 ? (
               filteredVehicles.map((vehicle, index) => (
-                <div key={index} className="flex justify-center">
-                  <VehicleCard {...vehicle} />
+                <div key={vehicle.id || index} className="flex justify-center">
+                  <VehicleCard vehicle={vehicle} />
                 </div>
               ))
             ) : (

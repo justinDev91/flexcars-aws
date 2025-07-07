@@ -21,7 +21,7 @@ import { DateTimePicker } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDots, IconPencil, IconSearch } from '@tabler/icons-react';
 import { Reservation, ReservationStatus, Location } from '@/app/types/Reservation';
-import { useUpdateReservation } from '../hooks/useReservationVehicle';
+import { useUpdateReservation } from '../hooks/useUpdateReservationVehicle';
 import { useGetAllVehicle } from '../../vehicles/hooks/useGetAllVehicle';
 import { useGetAllUser } from '../../users/hooks/useGetAllUsers';
 import jsPDF from 'jspdf';

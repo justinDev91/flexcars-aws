@@ -1,19 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import {
-  IconAlertTriangle,
   IconBellRinging,
   IconCalendarEvent,
   IconCar,
   IconCreditCard,
   IconLogout,
   IconMessages,
-  IconReceipt2,
   IconSettings,
   IconSwitchHorizontal,
-  IconThumbUp,
   IconUsers,
   IconChevronDown,
 } from '@tabler/icons-react';
@@ -25,7 +22,6 @@ import {
   Menu,
   Avatar,
   Burger,
-  Tabs,
   Container,
   useMantineTheme,
   ActionIcon,
@@ -54,6 +50,14 @@ export default function NavbarSegmented({
   const [activeTab, setActiveTab] = useState<string | null>('browse-vehicles');
   const theme = useMantineTheme();
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const currentTab = clientTabs.find(tab => pathname.includes(tab.value));
+    if (currentTab) {
+      setActiveTab(currentTab.value);
+    }
+  }, [pathname]);
 
   const handleTabChange = (value: string | null) => {
     setActiveTab(value);
