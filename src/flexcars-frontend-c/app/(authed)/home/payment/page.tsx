@@ -15,13 +15,16 @@ import {
   Divider,
   Badge,
   Loader,
-  Alert
+  Alert,
+  NumberInput,
+  Modal
 } from '@mantine/core';
 import { useAuthSession } from '@/app/auth/hooks/useAuthSession';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useProcessPayment } from './hooks/useProcessPayment';
 import { IconCreditCard, IconLock, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { useForm } from '@mantine/form';
 
 interface PaymentData {
   cardNumber: string;
@@ -35,35 +38,29 @@ interface PaymentData {
   country: string;
 }
 
-export default function Payment() {
+interface PaymentProps {
+  reservationId?: string;
+  invoiceId?: string;
+  amount?: number;
+  description?: string;
+  onClose?: () => void;
+}
+
+export default function Payment(props: PaymentProps) {
   const { user } = useAuthSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  const [paymentData, setPaymentData] = useState<PaymentData>({
-    cardNumber: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvv: '',
-    nameOnCard: `${user?.firstName} ${user?.lastName}` || '',
-    billingAddress: '',
-    city: '',
-    postalCode: '',
-    country: 'France',
-  });
-  
+  const reservationId = props.reservationId;
+  const invoiceId = props.invoiceId;
+  const amount = props.amount ?? 0;
+  const description = props.description ?? 'Car Rental Payment';
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [saveCard, setSaveCard] = useState(false);
   const [useStoredCard, setUseStoredCard] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
   
   const { mutate: processPayment, isPending } = useProcessPayment();
   
-  // Get reservation/invoice details from URL params
-  const reservationId = searchParams.get('reservationId');
-  const invoiceId = searchParams.get('invoiceId');
-  const amount = parseFloat(searchParams.get('amount') || '0');
-  const description = searchParams.get('description') || 'Car Rental Payment';
-
   // Mock stored payment methods
   const storedCards = [
     {
@@ -82,15 +79,29 @@ export default function Payment() {
     },
   ];
 
+  const form = useForm({
+    initialValues: {
+      cardNumber: '',
+      expiryMonth: '',
+      expiryYear: '',
+      cvv: '',
+      nameOnCard: `${user?.firstName} ${user?.lastName}` || '',
+      billingAddress: '',
+      city: '',
+      postalCode: '',
+      country: 'France',
+    },
+  });
+
   useEffect(() => {
     if (!reservationId && !invoiceId) {
-      router.push('/my-reservations');
+      router.push('/home/my-reservations');
     }
   }, [reservationId, invoiceId, router]);
 
   const handlePayment = async () => {
+    const paymentData = form.values;
     if (!useStoredCard) {
-      // Validate new card data
       if (!paymentData.cardNumber || !paymentData.expiryMonth || !paymentData.expiryYear || !paymentData.cvv) {
         notifications.show({
           title: 'Error',
@@ -117,7 +128,11 @@ export default function Payment() {
       transactionId: `stripe_${Date.now()}`,
     }, {
       onSuccess: () => {
-        router.push('/my-reservations?payment=success');
+        setSuccessModalOpen(true);
+        setTimeout(() => {
+          setSuccessModalOpen(false);
+          router.push('/home/my-reservations');
+        }, 2000);
       },
     });
   };
@@ -143,7 +158,7 @@ export default function Payment() {
 
   const handleCardNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCardNumber(event.target.value);
-    setPaymentData(prev => ({ ...prev, cardNumber: formatted }));
+    form.setFieldValue('cardNumber', formatted);
   };
 
   const currentYear = new Date().getFullYear();
@@ -168,185 +183,182 @@ export default function Payment() {
   }
 
   return (
-    <Container size="sm" py="xl">
-      <Title order={2} mb="xl" ta="center">
-        Complete Payment
-      </Title>
-
-      {/* Payment Summary */}
-      <Card withBorder mb="xl">
-        <Group justify="space-between" mb="md">
-          <Text fw={500}>Payment Summary</Text>
-          <Badge color="blue">{reservationId ? 'Reservation' : 'Invoice'}</Badge>
+    <>
+      <Modal opened={successModalOpen} onClose={() => setSuccessModalOpen(false)} centered withCloseButton={false}>
+        <Group align="center" justify="center">
+          <IconCheck size={48} color="green" />
         </Group>
-        
-        <Stack gap="xs">
-          <Group justify="space-between">
-            <Text size="sm">Description:</Text>
-            <Text size="sm">{description}</Text>
-          </Group>
-          <Group justify="space-between">
-            <Text size="sm">Amount:</Text>
-            <Text size="sm" fw={500}>€{amount.toFixed(2)}</Text>
-          </Group>
-          <Divider />
-          <Group justify="space-between">
-            <Text fw={500}>Total:</Text>
-            <Text fw={700} size="lg" c="blue">€{amount.toFixed(2)}</Text>
-          </Group>
-        </Stack>
-      </Card>
+        <Title order={3} ta="center" mt="md">Payment Successful!</Title>
+        <Text ta="center" mt="sm">You will be redirected to your reservations.</Text>
+      </Modal>
+      <Container size="sm" py="xl">
+        <Title order={2} mb="xl" ta="center">
+          Complete Payment
+        </Title>
 
-      {/* Payment Method Selection */}
-      <Card withBorder mb="xl">
-        <Title order={4} mb="md">Payment Method</Title>
-        
-        {storedCards.length > 0 && (
-          <Stack gap="md" mb="md">
-            <Checkbox
-              label="Use saved payment method"
-              checked={useStoredCard}
-              onChange={(event) => setUseStoredCard(event.currentTarget.checked)}
-            />
-            
-            {useStoredCard && (
-              <Select
-                label="Select Card"
-                placeholder="Choose a saved card"
-                data={storedCards.map(card => ({
-                  value: card.id,
-                  label: `**** **** **** ${card.last4} (${card.brand.toUpperCase()}) - ${card.expiryMonth}/${card.expiryYear}`,
-                }))}
-              />
-            )}
-          </Stack>
-        )}
-
-        {!useStoredCard && (
-          <Stack gap="md">
-            <TextInput
-              label="Card Number"
-              placeholder="1234 5678 9012 3456"
-              value={paymentData.cardNumber}
-              onChange={handleCardNumberChange}
-              maxLength={19}
-              leftSection={<IconCreditCard size={16} />}
-              required
-            />
-            
-            <Group grow>
-              <Select
-                label="Expiry Month"
-                placeholder="MM"
-                data={months}
-                value={paymentData.expiryMonth}
-                onChange={(value) => setPaymentData(prev => ({ ...prev, expiryMonth: value || '' }))}
-                required
-              />
-              <Select
-                label="Expiry Year"
-                placeholder="YY"
-                data={years}
-                value={paymentData.expiryYear}
-                onChange={(value) => setPaymentData(prev => ({ ...prev, expiryYear: value || '' }))}
-                required
-              />
-              <TextInput
-                label="CVV"
-                placeholder="123"
-                value={paymentData.cvv}
-                onChange={(event) => setPaymentData(prev => ({ ...prev, cvv: event.currentTarget.value }))}
-                maxLength={4}
-                required
-              />
+        {/* Payment Summary */}
+        <Card withBorder mb="xl">
+          <Group justify="space-between" mb="md">
+            <Text fw={500}>Payment Summary</Text>
+            <Badge color="blue">{reservationId ? 'Reservation' : 'Invoice'}</Badge>
+          </Group>
+          
+          <Stack gap="xs">
+            <Group justify="space-between">
+              <Text size="sm">Description:</Text>
+              <Text size="sm">{description}</Text>
             </Group>
-            
-            <TextInput
-              label="Name on Card"
-              placeholder="John Doe"
-              value={paymentData.nameOnCard}
-              onChange={(event) => setPaymentData(prev => ({ ...prev, nameOnCard: event.currentTarget.value }))}
-              required
-            />
-            
-            <Divider label="Billing Address" labelPosition="left" />
-            
-            <TextInput
-              label="Address"
-              placeholder="123 Main Street"
-              value={paymentData.billingAddress}
-              onChange={(event) => setPaymentData(prev => ({ ...prev, billingAddress: event.currentTarget.value }))}
-              required
-            />
-            
-            <Group grow>
-              <TextInput
-                label="City"
-                placeholder="Paris"
-                value={paymentData.city}
-                onChange={(event) => setPaymentData(prev => ({ ...prev, city: event.currentTarget.value }))}
-                required
-              />
-              <TextInput
-                label="Postal Code"
-                placeholder="75001"
-                value={paymentData.postalCode}
-                onChange={(event) => setPaymentData(prev => ({ ...prev, postalCode: event.currentTarget.value }))}
-                required
-              />
+            <Group justify="space-between">
+              <Text size="sm">Amount:</Text>
+              <Text size="sm" fw={500}>€{amount.toFixed(2)}</Text>
             </Group>
-            
-            <Select
-              label="Country"
-              value={paymentData.country}
-              onChange={(value) => setPaymentData(prev => ({ ...prev, country: value || 'France' }))}
-              data={[
-                { value: 'France', label: 'France' },
-                { value: 'Germany', label: 'Germany' },
-                { value: 'Spain', label: 'Spain' },
-                { value: 'Italy', label: 'Italy' },
-                { value: 'UK', label: 'United Kingdom' },
-              ]}
-            />
-            
-            <Checkbox
-              label="Save this card for future payments"
-              checked={saveCard}
-              onChange={(event) => setSaveCard(event.currentTarget.checked)}
-            />
+            <Divider />
+            <Group justify="space-between">
+              <Text fw={500}>Total:</Text>
+              <Text fw={700} size="lg" c="blue">€{amount.toFixed(2)}</Text>
+            </Group>
           </Stack>
-        )}
-      </Card>
+        </Card>
 
-      {/* Security Notice */}
-      <Card withBorder mb="xl" bg="gray.0">
-        <Group gap="sm">
-          <IconLock size={16} className="text-green-600" />
-          <Text size="sm" c="dimmed">
-            Your payment information is encrypted and secure. We never store your card details.
-          </Text>
+        {/* Payment Method Selection */}
+        <Card withBorder mb="xl">
+          <Title order={4} mb="md">Payment Method</Title>
+          
+          {storedCards.length > 0 && (
+            <Stack gap="md" mb="md">
+              <Checkbox
+                label="Use saved payment method"
+                checked={useStoredCard}
+                onChange={(event) => setUseStoredCard(event.currentTarget.checked)}
+              />
+              
+              {useStoredCard && (
+                <Select
+                  label="Select Card"
+                  placeholder="Choose a saved card"
+                  data={storedCards.map(card => ({
+                    value: card.id,
+                    label: `**** **** **** ${card.last4} (${card.brand.toUpperCase()}) - ${card.expiryMonth}/${card.expiryYear}`,
+                  }))}
+                />
+              )}
+            </Stack>
+          )}
+
+          {!useStoredCard && (
+            <Stack gap="md">
+              <TextInput
+                label="Card Number"
+                placeholder="1234 5678 9012 3456"
+                maxLength={19}
+                leftSection={<IconCreditCard size={16} />}
+                required
+                {...form.getInputProps('cardNumber')}
+              />
+              
+              <Group grow>
+                <Select
+                  label="Expiry Month"
+                  placeholder="MM"
+                  data={months}
+                  required
+                  {...form.getInputProps('expiryMonth')}
+                />
+                <Select
+                  label="Expiry Year"
+                  placeholder="YY"
+                  data={years}
+                  required
+                  {...form.getInputProps('expiryYear')}
+                />
+                <NumberInput
+                  label="CVV"
+                  placeholder="123"
+                  maxLength={4}
+                  required
+                  {...form.getInputProps('cvv')}
+                />
+              </Group>
+              
+              <TextInput
+                label="Name on Card"
+                placeholder="John Doe"
+                required
+                {...form.getInputProps('nameOnCard')}
+              />
+              <Divider label="Billing Address" labelPosition="left" />
+              <TextInput
+                label="Address"
+                placeholder="123 Main Street"
+                required
+                {...form.getInputProps('billingAddress')}
+              />
+              <Group grow>
+                <TextInput
+                  label="City"
+                  placeholder="Paris"
+                  required
+                  {...form.getInputProps('city')}
+                />
+                <TextInput
+                  label="Postal Code"
+                  placeholder="75001"
+                  required
+                  {...form.getInputProps('postalCode')}
+                />
+              </Group>
+              
+              <Select
+                label="Country"
+                data={[
+                  { value: 'France', label: 'France' },
+                  { value: 'Germany', label: 'Germany' },
+                  { value: 'Spain', label: 'Spain' },
+                  { value: 'Italy', label: 'Italy' },
+                  { value: 'UK', label: 'United Kingdom' },
+                ]}
+                {...form.getInputProps('country')}
+              />
+              
+              <Checkbox
+                label="Save this card for future payments"
+                checked={saveCard}
+                onChange={(event) => setSaveCard(event.currentTarget.checked)}
+              />
+            </Stack>
+          )}
+        </Card>
+
+        {/* Security Notice */}
+        <Card withBorder mb="xl" bg="gray.0">
+          <Group gap="sm">
+            <IconLock size={16} className="text-green-600" />
+            <Text size="sm" c="dimmed">
+              Your payment information is encrypted and secure. We never store your card details.
+            </Text>
+          </Group>
+        </Card>
+
+        {/* Action Buttons */}
+        <Group justify="space-between">
+          <Button
+            variant="outline"
+            onClick={props.onClose ? props.onClose : () => router.back()}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          
+          <Button
+            size="lg"
+            onClick={handlePayment}
+            loading={isPending}
+            leftSection={isPending ? <Loader size={16} /> : <IconCheck size={16} />}
+          >
+            {isPending ? 'Processing...' : `Pay €${amount.toFixed(2)}`}
+          </Button>
         </Group>
-      </Card>
-
-      {/* Action Buttons */}
-      <Group justify="space-between">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          disabled={isPending}
-        >
-          Cancel
-        </Button>
-        
-        <Button
-          size="lg"
-          onClick={handlePayment}
-          loading={isPending}
-          leftSection={isPending ? <Loader size={16} /> : <IconCheck size={16} />}
-        >
-          {isPending ? 'Processing...' : `Pay €${amount.toFixed(2)}`}
-        </Button>
-      </Group>
-    </Container>
+      </Container>
+    </>
   );
 }

@@ -1,3 +1,5 @@
+import { Invoice } from "./Invoice";
+
 export enum ReservationStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
@@ -20,6 +22,7 @@ export interface Reservation {
   startDatetime?: string; // ISO 8601 format
   endDatetime?: string;   // ISO 8601 format
   pickupLocation?: Location;
+  invoice?: Invoice
   dropoffLocation?: Location;
   status?: ReservationStatus;
   totalPrice?: number;

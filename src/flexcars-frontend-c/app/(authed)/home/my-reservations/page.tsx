@@ -23,10 +23,10 @@ import { useUpdateReservation } from '@/app/(authed)/home/reservations/hooks/use
 import { ReservationStatus, Location } from '@/app/types/Reservation';
 import { IconCar, IconCalendar, IconMapPin, IconCreditCard, IconStarFilled } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import Payment from '../payment/page';
 
 export default function MyReservations() {
-  const { user } = useAuthSession();
-  const { reservations, isReservationsLoading } = useGetAllCustomerReservationByCustomerId(user?.id);
+  const { reservations, isReservationsLoading } = useGetAllCustomerReservationByCustomerId();
   const { vehicles } = useGetAllVehicles();
   const { mutate: updateReservation } = useUpdateReservation();
   
@@ -34,6 +34,9 @@ export default function MyReservations() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [paymentParams, setPaymentParams] = useState<any>(null);
 
   const getVehicleDetails = (vehicleId: string) => {
     return vehicles.find(v => v.id === vehicleId);
@@ -181,7 +184,15 @@ export default function MyReservations() {
                         <>
                           <Button
                             size="sm"
-                            onClick={() => window.open(`/payment?reservationId=${reservation.id}&invoiceId=inv-${reservation.id}&amount=${reservation.totalPrice}&description=Car Rental Payment`, '_blank')}
+                            onClick={() => {
+                              setPaymentParams({
+                                reservationId: reservation.id,
+                                invoiceId: reservation?.invoice?.id ?? '',
+                                amount: reservation.totalPrice,
+                                description: 'Car Rental Payment',
+                              });
+                              setIsPaymentModalOpen(true);
+                            }}
                           >
                             Pay Now
                           </Button>
@@ -257,6 +268,24 @@ export default function MyReservations() {
             </Button>
           </Group>
         </Stack>
+      </Modal>
+
+      <Modal
+        opened={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        size="xl"
+      >
+        <div>
+          {paymentParams && (
+            <Payment
+              reservationId={paymentParams.reservationId}
+              invoiceId={paymentParams.invoiceId}
+              amount={paymentParams.amount}
+              description={paymentParams.description}
+              onClose={() => setIsPaymentModalOpen(false)}
+            />
+          )}
+        </div>
       </Modal>
     </Container>
   );
