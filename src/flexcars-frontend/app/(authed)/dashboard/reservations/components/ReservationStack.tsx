@@ -24,6 +24,8 @@ import { Reservation, ReservationStatus, Location } from '@/app/types/Reservatio
 import { useUpdateReservation } from '../hooks/useReservationVehicle';
 import { useGetAllVehicle } from '../../vehicles/hooks/useGetAllVehicle';
 import { useGetAllUser } from '../../users/hooks/useGetAllUsers';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const PAGE_SIZE = 4;
 
@@ -95,6 +97,37 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
     );
   };
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Reservations', 14, 16);
+    autoTable(doc, {
+      startY: 22,
+      head: [[
+        'Customer',
+        'Vehicle',
+        'Start',
+        'End',
+        'Pickup',
+        'Dropoff',
+        'Status',
+        'Price',
+        'Car Sitting'
+      ]],
+      body: reservations.map(r => [
+        userMap[r.customerId] || r.customerId,
+        vehicleMap[r.vehicleId] || r.vehicleId,
+        new Date(r.startDatetime as string).toLocaleString(),
+        new Date(r.endDatetime as string).toLocaleString(),
+        r.pickupLocation,
+        r.dropoffLocation,
+        r.status,
+        r.totalPrice ? `€${r.totalPrice}` : '—',
+        r.carSittingOption ? 'Yes' : 'No',
+      ]),
+    });
+    doc.save('reservations.pdf');
+  };
+
   const rows = paginatedReservations.map((r) => (
     <Table.Tr key={r.id}>
       <Table.Td>
@@ -145,17 +178,19 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
   return (
     <Stack>
       <Title order={3}>Reservations</Title>
-
-      <TextInput
-        placeholder="Search by customer, vehicle, location..."
-        mb="md"
-        leftSection={<IconSearch size={16} stroke={1.5} />}
-        value={search}
-        onChange={(event) => {
-          setSearch(event.currentTarget.value);
-          setPage(1);
-        }}
-      />
+      <Group justify="space-between" mb="sm">
+        <TextInput
+          placeholder="Search by customer, vehicle, location..."
+          mb={0}
+          leftSection={<IconSearch size={16} stroke={1.5} />}
+          value={search}
+          onChange={(event) => {
+            setSearch(event.currentTarget.value);
+            setPage(1);
+          }}
+        />
+        <Button onClick={handleDownloadPDF} variant="outline">Download PDF</Button>
+      </Group>
 
       {reservations.length === 0 ? (
         <Group justify="center" mt="md">
