@@ -9,9 +9,7 @@ export default function AuthedLayout({
 }>) {
   return (
     <NavbarSegmented>
-      <main className="px-4 w-full">
-        {children}
-      </main>
+      {children}
     </NavbarSegmented>
   );
 }

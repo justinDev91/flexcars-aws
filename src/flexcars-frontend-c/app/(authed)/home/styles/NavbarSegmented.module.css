@@ -1,73 +1,40 @@
-.layout {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.navbar {
-  background-color: var(--mantine-color-blue-filled);
-  width: 300px;
-  padding: var(--mantine-spacing-md);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.navbarMain {
-  flex: 1;
-  margin-top: var(--mantine-spacing-xl);
-}
-
-.title {
-  text-transform: uppercase;
-  letter-spacing: -0.25px;
-  color: white;
-}
-
-.link {
+/* Modern header styles for FlexCars */
+.headerContent {
   display: flex;
   align-items: center;
-  text-decoration: none;
-  font-size: var(--mantine-font-size-sm);
-  color: var(--mantine-color-blue-1);
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
-  border-radius: var(--mantine-radius-sm);
-  font-weight: 500;
-  transition: background-color 150ms ease, color 150ms ease;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 var(--mantine-spacing-md);
 }
 
-.link:hover {
-  background-color: var(--mantine-color-blue-6);
-  color: white;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
 }
 
-.link:hover .linkIcon,
-.link[data-active] .linkIcon {
-  color: white;
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
 }
 
-.link[data-active] {
-  background-color: var(--mantine-color-blue-7);
-  color: white;
+.sectionToggle {
+  display: flex;
+  gap: var(--mantine-spacing-xs);
 }
 
-.linkIcon {
-  color: var(--mantine-color-blue-2);
-  margin-right: var(--mantine-spacing-sm);
-  width: 25px;
-  height: 25px;
-  transition: color 150ms ease;
+.tabsContainer {
+  border-top: 1px solid var(--mantine-color-gray-2);
 }
 
-.footer {
-  border-top: 1px solid var(--mantine-color-blue-7);
-  padding-top: var(--mantine-spacing-md);
-}
-
-.content {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
+/* Responsive styles */
+@media (max-width: 768px) {
+  .headerContent {
+    padding: 0 var(--mantine-spacing-sm);
+  }
+  
+  .sectionToggle {
+    display: none;
+  }
 }

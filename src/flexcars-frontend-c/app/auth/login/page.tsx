@@ -32,7 +32,7 @@ export default function Login() {
     // Optionally fetch user info here if needed
     // setUser(...)
 
-    router.push("/");
+    router.push("/home");
   };
 
   return (
