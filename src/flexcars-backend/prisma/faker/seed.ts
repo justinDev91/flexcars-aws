@@ -1,4 +1,3 @@
-
 import { Company, Invoice, PrismaClient, RentalService, Reservation, User, Vehicle, VehicleMaintenance } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
@@ -50,8 +49,30 @@ async function main() {
   }
 
   // Seed Vehicles
-  const vehicles : Vehicle[]= [];
-  for (let i = 0; i < 10; i++) {
+  const carImages = [
+    'https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg',
+    'https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg',
+    'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg',
+    'https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg',
+    'https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg',
+    'https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg',
+    'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg',
+    'https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg?auto=compress&w=800',
+    'https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=800',
+    'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&w=800',
+    'https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg?auto=compress&w=800',
+    'https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&w=800',
+    'https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg?auto=compress&w=800',
+    'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&w=800',
+    'https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg?auto=compress&w=1200',
+    'https://images.pexels.com/photos/210019/pexels-photo-210019.jpeg?auto=compress&w=1200',
+    'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&w=1200',
+    'https://images.pexels.com/photos/1707828/pexels-photo-1707828.jpeg?auto=compress&w=1200',
+    'https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&w=1200',
+    'https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg?auto=compress&w=1200'
+  ];
+  const vehicles : Vehicle[] = [];
+  for (let i = 0; i < 20; i++) {
     const vehicle = await prisma.vehicle.create({
       data: {
         companyId: faker.helpers.arrayElement(companies).id,
@@ -65,7 +86,7 @@ async function main() {
         status: faker.helpers.arrayElement(['AVAILABLE', 'RESERVED', 'RENTED', 'MAINTENANCE', 'INCIDENT']),
         locationLat: faker.location.latitude(),
         locationLng: faker.location.longitude(),
-        imageUrl: faker.image.url(),
+        imageUrl: carImages[i],
       },
     });
     vehicles.push(vehicle);
