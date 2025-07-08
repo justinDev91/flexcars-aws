@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flexcars-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flexcars-backend
+  template:
+    metadata:
+      labels:
+        app: flexcars-backend
+    spec:
+      containers:
+        - name: flexcars-backend
+          image: <ECR_BACKEND_IMAGE_URL>:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: flexcars-backend-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flexcars-backend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: flexcars-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
