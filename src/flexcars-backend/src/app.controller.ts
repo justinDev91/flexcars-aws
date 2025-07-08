@@ -13,4 +13,8 @@ export class AppController {
   sendEmail() {
     return this.appService.sendTestEmail();
   }
+  @Get("/debug-sentry")
+  getError() {
+    throw new Error("My first Sentry error!");
+  }
 }

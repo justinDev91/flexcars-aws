@@ -2,7 +2,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './auth/auth.guard';
@@ -29,9 +29,12 @@ import { CarSitterModule } from './carsitter/cars-sitter.module';
 import { NotificationModule } from './notification/notification.module';
 import { VehicleRecommendationModule } from './vehiclerecommendation/vehicle-recommendation.module';
 import { MaintenanceAlertModule } from './Maintenancealert/maintenance-alert.module';
+import { SentryModule } from "@sentry/nestjs/setup";
+import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -75,6 +78,10 @@ import { MaintenanceAlertModule } from './Maintenancealert/maintenance-alert.mod
   ],
   controllers: [AppController, TokensController],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
     AppService,
     PrismaService,
     TokensService,
