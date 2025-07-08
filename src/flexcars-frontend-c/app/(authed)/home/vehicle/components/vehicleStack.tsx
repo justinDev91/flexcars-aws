@@ -5,6 +5,7 @@ import { Container, Title, TextInput, ActionIcon, useMantineTheme } from '@manti
 import { IconArrowRight, IconSearch } from '@tabler/icons-react';
 import VehicleCard from '@/app/(authed)/home/components/VehicleCard';
 import { useGetAllVehicles } from '@/app/(authed)/home/vehicle/hooks/useGetAllVehicles';
+import Link from 'next/link';
 
 function InputWithButton(props) {
   const theme = useMantineTheme();
@@ -284,8 +285,10 @@ export default function VehicleStack() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {filteredVehicles.length > 0 ? (
               filteredVehicles.map((vehicle, index) => (
-                <div key={vehicle.id || index} className="flex justify-center">
-                  <VehicleCard vehicle={vehicle} />
+                <div key={index} className="flex justify-center">
+                  <Link href={`/home/vehicle/${vehicle.id}`} className="w-full">
+                    <VehicleCard vehicle={vehicle} />
+                  </Link>
                 </div>
               ))
             ) : (
