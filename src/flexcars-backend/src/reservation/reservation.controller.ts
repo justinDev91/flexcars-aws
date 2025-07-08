@@ -22,6 +22,11 @@ export class ReservationController {
     return this.reservationService.findAll(query);
   }
 
+  @Get('customer/:customerId')
+  async findAllByCustomerId(@Param('customerId') customerId: string): Promise<Reservation[]> {
+    return this.reservationService.findAllByCustomerId(customerId);
+  }
+
   @Get('/:id')
   @ApiParam({ name: 'id' })
   async findById(@Param('id') id: string): Promise<Reservation> {

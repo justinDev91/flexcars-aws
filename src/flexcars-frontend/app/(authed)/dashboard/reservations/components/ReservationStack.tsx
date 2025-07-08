@@ -24,6 +24,8 @@ import { Reservation, ReservationStatus, Location } from '@/app/types/Reservatio
 import { useUpdateReservation } from '../hooks/useReservationVehicle';
 import { useGetAllVehicle } from '../../vehicles/hooks/useGetAllVehicle';
 import { useGetAllUser } from '../../users/hooks/useGetAllUsers';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const PAGE_SIZE = 4;
 
@@ -95,6 +97,71 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
     );
   };
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'A4' });
+    doc.setFontSize(18);
+    doc.text('Reservations', 40, 40);
+    autoTable(doc, {
+      startY: 60,
+      head: [[
+        'Customer',
+        'Vehicle',
+        'Start',
+        'End',
+        'Pickup',
+        'Dropoff',
+        'Status',
+        'Price',
+        'Car Sitting',
+      ]],
+      body: reservations.map(r => [
+        userMap[r.customerId] || r.customerId,
+        vehicleMap[r.vehicleId] || r.vehicleId,
+        new Date(r.startDatetime as string).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
+        new Date(r.endDatetime as string).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
+        r.pickupLocation.replace(/_/g, ' '),
+        r.dropoffLocation.replace(/_/g, ' '),
+        r.status,
+        r.totalPrice ? `€${Number(r.totalPrice).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—',
+        r.carSittingOption ? 'Yes' : 'No',
+      ]),
+      styles: {
+        fontSize: 10,
+        cellPadding: 6,
+        overflow: 'linebreak',
+        valign: 'middle',
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold',
+        halign: 'center',
+      },
+      bodyStyles: {
+        halign: 'center',
+        textColor: 50,
+      },
+      columnStyles: {
+        0: { cellWidth: 80 }, // Customer
+        1: { cellWidth: 100 }, // Vehicle
+        2: { cellWidth: 90 }, // Start
+        3: { cellWidth: 90 }, // End
+        4: { cellWidth: 90 }, // Pickup
+        5: { cellWidth: 110 }, // Dropoff
+        6: { cellWidth: 70 }, // Status
+        7: { cellWidth: 70 }, // Price
+        8: { cellWidth: 70 }, // Car Sitting
+      },
+      tableWidth: 'auto',
+      margin: { left: 40, right: 40 },
+      didDrawPage: (data) => {
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleString('fr-FR')}`, 40, doc.internal.pageSize.getHeight() - 10);
+      },
+    });
+    doc.save('reservations.pdf');
+  };
+
   const rows = paginatedReservations.map((r) => (
     <Table.Tr key={r.id}>
       <Table.Td>
@@ -145,17 +212,19 @@ export function ReservationsStack({ reservations, setReservations }: Readonly<Re
   return (
     <Stack>
       <Title order={3}>Reservations</Title>
-
-      <TextInput
-        placeholder="Search by customer, vehicle, location..."
-        mb="md"
-        leftSection={<IconSearch size={16} stroke={1.5} />}
-        value={search}
-        onChange={(event) => {
-          setSearch(event.currentTarget.value);
-          setPage(1);
-        }}
-      />
+      <Group justify="space-between" mb="sm">
+        <TextInput
+          placeholder="Search by customer, vehicle, location..."
+          mb={0}
+          leftSection={<IconSearch size={16} stroke={1.5} />}
+          value={search}
+          onChange={(event) => {
+            setSearch(event.currentTarget.value);
+            setPage(1);
+          }}
+        />
+        <Button onClick={handleDownloadPDF} variant="outline">Download PDF</Button>
+      </Group>
 
       {reservations.length === 0 ? (
         <Group justify="center" mt="md">
