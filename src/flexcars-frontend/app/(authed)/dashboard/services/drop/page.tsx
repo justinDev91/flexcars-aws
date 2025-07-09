@@ -6,7 +6,7 @@ import DropVehicleWithPayment from './components/DropVehicleWithPayment';
 export default function DropPage() {
   return (
     <Container size="md" py="xl">
-      <Stack spacing="xl">
+      <Stack>
         <Divider label="Dropping off rented vehicle" labelPosition="center" />
 
         <Paper shadow="xs" p="lg" radius="md" withBorder>

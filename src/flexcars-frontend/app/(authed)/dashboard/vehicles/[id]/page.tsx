@@ -1,6 +1,6 @@
 'use client';
 
-import { redirect } from 'next/navigation';
+import { redirect, useParams } from 'next/navigation';
 import {
   Container,
   SimpleGrid,
@@ -8,27 +8,24 @@ import {
   Badge,
   Group,
 } from '@mantine/core';
-import { useEffect, useMemo } from 'react';
+import { useEffect} from 'react';
 import { useGetVehicleById } from '../hooks/useGetVehicleById';
 import { CardWithStats } from '../../users/components/CardWithStats';
 import { VehicleStatus } from '@/app/types/Vehicle';
 import { VehicleMap } from '../components/VehicleMap';
 import { useVehiclePosition } from '../hooks/useVehiclePosition'; 
 
-interface DetailsProps {
-  params: { id?: string };
-}
-
-export default function Details({ params }: Readonly<DetailsProps>) {
-  const vehicleId = useMemo(() => params?.id ?? null, [params]);
-  const { vehicle, isVehicleLoading, isError } = useGetVehicleById(vehicleId ?? '');
-  const position = useVehiclePosition(vehicleId ?? '');
+export default function Details() {
+  const params = useParams<{ id: string}>()
+  
+  const { vehicle, isVehicleLoading, isError } = useGetVehicleById(params.id ?? '');
+  const position = useVehiclePosition(params.id ?? '');
 
   useEffect(() => {
-    if (!params?.id) {
+    if (!params.id) {
       redirect('/auth/login');
     }
-  }, [params]);
+  }, [params.id]);
 
   if (isVehicleLoading) {
     return (
