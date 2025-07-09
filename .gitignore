@@ -1,0 +1,6 @@
+
+eksctl_.tar.gz
+eksctl_checksums.txt   
+**/kubeconfig*
+kubectl.sha256
+kubectl
