@@ -23,13 +23,13 @@ services:
     depends_on:
       - flexcars-backend
 
-  flexcars-frontend-c:
+  flexcars-client:
     build:
-      context: ./src/flexcars-frontend-c
+      context: ./src/flexcars-client
     ports:
       - "3003:3000"
     volumes:
-      - ./src/flexcars-frontend-c:/app
+      - ./src/flexcars-client:/app
     environment:
       - NODE_ENV=development
     depends_on:
