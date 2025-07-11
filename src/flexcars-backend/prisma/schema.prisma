@@ -71,6 +71,7 @@ enum InvoiceStatus {
   PAID
   UNPAID
   OVERDUE
+  REFUNDED
 }
 
 enum PaymentMethod {
@@ -246,14 +247,15 @@ model Reservation {
   endDatetime    DateTime?
   pickupLocation Location?           @default(SAINT_DENIS)
   dropoffLocation Location?          @default(ISSY_LES_MOULINEAUX)
-  carSittingOption Boolean          @default(false)
+  carSittingOption Boolean          @default(false)
   status         ReservationStatus @default(PENDING)
   totalPrice     Float?
   createdAt      DateTime         @default(now())
   rentalContract RentalContract?
   services       ReservationService[]
-  invoice        Invoice?
+  invoices       Invoice[]
   Incident Incident[]
+  dropoffRequests DropoffRequest[]
 }
 
 model RentalContract {
@@ -280,7 +282,7 @@ model Document {
 
 model Invoice {
   id             String           @id @default(uuid())
-  reservationId  String           @unique
+  reservationId  String?
   reservation    Reservation?     @relation(fields: [reservationId], references: [id])
   invoiceNumber  String?
   amount         Float?
@@ -288,6 +290,7 @@ model Invoice {
   paidAt         DateTime?        @default(now())
   status         InvoiceStatus    @default(UNPAID)
   penaltyAmount  Float?
+  invoiceType    String?          @default("RESERVATION") // RESERVATION, LATE_FEES, PENALTY
   payments       Payment[]
 }
 
@@ -353,6 +356,7 @@ model CarSitter {
   currentLocationLng Float?
   availability   Availability     @default(BUSY)
   lastActiveAt   DateTime?
+  dropoffRequests DropoffRequest[]
 }
 
 model Notification {
@@ -384,6 +388,32 @@ model Token {
   type      TokenType
   createdAt DateTime  @default(now())
   usedAt    DateTime?
+}
+
+enum DropoffStatus {
+  PENDING
+  VALIDATED
+  REJECTED
+}
+
+model DropoffRequest {
+  id             String           @id @default(uuid())
+  reservationId  String
+  reservation    Reservation?     @relation(fields: [reservationId], references: [id])
+  carSitterId    String?
+  carSitter      CarSitter?       @relation(fields: [carSitterId], references: [id])
+  currentMileage Int
+  dropoffTime    DateTime
+  hasAccident    Boolean          @default(false)
+  locationLat    Float
+  locationLng    Float
+  signature      String?
+  status         DropoffStatus    @default(PENDING)
+  penaltyAmount  Float?           @default(0)
+  penaltyInvoiceId String?
+  carSitterNotes String?
+  validatedAt    DateTime?
+  createdAt      DateTime         @default(now())
 }
 
 enum TokenType {
