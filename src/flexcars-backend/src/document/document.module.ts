@@ -4,6 +4,7 @@ import { DocumentService } from './document.service';
 import { PrismaService } from 'src/prisma.service';
 import { PricingRuleService } from 'src/pricingrule/pricing.rule.service';
 import { InvoiceService } from 'src/invoice/invoice.service';
+import { FileUploadService } from '../utils/file-upload.service';
 
 @Module({
   controllers: [DocumentController],
@@ -11,7 +12,8 @@ import { InvoiceService } from 'src/invoice/invoice.service';
     DocumentService, 
     PrismaService,
     PricingRuleService,
-    InvoiceService
+    InvoiceService,
+    FileUploadService
   ],
 })
 export class DocumentModule {}

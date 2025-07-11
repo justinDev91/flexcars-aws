@@ -18,6 +18,13 @@ export class DocumentService {
     return this.prisma.document.findMany();
   }
 
+  findByUserId(userId: string) {
+    return this.prisma.document.findMany({
+      where: { userId },
+      orderBy: { uploadedAt: 'desc' }
+    });
+  }
+
   async findById(id: string) {
     const doc = await this.prisma.document.findUnique({ where: { id } });
     if (!doc) throw new NotFoundException('Document not found');
