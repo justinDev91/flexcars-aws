@@ -1,18 +1,20 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ReservationController } from './reservation.controller';
 import { ReservationService } from './reservation.service';
-import { PrismaService } from 'src/prisma.service';
-import { PricingRuleService } from 'src/pricingrule/pricing.rule.service';
-import { VehiclesService } from 'src/vehicle/vehicle.service';
+import { PrismaService } from '../prisma.service';
+import { PricingRuleService } from '../pricingrule/pricing.rule.service';
+import { PaymentModule } from '../payment/payment.module';
+import { VehiclesService } from '../vehicle/vehicle.service';
 
 @Module({
+  imports: [forwardRef(() => PaymentModule)],
   controllers: [ReservationController],
   providers: [
     ReservationService,
     PrismaService,
     PricingRuleService,
-    VehiclesService
+    VehiclesService,
   ],
   exports: [ReservationService],
 })
-export class ReservationsModule {}
+export class ReservationModule {}
