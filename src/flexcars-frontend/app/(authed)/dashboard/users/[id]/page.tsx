@@ -1,6 +1,6 @@
 'use client';
 
-import { redirect } from 'next/navigation';
+import { redirect, useParams } from 'next/navigation';
 import {
   Container,
   Grid,
@@ -9,7 +9,7 @@ import {
   Badge,
   Group,
 } from '@mantine/core';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { CardWithStats } from '../components/CardWithStats';
 import { UserInfoAction } from '../components/UserInfoAction';
 import { FeaturesCards } from '../components/FeaturesCards';
@@ -18,19 +18,16 @@ import { useFindUserById } from '../hooks/useFindUserById';
 
 const PRIMARY_COL_HEIGHT = 300;
 
-interface DetailsProps {
-  params: { id?: string };
-}
-
-export default function Details({ params }: Readonly<DetailsProps>) {
-  const userId = useMemo(() => params?.id ?? null, [params]);
-  const { user, isUserLoading, isError } = useFindUserById(userId ?? '');
+export default function Details() {
+  const params = useParams<{ id: string}>()
+  
+  const { user, isUserLoading, isError } = useFindUserById(params.id ?? '');
 
   useEffect(() => {
-    if (!params?.id) {
+    if (!params.id) {
       redirect('/auth/login');
     }
-  }, [params]);
+  }, [params.id]);
 
   if (isUserLoading) {
     return (

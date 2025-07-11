@@ -167,7 +167,7 @@ export function VehiclesStack({ vehicles, setVehicles }: Readonly<VehiclesStackP
         <Stack>
           <TextInput label="Brand" value={formValues.brand} onChange={(e) => handleFormChange('brand', e.currentTarget.value)} />
           <TextInput label="Model" value={formValues.model} onChange={(e) => handleFormChange('model', e.currentTarget.value)} />
-          <NumberInput label="Year" value={formValues.year} onChange={(value) => handleFormChange('year', value || 0)} />
+          <NumberInput label="Year" value={formValues.year} onChange={(value) => handleFormChange('year', typeof value === 'number' ? value : 0)} />
           <TextInput label="Plate Number" value={formValues.plateNumber} onChange={(e) => handleFormChange('plateNumber', e.currentTarget.value)} />
           <Select
             label="Fuel Type"
@@ -175,7 +175,7 @@ export function VehiclesStack({ vehicles, setVehicles }: Readonly<VehiclesStackP
             value={formValues.fuelType}
             onChange={(value) => handleFormChange('fuelType', value as FuelType)}
           />
-          <NumberInput label="Current Mileage" value={formValues.currentMileage} onChange={(value) => handleFormChange('currentMileage', value || 0)} />
+          <NumberInput label="Current Mileage" value={formValues.currentMileage} onChange={(value) => handleFormChange('currentMileage',  typeof value === 'number' ? value : 0)} />
           <Switch label="GPS Enabled" checked={formValues.gpsEnabled} onChange={(e) => handleFormChange('gpsEnabled', e.currentTarget.checked)} />
           <Select
             label="Status"

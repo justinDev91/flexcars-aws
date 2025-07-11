@@ -41,7 +41,7 @@ export class AuthService {
   
     if (user.lockUntil && user.lockUntil > new Date()) {
       
-      const resetUrl = `http://localhost:3000/auth/forgot-password`;
+      const resetUrl = `${process.env.FRONTEND_URL}/auth/forgot-password`;
 
       await sendEmail(
         this.mailerService,
@@ -80,7 +80,7 @@ export class AuthService {
   
     if (user.passwordLastReset < sixtyDaysAgo) {
       
-      const resetUrl = `http://localhost:3000/auth/reset-password`;
+      const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password`;
 
         await sendEmail(
           this.mailerService,
@@ -103,7 +103,7 @@ export class AuthService {
       },
     });
   
-    const resetUrl = `http://localhost:3000/auth/forgot-password`;
+    const resetUrl = `${process.env.FRONTEND_URL}/auth/forgot-password`;
   
     await sendEmail(
       this.mailerService,
@@ -147,7 +147,7 @@ export class AuthService {
       },
     });
 
-    const confirmUrl = `http://localhost:3000/auth/confirm-email?token=${emailConfirmToken}`;
+    const confirmUrl = `${process.env.FRONTEND_URL}/auth/confirm-email?token=${emailConfirmToken}`;
 
     
     await sendEmail(
@@ -185,7 +185,7 @@ export class AuthService {
         },
       });
 
-    const resetUrl = `http://localhost:3000/auth/login`;
+    const resetUrl = `${process.env.FRONTEND_URL}/auth/login`;
 
     await sendEmail(
         this.mailerService,
@@ -215,7 +215,7 @@ export class AuthService {
       },
     });
     
-    const resetUrl = `http://localhost:3000/auth/reset-password?token=${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${resetToken}`;
   
   
     await sendEmail(
@@ -256,7 +256,7 @@ export class AuthService {
       },
     });
     
-    const resetUrl = `http://localhost:3000/auth/forgot-password`;
+    const resetUrl = `${process.env.FRONTEND_URL}/auth/forgot-password`;
 
     await sendEmail(
       this.mailerService,

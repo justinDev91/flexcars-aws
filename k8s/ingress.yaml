@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flexcars-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+spec:
+  rules:
+    - host: backend.flexcars.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: flexcars-backend-service
+                port:
+                  number: 80
+    - host: app.flexcars.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: flexcars-frontend-service
+                port:
+                  number: 80
+    - host: client.flexcars.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: flexcars-frontend-c-service
+                port:
+                  number: 80

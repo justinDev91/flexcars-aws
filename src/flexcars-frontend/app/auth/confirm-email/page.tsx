@@ -1,11 +1,11 @@
 "use client";
 
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import Link from "next/link";
 
-export default function ConfirmEmail() {
+function ConfirmEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
@@ -58,5 +58,24 @@ export default function ConfirmEmail() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ConfirmEmailFallback() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 px-4">
+      <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-md text-center">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Confirmation d'email</h2>
+        <p className="text-gray-600">Chargement...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function ConfirmEmail() {
+  return (
+    <Suspense fallback={<ConfirmEmailFallback />}>
+      <ConfirmEmailContent />
+    </Suspense>
   );
 }

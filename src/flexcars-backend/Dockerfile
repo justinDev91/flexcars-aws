@@ -1,11 +1,16 @@
-FROM node:20
+FROM node:22
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-COPY package.json package-lock.json ./
-RUN npm install --only=production
+COPY package*.json ./
+
+RUN npm install
 
 COPY . .
+
+RUN npx prisma generate
+
+RUN npm run build
 
 EXPOSE 3000
 

@@ -11,6 +11,7 @@ export enum MaintenanceType {
   }
   
   export interface IMaintenance {
+    id: string
     vehicleId: string;
     type?: MaintenanceType;
     scheduledDate?: string; // ISO format

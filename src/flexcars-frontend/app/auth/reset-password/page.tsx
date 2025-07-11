@@ -1,11 +1,11 @@
 "use client";
 
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
 import api from "@/lib/api";
 import Link from "next/link";
 
-export default function ResetPassword() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
@@ -83,5 +83,24 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ResetPasswordFallback() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 px-4">
+      <div className="bg-white shadow-2xl rounded-xl p-8 w-full max-w-md text-center">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Nouveau mot de passe</h2>
+        <p className="text-gray-600">Chargement...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense fallback={<ResetPasswordFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
