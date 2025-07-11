@@ -2,8 +2,16 @@
 
 import { Button, Checkbox, Group, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useGetAllUser } from './(authed)/dashboard/users/hooks/useGetAllUsers';
 
 export default function Demo() {
+
+  console.log("NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL", process.env.NEXT_PUBLIC_API_URL); // Debugging line to check the environment variable
+
+  // TODO: test api call get all users
+  const { users, isUsersLoading } = useGetAllUser();                 
+  console.log("users", users); 
+  
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {

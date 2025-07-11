@@ -65,18 +65,17 @@ export class PaymentService {
         });
       const customer = await this.prisma.user.findUnique({where: { id: reservation.customerId }});
 
-      await this.mailerService.sendMail({
-        to: customer?.email,
-        subject: 'Votre facture a été payée',
-        template: 'invoice',
-        context: {
-          customerName: customer?.firstName ?? 'Client',
-          invoiceNumber: invoice.invoiceNumber,
-          amount: invoice.amount,
-          paymentDate: new Date().toLocaleDateString('fr-FR'),
-        },
-      });
-
+        await this.mailerService.sendMail({
+          to: customer?.email,
+          subject: 'Votre facture a été payée',
+          template: 'invoice',
+          context: {
+            customerName: customer?.firstName ?? 'Client',
+            invoiceNumber: invoice.invoiceNumber,
+            amount: invoice.amount,
+            paymentDate: new Date().toLocaleDateString('fr-FR'),
+          },
+        });
     }
     console.log('💳 Payment created end :', payment);
     return payment;

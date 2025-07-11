@@ -5,6 +5,7 @@ export enum AlertType {
   }
   
   export interface IMaintenanceAlert {
+    id: string;
     vehicleId: string;
     mileageTrigger: number;
     recurring?: boolean;

@@ -8,6 +8,7 @@ export const sendEmail = async (
   context: Record<string, any>
 ): Promise<void> => {
   await mailerService.sendMail({
+    from: process.env.SMTP_FROM_EMAIL,
     to,
     subject,
     template,

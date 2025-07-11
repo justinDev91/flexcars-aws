@@ -211,8 +211,15 @@ export class ReservationService {
             encoding: 'base64',
             cid: 'qrcode',
           },
-        ],
-      });
+          attachments: [
+            {
+              filename: 'qrcode.png',
+              content: qrCodeBase64.split(',')[1],
+              encoding: 'base64',
+              cid: 'qrcode',
+            },
+          ],
+        });
     }
 
     return reservationUpdated;

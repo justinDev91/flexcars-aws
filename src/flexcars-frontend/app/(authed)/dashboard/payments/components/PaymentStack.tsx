@@ -14,7 +14,6 @@ import {
   Title,
   Select,
 } from '@mantine/core';
-import { DateTimePicker } from '@mantine/dates';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDots, IconPencil, IconSearch } from '@tabler/icons-react';
 import { Payment, PaymentMethod, PaymentStatus } from '@/app/types/Payment';
@@ -35,7 +34,6 @@ export function PaymentsStack({ payments, setPayments }: Readonly<PaymentsStackP
     invoiceId: '',
     method: PaymentMethod.STRIPE,
     transactionId: '',
-    paidAt: new Date().toISOString(),
     status: PaymentStatus.PENDING,
   });
   const [page, setPage] = useState(1);
@@ -91,7 +89,6 @@ export function PaymentsStack({ payments, setPayments }: Readonly<PaymentsStackP
       <Table.Td>{p.method}</Table.Td>
       <Table.Td>{p.transactionId || '—'}</Table.Td>
       <Table.Td>{p.status}</Table.Td>
-      <Table.Td>{new Date(p.paidAt).toLocaleString()}</Table.Td>
       <Table.Td>
         <Group gap={0} justify="flex-end">
           <ActionIcon variant="subtle" color="gray" onClick={() => handleEditClick(p)}>
@@ -173,14 +170,6 @@ export function PaymentsStack({ payments, setPayments }: Readonly<PaymentsStackP
             data={Object.values(PaymentStatus).map((s) => ({ label: s, value: s }))}
             value={formValues.status}
             onChange={(value) => handleFormChange('status', value as PaymentStatus)}
-          />
-
-          <DateTimePicker
-            label="Paid At"
-            value={new Date(formValues.paidAt)}
-            onChange={(value) =>
-              handleFormChange('paidAt', new Date(value as string).toISOString())
-            }
           />
 
           <Button onClick={handleSave}>Save</Button>

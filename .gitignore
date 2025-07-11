@@ -1,0 +1,5 @@
+# Ignore Kubernetes secrets
+k8s/flexcars-backend-secret.yaml
+k8s/flexcars-frontend-secret.yaml
+k8s/flexcars-backend-migrate-secret.yaml
+

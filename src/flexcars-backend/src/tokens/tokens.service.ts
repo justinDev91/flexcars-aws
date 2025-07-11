@@ -41,15 +41,15 @@ export class TokensService {
     });
 
     if (type === TokenType.INVITATION) {
-      await this.mailerService.sendMail({
-        to: token.user.email,
-        subject: 'Welcome to MyGuez',
-        template: 'welcome-student',
-        context: {
-          firstName: token.user.firstName,
-          url: `http://localhost:3000/confirm/${token.id}`,
-        },
-      });
-    }
+        await this.mailerService.sendMail({
+          to: token.user.email,
+          subject: 'Welcome to MyGuez',
+          template: 'welcome-student',
+          context: {
+            firstName: token.user.firstName,
+            url: `${process.env.FRONTEND_URL}/confirm/${token.id}`,
+          },
+        });
+      }
   }
 }
