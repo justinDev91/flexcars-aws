@@ -1,38 +1,44 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsDateString, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsEnum, IsNumber } from 'class-validator';
 
 export enum InvoiceStatus {
   PAID = 'PAID',
   UNPAID = 'UNPAID',
   OVERDUE = 'OVERDUE',
+  REFUNDED = 'REFUNDED',
 }
 
 export class CreateInvoiceDto {
-  @ApiProperty({ description: 'ID of the reservation', example: 'reservation-uuid' })
+  @ApiProperty({ description: 'Reservation ID' })
   @IsString()
   reservationId: string;
 
-  @ApiPropertyOptional({ description: 'Total amount of the invoice', example: 499.99 })
+  @ApiPropertyOptional({ description: 'Invoice number' })
+  @IsOptional()
+  @IsString()
+  invoiceNumber?: string;
+
+  @ApiPropertyOptional({ description: 'Amount' })
   @IsOptional()
   @IsNumber()
   amount?: number;
 
-  @ApiPropertyOptional({ description: 'Due date of the invoice', example: new Date().toISOString() })
+  @ApiPropertyOptional({ description: 'Due date' })
   @IsOptional()
   @IsDateString()
   dueDate?: string;
 
-  @ApiPropertyOptional({ description: 'Date when the invoice was paid', example: new Date().toISOString() })
+  @ApiPropertyOptional({ description: 'Paid at' })
   @IsOptional()
   @IsDateString()
   paidAt?: string;
 
-  @ApiPropertyOptional({ description: 'Status of the invoice', enum: InvoiceStatus, example: InvoiceStatus.UNPAID })
+  @ApiPropertyOptional({ enum: InvoiceStatus, default: InvoiceStatus.UNPAID })
   @IsOptional()
   @IsEnum(InvoiceStatus)
   status?: InvoiceStatus;
 
-  @ApiPropertyOptional({ description: 'Penalty amount if overdue', example: 50.0 })
+  @ApiPropertyOptional({ description: 'Penalty amount' })
   @IsOptional()
   @IsNumber()
   penaltyAmount?: number;
