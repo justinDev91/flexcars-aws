@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { PaymentModal } from '../payment-modal';
@@ -14,10 +14,14 @@ const mockElements = {
   submit: jest.fn(),
 };
 
+// Create mock functions that can be reassigned
+const mockUseStripe = jest.fn<typeof mockStripe | null, []>();
+const mockUseElements = jest.fn<typeof mockElements | null, []>();
+
 jest.mock('@stripe/react-stripe-js', () => ({
-  useStripe: () => mockStripe,
-  useElements: () => mockElements,
-  PaymentElement: ({ options }: any) => (
+  useStripe: () => mockUseStripe(),
+  useElements: () => mockUseElements(),
+  PaymentElement: ({ options }: { options?: Record<string, unknown> }) => (
     <div data-testid="payment-element">
       Mock Payment Element
       <div data-testid="payment-options">{JSON.stringify(options)}</div>
@@ -45,6 +49,9 @@ const defaultProps = {
 describe('PaymentModal', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Initialize mocks with default values
+    mockUseStripe.mockReturnValue(mockStripe);
+    mockUseElements.mockReturnValue(mockElements);
   });
 
   it('should render payment modal when open', () => {
@@ -121,7 +128,7 @@ describe('PaymentModal', () => {
 
   it('should disable pay button when Stripe is not loaded', () => {
     // Mock Stripe not loaded
-    const useStripeSpy = jest.spyOn(require('@stripe/react-stripe-js'), 'useStripe').mockReturnValue(null);
+    mockUseStripe.mockReturnValue(null);
 
     render(<PaymentModal {...defaultProps} />);
 
@@ -129,13 +136,12 @@ describe('PaymentModal', () => {
     expect(payButton).toBeDisabled();
 
     // Restore mock
-    useStripeSpy.mockReturnValue(mockStripe);
-    useStripeSpy.mockRestore();
+    mockUseStripe.mockReturnValue(mockStripe);
   });
 
   it('should disable pay button when Elements is not loaded', () => {
     // Mock Elements not loaded
-    const useElementsSpy = jest.spyOn(require('@stripe/react-stripe-js'), 'useElements').mockReturnValue(null);
+    mockUseElements.mockReturnValue(null);
 
     render(<PaymentModal {...defaultProps} />);
 
@@ -143,13 +149,12 @@ describe('PaymentModal', () => {
     expect(payButton).toBeDisabled();
 
     // Restore mock
-    useElementsSpy.mockReturnValue(mockElements);
-    useElementsSpy.mockRestore();
+    mockUseElements.mockReturnValue(mockElements);
   });
 
   it('should show processing state during payment', async () => {
     const user = userEvent.setup();
-    let resolvePayment: (value: any) => void = () => {};
+    let resolvePayment: (value: { paymentIntent?: { status: string } }) => void = () => {};
     const paymentPromise = new Promise((resolve) => {
       resolvePayment = resolve;
     });
@@ -180,7 +185,7 @@ describe('PaymentModal', () => {
 
   it('should prevent multiple simultaneous payment attempts', async () => {
     const user = userEvent.setup();
-    let resolvePayment: (value: any) => void = () => {};
+    let resolvePayment: (value: { paymentIntent?: { status: string } }) => void = () => {};
     const paymentPromise = new Promise((resolve) => {
       resolvePayment = resolve;
     });
