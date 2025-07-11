@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiExcludeEndpoint, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/decorators/Public';
 import { AuthService } from './auth.service';
@@ -74,17 +74,25 @@ export class AuthController {
     // Passport redirige automatiquement
   }
 
-  @ApiExcludeEndpoint()
-  @Get('google/redirect')
+    @ApiExcludeEndpoint()
+  @Get('google/redirect')
   @Public()
-  @UseGuards(GoogleOAuthGuard)
-  async googleAuthRedirect(@Req() req) {
-    const { user } = req;
-    return {
-      message: 'Authentification Google réussie',
-      access_token: user.access_token,
-      user: user.user,
-    };
-  }
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuthRedirect(@Req() req, @Res() res) {
+    const { user } = req;
+    
+    // URL de redirection vers le frontend
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const callbackUrl = `${frontendUrl}/auth/google/callback`;
+    
+    // Encoder les données utilisateur pour les passer en paramètres d'URL
+    const params = new URLSearchParams({
+      token: user.access_token,
+      user: JSON.stringify(user.user)
+    });
+    
+    // Rediriger vers le frontend avec les paramètres
+    res.redirect(`${callbackUrl}?${params.toString()}`);
+  }
 
 }

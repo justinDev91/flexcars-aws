@@ -6,8 +6,8 @@ import { FindAllReservationsDto } from './dto/findAllReservations.dto';
 import { ReservationService } from './reservation.service';
 import { Response } from 'express';
 import { Reservation, Vehicle } from '@prisma/client';
-import { VehiclesService } from 'src/vehicle/vehicle.service';
-import { DropVehicleDto } from './dto/DropVehicle.dto';
+import { VehiclesService } from '../vehicle/vehicle.service';
+import { SimpleDropVehicleDto } from './dto/DropVehicle.dto';
 
 @ApiBearerAuth('access-token') 
 @Controller('reservations')
@@ -19,23 +19,40 @@ export class ReservationController {
 
   @Get()
   async findAll(@Query() query: FindAllReservationsDto): Promise<Reservation[]> {
-    return this.reservationService.findAll(query);
+    return this.reservationService.findAll(query.customerId);
   }
 
   @Get('customer/:customerId')
   async findAllByCustomerId(@Param('customerId') customerId: string): Promise<Reservation[]> {
-    return this.reservationService.findAllByCustomerId(customerId);
+    return this.reservationService.findAll(customerId);
   }
 
-  @Get('/:id')
-  @ApiParam({ name: 'id' })
-  async findById(@Param('id') id: string): Promise<Reservation> {
-    return this.reservationService.findById(id);
+  @Get(':id')
+  async findById(@Param('id') id: string) {
+    const reservation = await this.reservationService.findById(id);
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+    return reservation;
   }
 
   @Post()
-  async create(@Body() data: CreateReservationDto): Promise<Reservation> {
+  async create(@Body() data: CreateReservationDto): Promise<any> {
     return this.reservationService.createReservation(data);
+  }
+
+  @Post('check-availability')
+  async checkAvailability(@Body() data: {
+    vehicleId: string;
+    startDatetime: string;
+    endDatetime: string;
+    excludeReservationId?: string;
+  }): Promise<{
+    isAvailable: boolean;
+    conflicts?: Reservation[];
+    message?: string;
+  }> {
+    return this.reservationService.checkAvailability(data);
   }
 
   @Put(':id')
@@ -44,16 +61,19 @@ export class ReservationController {
   }
   
  
-  @Get('scan/:identifier')
-  async scanReservation(@Param('identifier') identifier: string): Promise<{ reservation: Reservation, vehicle: Vehicle }> {
-    const reservation = await this.reservationService.findById(identifier);
-    const vehicle = await this.vehicleService.pickup(reservation.vehicleId);
-    return { reservation, vehicle };
+  @Get('/scan/:identifier')
+  async scanReservation(@Param('identifier') identifier: string) {
+    const reservation = await this.reservationService.findById(identifier);
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+    const vehicle = await this.vehicleService.pickup(reservation.vehicleId);
+    return { reservation, vehicle };
   }
   
   
   @Post('vehicle-drop')
-  async dropVehicle(@Body() data: DropVehicleDto) {
+  async dropVehicle(@Body() data: SimpleDropVehicleDto) {
     return this.vehicleService.dropVehicle(data.firstName, data.reservationId, data.currentMileage);
   }
 

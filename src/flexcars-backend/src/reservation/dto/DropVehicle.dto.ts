@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {IsNumber, IsString } from 'class-validator';
 
-export class DropVehicleDto {
+export class SimpleDropVehicleDto {
   @ApiProperty({ example: 'John' })
   @IsString()
   firstName: string;

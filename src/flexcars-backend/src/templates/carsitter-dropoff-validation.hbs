@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation de dropoff - FlexCars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+        .info-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            text-align: center;
+        }
+        .button.reject {
+            background-color: #e74c3c;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚗 Validation de retour de véhicule</h1>
+        <p>FlexCars - Service de location</p>
+    </div>
+    
+    <div class="content">
+        <h2>Bonjour {{carSitterName}},</h2>
+        
+        <p>Un client souhaite rendre son véhicule avec votre assistance. Veuillez valider les informations ci-dessous :</p>
+        
+        <div class="info-box">
+            <h3>📋 Détails du retour</h3>
+            <p><strong>Client :</strong> {{customerName}}</p>
+            <p><strong>Véhicule :</strong> {{vehicleName}}</p>
+            <p><strong>Heure de rendu :</strong> {{dropoffTime}}</p>
+            <p><strong>Localisation :</strong> {{location}}</p>
+            <p><strong>Kilométrage :</strong> {{mileage}} km</p>
+            <p><strong>Accident signalé :</strong> {{hasAccident}}</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{validationUrl}}" class="button">✅ Valider le retour</a>
+        </div>
+        
+        <p><strong>Important :</strong></p>
+        <ul>
+            <li>Vérifiez l'état du véhicule avant de valider</li>
+            <li>Contrôlez le kilométrage indiqué</li>
+            <li>En cas de problème, vous pouvez refuser la validation</li>
+        </ul>
+        
+        <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+        
+        <p>Cordialement,<br>L'équipe FlexCars</p>
+    </div>
+    
+    <div class="footer">
+        <p>FlexCars - Service de location de véhicules</p>
+        <p>support@flexcars.com - 01 23 45 67 89</p>
+    </div>
+</body>
+</html> 

@@ -2,6 +2,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -16,7 +18,7 @@ import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './company/company.module';
 import { VehiclesModule } from './vehicle/vehicle.module';
 import { MaintenancesModule } from './maintenance/maintenance.module';
-import { ReservationsModule } from './reservation/reservation.module';
+import { ReservationModule } from './reservation/reservation.module';
 import { RentalContractsModule } from './rentalcontract/rental-contract.module';
 import { InvoicesModule } from './invoice/invoice.module';
 import { DocumentModule } from './document/document.module';
@@ -97,13 +99,17 @@ const getMailerConfig = () => {
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
     AuthModule,
     UsersModule,
     CompaniesModule,
     VehiclesModule,
     MaintenancesModule,
     MaintenanceAlertModule,
-    ReservationsModule,
+    ReservationModule,
     RentalContractsModule,
     InvoicesModule,
     DocumentModule,
