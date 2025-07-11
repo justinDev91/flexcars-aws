@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmation de réservation</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #2c3e50;">Votre réservation est confirmée !</h2>
+    <p>Bonjour {{customerName}},</p>
+    <p>Nous vous confirmons que votre réservation a été validée et votre paiement a été traité avec succès.</p>
+    <p>Voici les détails de votre réservation :</p>
+    <ul>
+      <li><strong>Véhicule :</strong> {{vehicleName}}</li>
+      <li><strong>Date de début :</strong> {{startDate}}</li>
+      <li><strong>Date de fin :</strong> {{endDate}}</li>
+      <li><strong>Lieu de prise en charge :</strong> {{pickupLocation}}</li>
+      <li><strong>Lieu de retour :</strong> {{dropoffLocation}}</li>
+      <li><strong>Montant total :</strong> {{totalAmount}}€</li>
+    </ul>
+    <p>Veuillez présenter ce QR code lors de la prise en charge :</p>
+    <img src="cid:qrcode" alt="QR Code" style="margin-top: 20px;" />
+    <p style="margin-top: 30px; color: #27ae60; font-weight: bold;">✅ Paiement confirmé - Votre réservation est active</p>
+    <p style="margin-top: 20px;">Merci pour votre confiance,<br>L'équipe FlexCars</p>
+  </div>
+</body>
+</html> 
