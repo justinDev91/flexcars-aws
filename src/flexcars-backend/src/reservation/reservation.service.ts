@@ -211,7 +211,7 @@ export class ReservationService {
             encoding: 'base64',
             cid: 'qrcode',
           }
-          ],
+        ],
         });
     }
 
