@@ -29,21 +29,21 @@ export class MaintenanceAlertService {
   async createMaintenanceAlert(data: Prisma.MaintenanceAlertCreateInput): Promise<MaintenanceAlert> {
     const alert = await this.prisma.maintenanceAlert.create({ data });
 
-    await this.mailerService.sendMail({
-      to: 'justinkatasi.dev@gmail.com', 
-      subject: 'Nouvelle alerte de maintenance',
-      template: 'maintenance-alert',
-      context: {
-        recipientName: 'Justin Katasi',
-        action: 'créée',
-        vehicleId: alert.vehicleId,
-        alertType: alert.alertType,
-        message: alert.message,
-        alertDate: alert.alertDate.toLocaleDateString('fr-FR'),
-        resolved: alert.resolved ? 'Oui' : 'Non',
-        url: `http://localhost:3000/maintenances/${alert.id}`,
-      },
-    });
+      await this.mailerService.sendMail({
+        to: 'justinkatasi.dev@gmail.com', 
+        subject: 'Nouvelle alerte de maintenance',
+        template: 'maintenance-alert',
+        context: {
+          recipientName: 'Justin Katasi',
+          action: 'créée',
+          vehicleId: alert.vehicleId,
+          alertType: alert.alertType,
+          message: alert.message,
+          alertDate: alert.alertDate.toLocaleDateString('fr-FR'),
+          resolved: alert.resolved ? 'Oui' : 'Non',
+          url: `${process.env.FRONTEND_URL}/maintenances/${alert.id}`,
+        },
+      });
 
     return alert;
   }
@@ -51,21 +51,21 @@ export class MaintenanceAlertService {
   async updateMaintenanceAlert(id: string, data: Prisma.MaintenanceAlertUpdateInput): Promise<MaintenanceAlert> {
     const alert = await this.prisma.maintenanceAlert.update({ where: { id }, data });
 
-    await this.mailerService.sendMail({
-      to: 'justinkatasi.dev@gmail.com',
-      subject: 'Mise à jour de l’alerte de maintenance',
-      template: 'maintenance-alert',
-      context: {
-        recipientName: 'Justin Katasi',
-        action: 'mise à jour',
-        vehicleId: alert.vehicleId,
-        alertType: alert.alertType,
-        message: alert.message,
-        alertDate: alert.alertDate.toLocaleDateString('fr-FR'),
-        resolved: alert.resolved ? 'Oui' : 'Non',
-        url: `http://localhost:3000/maintenances/${alert.id}`,
-      },
-    });
+      await this.mailerService.sendMail({
+        to: 'justinkatasi.dev@gmail.com',
+        subject: 'Mise à jour de l’alerte de maintenance',
+        template: 'maintenance-alert',
+        context: {
+          recipientName: 'Justin Katasi',
+          action: 'mise à jour',
+          vehicleId: alert.vehicleId,
+          alertType: alert.alertType,
+          message: alert.message,
+          alertDate: alert.alertDate.toLocaleDateString('fr-FR'),
+          resolved: alert.resolved ? 'Oui' : 'Non',
+          url: `${process.env.FRONTEND_URL}/maintenances/${alert.id}`,
+        },
+      });
 
     return alert;
   }

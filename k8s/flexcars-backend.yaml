@@ -14,19 +14,22 @@ spec:
     spec:
       containers:
         - name: flexcars-backend
-          image: <ECR_BACKEND_IMAGE_URL>:latest
+          image: 715221148096.dkr.ecr.eu-west-3.amazonaws.com/flexcars-backend:latest
           ports:
             - containerPort: 3000
+          imagePullPolicy: Always
           envFrom:
             - secretRef:
-                name: flexcars-backend-secrets
+                name: flexcars-backend-secret
+      imagePullSecrets:
+        - name: backend-ecr-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: flexcars-backend-service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: flexcars-backend
   ports:

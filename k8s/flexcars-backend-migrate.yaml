@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flexcars-backend-migrate
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command: ['sh', '-c', 'until nc -z flexcars.crsgu020cbp9.eu-west-3.rds.amazonaws.com 5432; do echo waiting for postgres; sleep 2; done;']
+      containers:
+        - name: migrate
+          image: 715221148096.dkr.ecr.eu-west-3.amazonaws.com/flexcars-backend:latest
+          command: ["sh", "-c", "npx prisma migrate deploy && npm run seed"]
+          envFrom:
+            - secretRef:
+                name: flexcars-backend-migrate-secret
+      restartPolicy: Never
+  backoffLimit: 1

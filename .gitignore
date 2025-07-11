@@ -1,6 +1,5 @@
+# Ignore Kubernetes secrets
+k8s/flexcars-backend-secret.yaml
+k8s/flexcars-frontend-secret.yaml
+k8s/flexcars-backend-migrate-secret.yaml
 
-eksctl_.tar.gz
-eksctl_checksums.txt   
-**/kubeconfig*
-kubectl.sha256
-kubectl

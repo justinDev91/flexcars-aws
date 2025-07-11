@@ -1,44 +1,58 @@
-# name: Deploy Backend to EKS
+name: Deploy flexcars-backend to Amazon EKS with Rollback
 
-# on:
-#   push:
-#     branches: [main]
-#     paths:
-#       - 'src/flexcars-backend/**'
-#       - 'k8s/flexcars-backend.yaml'
-#       - 'k8s/ingress.yaml'
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
+jobs:
+  deploy:
+    name: Deploy to flexcars-backend to EKS
+    runs-on: ubuntu-latest
 
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: eu-west-3
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-#       - name: Login to Amazon ECR
-#         id: login-ecr
-#         uses: aws-actions/amazon-ecr-login@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
 
-#       - name: Build, tag, and push image to ECR
-#         run: |
-#           docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ github.sha }} ./src/flexcars-backend
-#           docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ github.sha }}
+      - name: Authenticate with AWS ECR
+        run: |
+          aws ecr get-login-password --region eu-west-3 | \
+          docker login --username AWS --password-stdin ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}
 
-#       - name: Update kubeconfig
-#         run: |
-#           aws eks update-kubeconfig --region eu-west-3 --name ${{ secrets.EKS_CLUSTER_NAME }}
+      - name: Build and Push Docker Image
+        run: |
+          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          docker build -t ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG .
+          docker push ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-#       - name: Set image tag in manifest
-#         run: |
-#           sed -i 's#<ECR_BACKEND_IMAGE_URL>:latest#${{ secrets.ECR_BACKEND_REPO }}:${{ github.sha }}#g' k8s/flexcars-backend.yaml
+      - name: Update kubeconfig for EKS and create ECR secret
+        run: |
+          aws eks --region eu-west-3 update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+          kubectl create secret docker-registry backend-ecr-secret --docker-server=${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }} --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-west-3)
 
-#       - name: Deploy to EKS
-#         run: |
-#           kubectl apply -f k8s/flexcars-backend.yaml
-#           kubectl apply -f k8s/ingress.yaml
+      - name: Get Previous Image Tag (For Rollback)
+        id: get-prev-image
+        run: |
+          PREV_IMAGE=$(kubectl get deployment ${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} -o=jsonpath='{.spec.template.spec.containers[0].image}')
+          echo "PREV_IMAGE=$PREV_IMAGE" >> $GITHUB_ENV
+
+      - name: Deploy to Kubernetes
+        id: deploy
+        run: |
+          kubectl set image deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} ${{ secrets.FLEXCARS_BACKEND_APP_NAME }}=${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
+          kubectl rollout status deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} || exit 1
+
+      - name: Rollback on Failure
+        if: failure()
+        run: |
+          echo "Deployment failed! Rolling back to previous stable image..."
+          kubectl set image deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} ${{ secrets.FLEXCARS_BACKEND_APP_NAME }}=$PREV_IMAGE
+          kubectl rollout status deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }}

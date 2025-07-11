@@ -89,31 +89,31 @@ export class ReservationService {
 
       const qrCodeBase64 = await qrcode.toDataURL(qrContent);
 
-      await this.mailerService.sendMail({
-        to: customer?.email,
-        subject: 'Confirmation de votre réservation',
-        template: 'rental-confirmation',
-        context: {
-          customerName: customer?.firstName ?? 'Client',
-          vehicleBrand: vehicle?.brand,
-          vehicleModel: vehicle?.model,
-          plateNumber: vehicle?.plateNumber,
-          fuelType: vehicle?.fuelType,
-          startDatetime: reservationUpdated.startDatetime?.toLocaleString('fr-FR'),
-          endDatetime: reservationUpdated.endDatetime?.toLocaleString('fr-FR'),
-          pickupLocation: reservationUpdated.pickupLocation,
-          dropoffLocation: reservationUpdated.dropoffLocation,
-          qrCodeBase64: qrCodeBase64.replace(/^data:image\/png;base64,/, ''),
-        },
-        attachments: [
-          {
-            filename: 'qrcode.png',
-            content: qrCodeBase64.split(',')[1],
-            encoding: 'base64',
-            cid: 'qrcode',
+        await this.mailerService.sendMail({
+          to: customer?.email,
+          subject: 'Confirmation de votre réservation',
+          template: 'rental-confirmation',
+          context: {
+            customerName: customer?.firstName ?? 'Client',
+            vehicleBrand: vehicle?.brand,
+            vehicleModel: vehicle?.model,
+            plateNumber: vehicle?.plateNumber,
+            fuelType: vehicle?.fuelType,
+            startDatetime: reservationUpdated.startDatetime?.toLocaleString('fr-FR'),
+            endDatetime: reservationUpdated.endDatetime?.toLocaleString('fr-FR'),
+            pickupLocation: reservationUpdated.pickupLocation,
+            dropoffLocation: reservationUpdated.dropoffLocation,
+            qrCodeBase64: qrCodeBase64.replace(/^data:image\/png;base64,/, ''),
           },
-        ],
-      });
+          attachments: [
+            {
+              filename: 'qrcode.png',
+              content: qrCodeBase64.split(',')[1],
+              encoding: 'base64',
+              cid: 'qrcode',
+            },
+          ],
+        });
     }
 
     return reservationUpdated;
