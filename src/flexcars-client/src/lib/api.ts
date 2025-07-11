@@ -283,6 +283,8 @@ export const paymentApi = {
   },
 
   createPayment: async (data: { invoiceId: string; transactionId?: string; status?: string }) => {
+    const apiResponse = await apiClient.post<Payment>('/payments', data);
+    console.log("💳 Payment created :", apiResponse);
     return apiClient.post<Payment>('/payments', data);
   },
 

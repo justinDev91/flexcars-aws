@@ -98,10 +98,9 @@ export function PaymentModal({
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         setPaymentStatus('success');
         toast.success('Paiement effectué avec succès !');
+        // Fermer immédiatement pour éviter les clics multiples
         onSuccess?.();
-        setTimeout(() => {
-          onClose();
-        }, 2000);
+        onClose();
       }
     } catch (error) {
       console.error('Payment processing error:', error);

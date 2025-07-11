@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Car, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,20 +10,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/context/auth-context';
 import { GoogleOAuthButton } from '@/components/google-oauth-button';
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, isLoading, error } = useAuth();
-  const router = useRouter();
+// Composant séparé pour gérer les erreurs Google OAuth
+function GoogleErrorHandler({ onError }: { onError: (error: string) => void }) {
   const searchParams = useSearchParams();
-  const [googleError, setGoogleError] = useState('');
 
   useEffect(() => {
     const errorParam = searchParams.get('error');
     if (errorParam === 'google_auth_failed') {
-      setGoogleError('Échec de la connexion avec Google. Veuillez réessayer.');
+      onError('Échec de la connexion avec Google. Veuillez réessayer.');
     }
-  }, [searchParams]);
+  }, [searchParams, onError]);
+
+  return null;
+}
+
+function LoginForm() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login, isLoading, error } = useAuth();
+  const router = useRouter();
+  const [googleError, setGoogleError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +44,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md">
+    <>
+      <GoogleErrorHandler onError={setGoogleError} />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Car className="h-8 w-8 text-primary" />
@@ -153,5 +161,27 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Car className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-primary">FlexCars</span>
+            </div>
+            <CardTitle>Connexion</CardTitle>
+            <CardDescription>Chargement...</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 } 

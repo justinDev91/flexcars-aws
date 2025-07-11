@@ -28,7 +28,7 @@ interface CookiePreferencesModalProps {
 }
 
 export function CookiePreferencesModal({ open, onOpenChange }: CookiePreferencesModalProps) {
-  const { consent, updateConsent, saveConsent, acceptAll, rejectAll } = useCookies();
+  const { consent, saveConsent, acceptAll, rejectAll } = useCookies();
   const [localConsent, setLocalConsent] = useState<CookieConsent>(consent);
 
   useEffect(() => {

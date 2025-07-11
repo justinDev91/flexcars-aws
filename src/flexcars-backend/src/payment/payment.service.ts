@@ -31,6 +31,7 @@ export class PaymentService {
   }
 
  async create(data: CreatePaymentDto) {
+    console.log('💳 Payment created start :', data);
     const invoice = await this.prisma.invoice.findUnique({
       where: { id: data.invoiceId },
     });
@@ -48,8 +49,8 @@ export class PaymentService {
     }
 
     const reservation = await this.reservationService.updateReservation(invoice.reservationId, { status: ReservationStatus.CONFIRMED })
+    console.log('💳 Payment created reservation :', reservation);
 
-    // Mettre à jour le statut du véhicule vers RENTED
     await this.prisma.vehicle.update({
       where: { id: reservation.vehicleId },
       data: { status: VehicleStatus.RENTED },
@@ -77,6 +78,7 @@ export class PaymentService {
       });
 
     }
+    console.log('💳 Payment created end :', payment);
     return payment;
   }
 

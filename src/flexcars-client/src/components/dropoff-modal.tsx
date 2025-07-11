@@ -115,6 +115,8 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
   const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
   const [paymentType, setPaymentType] = useState<'late_fees' | 'penalty' | null>(null);
+  const [penaltiesAlreadyPaid, setPenaltiesAlreadyPaid] = useState(false);
+  const [paymentInProgress, setPaymentInProgress] = useState(false);
 
   // Créer les schémas de validation avec la réservation
   const schemas = useMemo(() => createDropoffSchema(reservation), [reservation]);
@@ -314,7 +316,7 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     }
   };
 
-  // Dropoff normal
+  // Dropoff normal avec vérification des pénalités
   const handleNormalDropoff = async (data: DropoffNormalFormData) => {
     if (!currentLocation) {
       toast.error('Position non disponible');
@@ -324,36 +326,27 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     try {
       setLoading(true);
 
-      // Vérifier les pénalités et frais de retard
-      console.log('🔍 Vérification des pénalités pour dropoff normal');
-      const penaltyCheck = await checkPenalties(data.hasAccident, data.dropoffTime);
-      if (!penaltyCheck) return;
+      // Vérifier les pénalités et frais de retard SEULEMENT si elles n'ont pas déjà été payées
+      if (!penaltiesAlreadyPaid) {
+        console.log('🔍 Vérification des pénalités pour dropoff normal');
+        const penaltyCheck = await checkPenalties(data.hasAccident, data.dropoffTime);
+        if (!penaltyCheck) return;
 
-      console.log('📊 Résultat final des pénalités:', penaltyCheck);
-      
-      // Vérifier si un paiement est vraiment nécessaire
-      if (penaltyCheck.needsPayment && penaltyCheck.penaltyAmount > 0) {
-        console.log('💰 Paiement requis pour pénalités:', penaltyCheck.penaltyAmount);
-        // Créer l'intention de paiement pour les pénalités
-        await handlePenaltyPayment(penaltyCheck);
-        return;
+        console.log('📊 Résultat final des pénalités:', penaltyCheck);
+        
+        // Vérifier si un paiement est vraiment nécessaire
+        if (penaltyCheck.needsPayment && penaltyCheck.penaltyAmount > 0) {
+          console.log('💰 Paiement requis pour pénalités:', penaltyCheck.penaltyAmount);
+          // Créer l'intention de paiement pour les pénalités
+          await handlePenaltyPayment(penaltyCheck);
+          return;
+        }
+      } else {
+        console.log('✅ Pénalités déjà payées, procédure directe de dropoff');
       }
 
-      console.log('✅ Aucun paiement supplémentaire requis, procédure de dropoff');
       // Effectuer le dropoff
-      const response = await vehicleApi.dropoffNormal({
-        reservationId: reservation.id,
-        currentMileage: data.currentMileage,
-        dropoffTime: data.dropoffTime,
-        hasAccident: data.hasAccident,
-        currentLocationLat: currentLocation.lat,
-        currentLocationLng: currentLocation.lng
-      });
-
-      const dropoffData = response.data as DropoffResponse;
-      toast.success(dropoffData.message || 'Véhicule rendu avec succès');
-      onSuccess();
-      onClose();
+      await performFinalDropoff(data);
     } catch (error: unknown) {
       console.error('Erreur lors du dropoff:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur lors du retour du véhicule';
@@ -363,54 +356,74 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     }
   };
 
-  // Dropoff avec carsitter
+  // Dropoff normal final (sans vérification des pénalités)
+  const handleFinalNormalDropoff = async (data: DropoffNormalFormData) => {
+    if (!currentLocation) {
+      toast.error('Position non disponible');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('🚀 Dropoff final normal après paiement des pénalités');
+      await performFinalDropoff(data);
+    } catch (error: unknown) {
+      console.error('Erreur lors du dropoff final:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur lors du retour du véhicule';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction partagée pour effectuer le dropoff final
+  const performFinalDropoff = async (data: DropoffNormalFormData) => {
+    const response = await vehicleApi.dropoffNormal({
+      reservationId: reservation.id,
+      currentMileage: data.currentMileage,
+      dropoffTime: data.dropoffTime,
+      hasAccident: data.hasAccident,
+      currentLocationLat: currentLocation!.lat,
+      currentLocationLng: currentLocation!.lng
+    });
+
+    const dropoffData = response.data as DropoffResponse;
+    toast.success(dropoffData.message || 'Véhicule rendu avec succès');
+    onSuccess();
+    onClose();
+  };
+
+  // Dropoff avec carsitter avec vérification des pénalités
   const handleCarSitterDropoff = async (data: DropoffCarSitterFormData) => {
     console.log('🚀 Début handleCarSitterDropoff avec data:', data);
     
     try {
       setLoading(true);
 
-      // Vérifier les pénalités et frais de retard
-      console.log('🔍 Vérification des pénalités et frais de retard...');
-      const penaltyCheck = await checkPenalties(data.hasAccident, data.dropoffTime);
-      if (!penaltyCheck) {
-        console.log('❌ Échec de la vérification des pénalités');
-        return;
+      // Vérifier les pénalités et frais de retard SEULEMENT si elles n'ont pas déjà été payées
+      if (!penaltiesAlreadyPaid) {
+        console.log('🔍 Vérification des pénalités et frais de retard...');
+        const penaltyCheck = await checkPenalties(data.hasAccident, data.dropoffTime);
+        if (!penaltyCheck) {
+          console.log('❌ Échec de la vérification des pénalités');
+          return;
+        }
+
+        console.log('📊 Résultat final des pénalités:', penaltyCheck);
+        
+        // Vérifier si un paiement est vraiment nécessaire
+        if (penaltyCheck.needsPayment && penaltyCheck.penaltyAmount > 0) {
+          console.log('💰 Paiement requis pour pénalités:', penaltyCheck.penaltyAmount);
+          // Créer l'intention de paiement pour les pénalités
+          await handlePenaltyPayment(penaltyCheck);
+          return;
+        }
+      } else {
+        console.log('✅ Pénalités déjà payées, procédure directe de dropoff avec carsitter');
       }
 
-      console.log('📊 Résultat final des pénalités:', penaltyCheck);
-      
-      // Vérifier si un paiement est vraiment nécessaire
-      if (penaltyCheck.needsPayment && penaltyCheck.penaltyAmount > 0) {
-        console.log('💰 Paiement requis pour pénalités:', penaltyCheck.penaltyAmount);
-        // Créer l'intention de paiement pour les pénalités
-        await handlePenaltyPayment(penaltyCheck);
-        return;
-      }
-
-      console.log('✅ Aucun paiement supplémentaire requis, procédure de dropoff avec carsitter');
-      // Utiliser des coordonnées par défaut si la géolocalisation n'est pas disponible
-      const locationLat = currentLocation?.lat || 48.8566; // Paris par défaut
-      const locationLng = currentLocation?.lng || 2.3522;
-
-      console.log('🚗 Création de la demande de dropoff avec carsitter...');
-      // Créer la demande de dropoff avec carsitter
-      const response = await vehicleApi.dropoffWithCarSitter({
-        reservationId: reservation.id,
-        currentMileage: data.currentMileage,
-        dropoffTime: data.dropoffTime,
-        hasAccident: data.hasAccident,
-        carSitterId: data.carSitterId,
-        currentLocationLat: locationLat,
-        currentLocationLng: locationLng,
-        signature: data.signature
-      });
-
-      console.log('✅ Réponse reçue:', response);
-      const dropoffData = response.data as DropoffResponse;
-      toast.success(dropoffData.message || 'Demande de dropoff créée avec succès');
-      onSuccess();
-      onClose();
+      // Effectuer le dropoff avec carsitter
+      await performFinalCarSitterDropoff(data);
     } catch (error: unknown) {
       console.error('❌ Erreur lors du dropoff avec carsitter:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la création de la demande';
@@ -418,6 +431,47 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     } finally {
       setLoading(false);
     }
+  };
+
+  // Dropoff avec carsitter final (sans vérification des pénalités)
+  const handleFinalCarSitterDropoff = async (data: DropoffCarSitterFormData) => {
+    try {
+      setLoading(true);
+      console.log('🚀 Dropoff final avec carsitter après paiement des pénalités');
+      await performFinalCarSitterDropoff(data);
+    } catch (error: unknown) {
+      console.error('❌ Erreur lors du dropoff final avec carsitter:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la création de la demande';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction partagée pour effectuer le dropoff final avec carsitter
+  const performFinalCarSitterDropoff = async (data: DropoffCarSitterFormData) => {
+    // Utiliser des coordonnées par défaut si la géolocalisation n'est pas disponible
+    const locationLat = currentLocation?.lat || 48.8566; // Paris par défaut
+    const locationLng = currentLocation?.lng || 2.3522;
+
+    console.log('🚗 Création de la demande de dropoff avec carsitter...');
+    // Créer la demande de dropoff avec carsitter
+    const response = await vehicleApi.dropoffWithCarSitter({
+      reservationId: reservation.id,
+      currentMileage: data.currentMileage,
+      dropoffTime: data.dropoffTime,
+      hasAccident: data.hasAccident,
+      carSitterId: data.carSitterId,
+      currentLocationLat: locationLat,
+      currentLocationLng: locationLng,
+      signature: data.signature
+    });
+
+    console.log('✅ Réponse reçue:', response);
+    const dropoffData = response.data as DropoffResponse;
+    toast.success(dropoffData.message || 'Demande de dropoff créée avec succès');
+    onSuccess();
+    onClose();
   };
 
   // Gérer le paiement des frais de retard
@@ -484,7 +538,13 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
 
   // Succès du paiement des frais de retard
   const handleLateFeesPaymentSuccess = () => {
+    if (paymentInProgress) {
+      console.log('⚠️ Paiement déjà en cours de traitement, ignoré');
+      return;
+    }
+    
     console.log('✅ Paiement des frais de retard réussi !');
+    setPaymentInProgress(true);
     setLateFeesPaymentCompleted(true);
     setShowPaymentModal(false);
     setPaymentClientSecret(null);
@@ -492,6 +552,9 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     setPaymentAmount(0);
     setPaymentType(null);
     toast.success('Paiement des frais de retard effectué avec succès');
+    
+    // Réinitialiser après un délai
+    setTimeout(() => setPaymentInProgress(false), 3000);
   };
 
   // Fermeture du modal de paiement des frais de retard
@@ -505,20 +568,30 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
 
   // Succès du paiement des pénalités
   const handlePenaltyPaymentSuccess = () => {
+    if (paymentInProgress) {
+      console.log('⚠️ Paiement déjà en cours de traitement, ignoré');
+      return;
+    }
+    
     console.log('✅ Paiement des pénalités réussi !');
+    setPaymentInProgress(true);
     setShowPaymentModal(false);
     setPaymentClientSecret(null);
     setPaymentInvoiceId(null);
     setPaymentAmount(0);
     setPaymentType(null);
+    setPenaltiesAlreadyPaid(true);
     toast.success('Paiement des pénalités effectué avec succès');
     
-    // Relancer le dropoff après paiement
+    // Procéder directement au dropoff SANS vérifier les pénalités à nouveau
     if (dropoffType === 'normal') {
-      handleNormalDropoff(normalForm.getValues());
+      handleFinalNormalDropoff(normalForm.getValues());
     } else {
-      handleCarSitterDropoff(carSitterForm.getValues());
+      handleFinalCarSitterDropoff(carSitterForm.getValues());
     }
+    
+    // Réinitialiser après completion
+    setTimeout(() => setPaymentInProgress(false), 5000);
   };
 
   // Fermeture du modal de paiement des pénalités
@@ -545,6 +618,8 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     setPaymentInvoiceId(null);
     setPaymentAmount(0);
     setPaymentType(null);
+    setPenaltiesAlreadyPaid(false);
+    setPaymentInProgress(false);
     
     // Reset forms
     normalForm.reset();
@@ -911,10 +986,10 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
       </Dialog>
 
       {/* Modal de paiement unifié */}
-      {showPaymentModal && (paymentClientSecret || paymentType === 'late_fees' || paymentType === 'penalty') && (
+      {showPaymentModal && !paymentInProgress && (paymentClientSecret || paymentType === 'late_fees' || paymentType === 'penalty') && (
         <StripeProvider clientSecret={paymentClientSecret || ''}>
           <PaymentModal
-            isOpen={showPaymentModal}
+            isOpen={showPaymentModal && !paymentInProgress}
             onClose={handlePaymentClose}
             amount={paymentAmount}
             invoiceId={paymentInvoiceId || ''}

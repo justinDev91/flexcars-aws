@@ -13,7 +13,7 @@ export class StripeService {
 
   async createPaymentIntent(amount: number, currency: string = 'eur', metadata?: Record<string, string>) {
     return this.stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe utilise les centimes
+      amount: Math.round(amount * 100),
       currency,
       metadata,
       automatic_payment_methods: {
@@ -26,11 +26,10 @@ export class StripeService {
     return this.stripe.paymentIntents.retrieve(paymentIntentId);
   }
 
-  // Nouvelles méthodes pour les remboursements
   async createRefund(paymentIntentId: string, amount?: number, reason?: 'duplicate' | 'fraudulent' | 'requested_by_customer') {
     return this.stripe.refunds.create({
       payment_intent: paymentIntentId,
-      amount: amount ? Math.round(amount * 100) : undefined, // Remboursement partiel ou complet
+      amount: amount ? Math.round(amount * 100) : undefined,
       reason: reason || 'requested_by_customer',
     });
   }
@@ -48,10 +47,8 @@ export class StripeService {
   async constructWebhookEvent(payload: string | Buffer, signature: string) {
     let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     
-    // En développement avec Stripe CLI, utiliser la clé temporaire si disponible
     if (process.env.NODE_ENV !== 'production') {
-      // Clé temporaire générée par `stripe listen`
-      const stripeCliSecret = 'whsec_fc360f9f5524c3781b67013440b6919151080fe8b8e467d150afa3ab385fe0ce';
+      const stripeCliSecret = process.env.STRIPE_WEBHOOK_SECRET;
       webhookSecret = stripeCliSecret;
     }
     

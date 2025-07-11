@@ -1,19 +1,24 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Car, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
-export default function GoogleCallbackPage() {
+function CallbackHandler({ 
+  onStatusChange, 
+  onError, 
+  onShowManualRedirect 
+}: { 
+  onStatusChange: (status: 'loading' | 'success' | 'error') => void;
+  onError: (error: string) => void;
+  onShowManualRedirect: (show: boolean) => void;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser } = useAuth();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [error, setError] = useState<string>('');
-  const [showManualRedirect, setShowManualRedirect] = useState(false);
   const processedRef = useRef(false);
 
   const handleGoogleCallback = useCallback(async () => {
@@ -38,7 +43,7 @@ export default function GoogleCallbackPage() {
         
         // Mettre à jour le contexte d'authentification
         setUser(user);
-        setStatus('success');
+        onStatusChange('success');
         
         console.log('Google callback - Données sauvegardées, redirection dans 1 seconde...');
         
@@ -50,7 +55,7 @@ export default function GoogleCallbackPage() {
         
         // Fallback : afficher le bouton manuel après 3 secondes
         setTimeout(() => {
-          setShowManualRedirect(true);
+          onShowManualRedirect(true);
         }, 3000);
         
       } else {
@@ -59,22 +64,36 @@ export default function GoogleCallbackPage() {
       
     } catch (err) {
       console.error('Erreur lors du callback Google:', err);
-      setError(err instanceof Error ? err.message : 'Erreur d\'authentification Google');
-      setStatus('error');
+      onError(err instanceof Error ? err.message : 'Erreur d\'authentification Google');
+      onStatusChange('error');
       
       setTimeout(() => {
         router.push('/auth/login?error=google_auth_failed');
       }, 3000);
     }
-  }, [searchParams, setUser, router]);
+  }, [searchParams, setUser, router, onStatusChange, onError, onShowManualRedirect]);
 
   useEffect(() => {
     handleGoogleCallback();
   }, [handleGoogleCallback]);
 
+  return null;
+}
+
+function GoogleCallbackContent() {
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [error, setError] = useState<string>('');
+  const [showManualRedirect, setShowManualRedirect] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md">
+    <>
+      <CallbackHandler 
+        onStatusChange={setStatus}
+        onError={setError}
+        onShowManualRedirect={setShowManualRedirect}
+      />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Car className="h-8 w-8 text-primary" />
@@ -143,5 +162,32 @@ export default function GoogleCallbackPage() {
         </CardContent>
       </Card>
     </div>
+    </>
+  );
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Car className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-primary">FlexCars</span>
+            </div>
+            <CardTitle>Connexion Google</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <div className="space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="text-muted-foreground">Chargement...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   );
 } 

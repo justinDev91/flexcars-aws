@@ -53,7 +53,7 @@ const bookingSchema = z.object({
   endDatetime: z.date(),
   pickupLocation: z.nativeEnum(Location),
   dropoffLocation: z.nativeEnum(Location),
-  carSittingOption: z.boolean().default(false),
+  carSittingOption: z.boolean(),
 }).refine((data) => {
   return data.endDatetime > data.startDatetime;
 }, {
@@ -129,7 +129,7 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
   }, []);
 
   const form = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema) as any,
+    resolver: zodResolver(bookingSchema),
     defaultValues: {
       startDatetime: addHours(new Date(), 1),
       endDatetime: addHours(new Date(), 3),

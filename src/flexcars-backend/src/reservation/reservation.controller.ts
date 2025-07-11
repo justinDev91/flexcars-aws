@@ -7,7 +7,7 @@ import { ReservationService } from './reservation.service';
 import { Response } from 'express';
 import { Reservation, Vehicle } from '@prisma/client';
 import { VehiclesService } from '../vehicle/vehicle.service';
-import { DropVehicleDto } from './dto/DropVehicle.dto';
+import { SimpleDropVehicleDto } from './dto/DropVehicle.dto';
 
 @ApiBearerAuth('access-token') 
 @Controller('reservations')
@@ -73,7 +73,7 @@ export class ReservationController {
   
   
   @Post('vehicle-drop')
-  async dropVehicle(@Body() data: DropVehicleDto) {
+  async dropVehicle(@Body() data: SimpleDropVehicleDto) {
     return this.vehicleService.dropVehicle(data.firstName, data.reservationId, data.currentMileage);
   }
 
