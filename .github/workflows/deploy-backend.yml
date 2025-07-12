@@ -34,7 +34,9 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{secrets.AWS_REGION}} | \
           docker login --username AWS --password-stdin ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}
-
+      
+      - name: List files for debug
+        run: ls -lR
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
