@@ -46,6 +46,7 @@ jobs:
       - name: Update kubeconfig for EKS and create ECR secret
         run: |
           aws eks --region eu-west-3 update-kubeconfig --name eks-cluster
+          kubectl delete secret backend-ecr-secret --ignore-not-found
           kubectl create secret docker-registry backend-ecr-secret --docker-server=715221148096.dkr.ecr.eu-west-3.amazonaws.com --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-west-3)
 
       - name: Get Previous Image Tag (For Rollback)
