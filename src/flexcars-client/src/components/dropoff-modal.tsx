@@ -546,11 +546,14 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     console.log('✅ Paiement des frais de retard réussi !');
     setPaymentInProgress(true);
     setLateFeesPaymentCompleted(true);
-    setShowPaymentModal(false);
-    setPaymentClientSecret(null);
-    setPaymentInvoiceId(null);
-    setPaymentAmount(0);
-    setPaymentType(null);
+    
+    // ❌ NE PAS FERMER LE MODAL ICI - laissez le PaymentModal gérer la fermeture
+    // setShowPaymentModal(false);
+    // setPaymentClientSecret(null);
+    // setPaymentInvoiceId(null);
+    // setPaymentAmount(0);
+    // setPaymentType(null);
+    
     toast.success('Paiement des frais de retard effectué avec succès');
     
     // Réinitialiser après un délai
@@ -559,11 +562,13 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
 
   // Fermeture du modal de paiement des frais de retard
   const handleLateFeesPaymentClose = () => {
+    console.log('🔒 Fermeture du modal de paiement des frais de retard');
     setShowPaymentModal(false);
     setPaymentClientSecret(null);
     setPaymentInvoiceId(null);
     setPaymentAmount(0);
     setPaymentType(null);
+    setPaymentInProgress(false);
   };
 
   // Succès du paiement des pénalités
@@ -575,32 +580,38 @@ export function DropoffModal({ reservation, isOpen, onClose, onSuccess }: Dropof
     
     console.log('✅ Paiement des pénalités réussi !');
     setPaymentInProgress(true);
-    setShowPaymentModal(false);
-    setPaymentClientSecret(null);
-    setPaymentInvoiceId(null);
-    setPaymentAmount(0);
-    setPaymentType(null);
+    
+    // ❌ NE PAS FERMER LE MODAL ICI - laissez le PaymentModal gérer la fermeture
+    // setShowPaymentModal(false);
+    // setPaymentClientSecret(null);
+    // setPaymentInvoiceId(null);
+    // setPaymentAmount(0);
+    // setPaymentType(null);
+    
     setPenaltiesAlreadyPaid(true);
     toast.success('Paiement des pénalités effectué avec succès');
     
-    // Procéder directement au dropoff SANS vérifier les pénalités à nouveau
-    if (dropoffType === 'normal') {
-      handleFinalNormalDropoff(normalForm.getValues());
-    } else {
-      handleFinalCarSitterDropoff(carSitterForm.getValues());
-    }
-    
-    // Réinitialiser après completion
-    setTimeout(() => setPaymentInProgress(false), 5000);
+    // Attendre un peu avant de continuer le dropoff pour laisser le modal se fermer proprement
+    setTimeout(() => {
+      // Procéder directement au dropoff SANS vérifier les pénalités à nouveau
+      if (dropoffType === 'normal') {
+        handleFinalNormalDropoff(normalForm.getValues());
+      } else {
+        handleFinalCarSitterDropoff(carSitterForm.getValues());
+      }
+      setPaymentInProgress(false);
+    }, 1000);
   };
 
   // Fermeture du modal de paiement des pénalités
   const handlePenaltyPaymentClose = () => {
+    console.log('🔒 Fermeture du modal de paiement des pénalités');
     setShowPaymentModal(false);
     setPaymentClientSecret(null);
     setPaymentInvoiceId(null);
     setPaymentAmount(0);
     setPaymentType(null);
+    setPaymentInProgress(false);
   };
 
   const resetModal = () => {

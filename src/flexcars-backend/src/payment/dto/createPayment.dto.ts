@@ -33,3 +33,9 @@ export class CreatePaymentDto {
   @IsEnum(PaymentStatus)
   status?: PaymentStatus;
 }
+
+export class ConfirmPaymentDto {
+  @ApiProperty({ description: 'Stripe PaymentIntent ID' })
+  @IsString()
+  paymentIntentId: string;
+}

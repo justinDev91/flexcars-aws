@@ -70,6 +70,7 @@ describe('PaymentService', () => {
             },
             reservation: {
               findUnique: jest.fn(),
+              update: jest.fn(),
             },
           },
         },
@@ -209,7 +210,7 @@ describe('PaymentService', () => {
         status: PaymentStatus.SUCCESS,
       } as any);
       jest.spyOn(prismaService.invoice, 'update').mockResolvedValue({} as any);
-      jest.spyOn(reservationService, 'updateReservation').mockResolvedValue({} as any);
+      jest.spyOn(prismaService.reservation, 'update').mockResolvedValue({} as any);
       jest.spyOn(prismaService.reservation, 'findUnique').mockResolvedValue({
         id: 'reservation-1',
         customer: mockCustomer,
@@ -233,10 +234,10 @@ describe('PaymentService', () => {
       });
 
       // Vérifier que la réservation est annulée
-      expect(reservationService.updateReservation).toHaveBeenCalledWith(
-        'reservation-1',
-        { status: ReservationStatus.CANCELLED }
-      );
+      expect(prismaService.reservation.update).toHaveBeenCalledWith({
+        where: { id: 'reservation-1' },
+        data: { status: ReservationStatus.CANCELLED },
+      });
     });
 
     it('should throw NotFoundException if payment not found', async () => {
@@ -273,7 +274,7 @@ describe('PaymentService', () => {
       jest.spyOn(stripeService, 'createRefund').mockResolvedValue(mockStripeRefund as any);
       jest.spyOn(prismaService.payment, 'create').mockResolvedValue({} as any);
       jest.spyOn(prismaService.invoice, 'update').mockResolvedValue({} as any);
-      jest.spyOn(reservationService, 'updateReservation').mockResolvedValue({} as any);
+      jest.spyOn(prismaService.reservation, 'update').mockResolvedValue({} as any);
       jest.spyOn(prismaService.reservation, 'findUnique').mockResolvedValue({
         customer: mockCustomer,
       } as any);

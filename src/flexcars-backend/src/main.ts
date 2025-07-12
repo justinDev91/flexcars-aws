@@ -9,22 +9,7 @@ import { json } from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   
-  // Configuration spéciale pour le webhook Stripe - raw body
-  app.use('/payments/webhook', (req: any, res: any, next: any) => {
-    if (req.method === 'POST') {
-      let data = '';
-      req.on('data', (chunk: any) => {
-        data += chunk;
-      });
-      req.on('end', () => {
-        req.rawBody = data;
-        req.body = data;
-        next();
-      });
-    } else {
-      next();
-    }
-  });
+
   
   // JSON parser pour tout le reste
   app.use(json({ limit: '10mb' }));

@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { toast } from 'sonner';
+import { paymentApi } from '@/lib/api';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -34,24 +35,23 @@ export function PaymentModal({
 }: PaymentModalProps) {
   const stripe = useStripe();
   const elements = useElements();
-  
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
 
-  const formattedAmount = useMemo(() => {
-    return (amount / 100).toLocaleString('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    });
-  }, [amount]);
+  // Formatage du montant pour l'affichage
+  const formattedAmount = new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(amount / 100);
+
+  // Calcul de la TVA pour l'affichage
+  const amountTTC = amount / 100; // Conversion centimes → euros
+  const amountHT = Math.round((amountTTC / 1.2) * 100) / 100; // TTC → HT
+  const vatAmount = Math.round((amountTTC - amountHT) * 100) / 100; // TVA
 
   const invoiceNumber = useMemo(() => {
     return invoiceId.slice(-8);
   }, [invoiceId]);
-
-  const taxAmount = useMemo(() => {
-    return ((amount / 100) * 0.2 / 1.2).toFixed(2);
-  }, [amount]);
 
   const paymentElementOptions = useMemo(() => ({
     layout: {
@@ -82,6 +82,7 @@ export function PaymentModal({
     setPaymentStatus('processing');
 
     try {
+      // Étape 1: Confirmer le paiement avec Stripe
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -91,19 +92,41 @@ export function PaymentModal({
       });
 
       if (error) {
-        console.error('Payment error:', error);
         setPaymentStatus('error');
         toast.error(`Erreur de paiement: ${error.message}`);
         onError?.();
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        setPaymentStatus('success');
-        toast.success('Paiement effectué avec succès !');
-        // Fermer immédiatement pour éviter les clics multiples
-        onSuccess?.();
-        onClose();
+        return;
       }
-    } catch (error) {
-      console.error('Payment processing error:', error);
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Étape 2: Confirmer le paiement côté backend
+        try {
+          const confirmResponse = await paymentApi.confirmPayment(paymentIntent.id);
+          
+          if (confirmResponse.data.success) {
+            setPaymentStatus('success');
+            toast.success('Paiement effectué avec succès !');
+            onSuccess?.();
+            // 🔥 IMPORTANT : Fermer le modal après un délai court pour laisser voir le succès
+            setTimeout(() => {
+              onClose();
+            }, 2000);
+          } else {
+            setPaymentStatus('error');
+            toast.error(`Erreur lors de la confirmation: ${confirmResponse.data.error}`);
+            onError?.();
+          }
+        } catch {
+          setPaymentStatus('error');
+          toast.error('Erreur lors de la confirmation du paiement. Veuillez contacter le support.');
+          onError?.();
+        }
+      } else {
+        setPaymentStatus('error');
+        toast.error('Le paiement n\'a pas été confirmé');
+        onError?.();
+      }
+    } catch {
       setPaymentStatus('error');
       toast.error('Erreur lors du traitement du paiement');
       onError?.();
@@ -156,7 +179,7 @@ export function PaymentModal({
                 <span className="text-sm text-gray-800">#{invoiceNumber}</span>
               </div>
               <div className="text-xs text-gray-500 mt-2">
-                (dont {taxAmount}€ de TVA)
+                (dont {vatAmount}€ de TVA)
               </div>
             </div>
 
@@ -196,7 +219,7 @@ export function PaymentModal({
           </form>
         );
     }
-  }, [paymentStatus, formattedAmount, handleSubmit, handleRetry, onClose, stripe, elements, isProcessing, invoiceNumber, taxAmount, paymentElementOptions]);
+  }, [paymentStatus, formattedAmount, handleSubmit, handleRetry, onClose, stripe, elements, isProcessing, invoiceNumber, vatAmount, paymentElementOptions]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

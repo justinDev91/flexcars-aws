@@ -44,18 +44,5 @@ export class StripeService {
     });
   }
 
-  async constructWebhookEvent(payload: string | Buffer, signature: string) {
-    let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    
-    if (process.env.NODE_ENV !== 'production') {
-      const stripeCliSecret = process.env.STRIPE_WEBHOOK_SECRET;
-      webhookSecret = stripeCliSecret;
-    }
-    
-    if (!webhookSecret) {
-      throw new Error('STRIPE_WEBHOOK_SECRET not configured');
-    }
-    
-    return this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-  }
+
 } 

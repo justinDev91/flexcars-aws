@@ -31,7 +31,7 @@ export class PaymentService {
   }
 
  async create(data: CreatePaymentDto) {
-    console.log('💳 Payment created start :', data);
+    // console.log('💳 Payment created start :', data);
     const invoice = await this.prisma.invoice.findUnique({
       where: { id: data.invoiceId },
     });
@@ -49,7 +49,7 @@ export class PaymentService {
     }
 
     const reservation = await this.reservationService.updateReservation(invoice.reservationId, { status: ReservationStatus.CONFIRMED })
-    console.log('💳 Payment created reservation :', reservation);
+    // console.log('💳 Payment created reservation :', reservation);
 
     await this.prisma.vehicle.update({
       where: { id: reservation.vehicleId },
@@ -77,7 +77,7 @@ export class PaymentService {
           },
         });
     }
-    console.log('💳 Payment created end :', payment);
+    // console.log('💳 Payment created end :', payment);
     return payment;
   }
 
@@ -126,9 +126,10 @@ export class PaymentService {
       data: { status: InvoiceStatus.REFUNDED },
     });
 
-    // Mettre à jour le statut de la réservation
-    await this.reservationService.updateReservation(data.reservationId, {
-      status: ReservationStatus.CANCELLED,
+    // Mettre à jour le statut de la réservation (SANS déclencher la logique de remboursement automatique)
+    await this.prisma.reservation.update({
+      where: { id: data.reservationId },
+      data: { status: ReservationStatus.CANCELLED },
     });
 
     // Récupérer la réservation avec le client pour l'email
