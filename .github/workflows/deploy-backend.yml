@@ -34,6 +34,8 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{secrets.AWS_REGION}} | \
           docker login --username AWS --password-stdin ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}
+      - name: List backend files for debug
+        run: ls -lR src/flexcars-backend
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
@@ -41,25 +43,26 @@ jobs:
           docker tag flexcars-backend:latest 715221148096.dkr.ecr.eu-west-3.amazonaws.com/flexcars-backend:$IMAGE_TAG
           docker push 715221148096.dkr.ecr.eu-west-3.amazonaws.com/flexcars-backend:$IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-      # - name: Update kubeconfig for EKS and create ECR secret
-      #   run: |
-      #     aws eks --region ${{secrets.AWS_REGION}} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
-      #     kubectl create secret docker-registry backend-ecr-secret --docker-server=${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }} --docker-username=AWS --docker-password=$(aws ecr get-login-password --region ${{secrets.AWS_REGION}})
 
-      # - name: Get Previous Image Tag (For Rollback)
-      #   id: get-prev-image
-      #   if: failure()
-      #   run: |
-      #     PREV_IMAGE=$(kubectl get deployment ${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} -o=jsonpath='{.spec.template.spec.containers[0].image}')
-      #     echo "PREV_IMAGE=$PREV_IMAGE" >> $GITHUB_ENV
+      - name: Update kubeconfig for EKS and create ECR secret
+        run: |
+          aws eks --region ${{secrets.AWS_REGION}} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+          kubectl create secret docker-registry backend-ecr-secret --docker-server=${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }} --docker-username=AWS --docker-password=$(aws ecr get-login-password --region ${{secrets.AWS_REGION}})
 
-      # - name: Deploy to Kubernetes
-      #   id: deploy
-      #   run: |
-      #     kubectl set image deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} ${{ secrets.FLEXCARS_BACKEND_APP_NAME }}=${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
-      #     kubectl rollout status deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} || exit 1
+      - name: Get Previous Image Tag (For Rollback)
+        id: get-prev-image
+        if: failure()
+        run: |
+          PREV_IMAGE=$(kubectl get deployment ${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} -o=jsonpath='{.spec.template.spec.containers[0].image}')
+          echo "PREV_IMAGE=$PREV_IMAGE" >> $GITHUB_ENV
 
-      # - name: Rollback on Failure
+      - name: Deploy to Kubernetes
+        id: deploy
+        run: |
+          kubectl set image deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} ${{ secrets.FLEXCARS_BACKEND_APP_NAME }}=${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
+          kubectl rollout status deployment/${{ secrets.FLEXCARS_BACKEND_DEPLOYMENT_NAME }} || exit 1
+
+      - name: Rollback on Failure
         if: failure()
         run: |
           echo "Deployment failed! Rolling back to previous stable image..."
