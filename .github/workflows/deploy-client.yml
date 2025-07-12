@@ -18,6 +18,17 @@ jobs:
     name: Deploy flexcars-client to EKS
     runs-on: ubuntu-latest
     environment: production
+    env:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }} 
+      AWS_REGION: eu-west-3
+      EKS_CLUSTER_NAME: eks-cluster
+      CLIENT_DEPLOYMENT_NAME: flexcars-client
+      CLIENT_APP_NAME: flexcars-client
+      DOCKER_IMAGE_NAME: flexcars-client
+      ECR_SECRET_NAME: client-ecr-secret
 
     permissions:
       id-token: write 
@@ -30,49 +41,49 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::715221148096:role/github-runner-role
-          aws-region: eu-west-3
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-runner-role
+          aws-region: ${{ env.AWS_REGION }}
           audience: sts.amazonaws.com
           mask-aws-account-id: 'false'
 
       - name: Authenticate with AWS ECR
         run: |
-          aws ecr get-login-password --region eu-west-3 | \
-          docker login --username AWS --password-stdin 715221148096.dkr.ecr.eu-west-3.amazonaws.com
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+          docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
 
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-          docker build -f src/flexcars-client/Dockerfile \
-            --build-arg NEXT_PUBLIC_API_URL="http://a64a8da2a07e24b938c9c1007cb63f60-1364088154.eu-west-3.elb.amazonaws.com" \
-            --build-arg NEXTAUTH_SECRET="om49e451tlnud88l6c3k4gh798k0fbj2" \
-            --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_51RiuDzQtpYBxzRsNqTQbdxgZUKAUOI3w3gFwtQ64rRRrtXDSLX8fQmzc9Hvh7y5m66bHIL2dqwmhyEmHP7pxH8vs00BHp5SYDC" \
-            -t 715221148096.dkr.ecr.eu-west-3.amazonaws.com/flexcars-client:$IMAGE_TAG src/flexcars-client
-          docker push 715221148096.dkr.ecr.eu-west-3.amazonaws.com/flexcars-client:$IMAGE_TAG
+          docker build -f src/${{ env.CLIENT_DEPLOYMENT_NAME }}/Dockerfile \
+            --build-arg NEXT_PUBLIC_API_URL="${{ env.NEXT_PUBLIC_API_URL }}" \
+            --build-arg NEXTAUTH_SECRET="${{ env.NEXTAUTH_SECRET }}" \
+            --build-arg NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="${{ env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}" \
+            -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.DOCKER_IMAGE_NAME }}:$IMAGE_TAG src/${{ env.CLIENT_DEPLOYMENT_NAME }}
+          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.DOCKER_IMAGE_NAME }}:$IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Update kubeconfig for EKS and create ECR secret
         run: |
-          aws eks --region eu-west-3 update-kubeconfig --name eks-cluster
-          kubectl delete secret client-ecr-secret --ignore-not-found
-          kubectl create secret docker-registry client-ecr-secret --docker-server=715221148096.dkr.ecr.eu-west-3.amazonaws.com --docker-username=AWS --docker-password=$(aws ecr get-login-password --region eu-west-3)
+          aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }}
+          kubectl delete secret ${{ env.ECR_SECRET_NAME }} --ignore-not-found
+          kubectl create secret docker-registry ${{ env.ECR_SECRET_NAME }} --docker-server=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com --docker-username=AWS --docker-password=$(aws ecr get-login-password --region ${{ env.AWS_REGION }})
 
       - name: Get Previous Image Tag (For Rollback)
         id: get-prev-image
         if: failure()
         run: |
-          PREV_IMAGE=$(kubectl get deployment flexcars-client -o=jsonpath='{.spec.template.spec.containers[0].image}')
+          PREV_IMAGE=$(kubectl get deployment ${{ env.CLIENT_DEPLOYMENT_NAME }} -o=jsonpath='{.spec.template.spec.containers[0].image}')
           echo "PREV_IMAGE=$PREV_IMAGE" >> $GITHUB_ENV
 
       - name: Deploy to Kubernetes
         id: deploy
         run: |
-          kubectl set image deployment/flexcars-client flexcars-client=715221148096.dkr.ecr.eu-west-3.amazonaws.com/flexcars-client:$IMAGE_TAG
-          kubectl rollout status deployment/flexcars-client || exit 1
+          kubectl set image deployment/${{ env.CLIENT_DEPLOYMENT_NAME }} ${{ env.CLIENT_APP_NAME }}=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.DOCKER_IMAGE_NAME }}:$IMAGE_TAG
+          kubectl rollout status deployment/${{ env.CLIENT_DEPLOYMENT_NAME }} || exit 1
 
       - name: Rollback on Failure
         if: failure()
         run: |
           echo "Deployment failed! Rolling back to previous stable image..."
-          kubectl set image deployment/flexcars-client flexcars-client=$PREV_IMAGE
-          kubectl rollout status deployment/flexcars-client || exit 1
+          kubectl set image deployment/${{ env.CLIENT_DEPLOYMENT_NAME }} ${{ env.CLIENT_APP_NAME }}=$PREV_IMAGE
+          kubectl rollout status deployment/${{ env.CLIENT_DEPLOYMENT_NAME }} || exit 1
