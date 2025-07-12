@@ -147,7 +147,7 @@ export class ReservationService {
     return reservationWithInvoice;
   }
 
-  async updateReservation(id: string, data: Prisma.ReservationUpdateInput): Promise<Reservation> {
+  async updateReservation(id: string, data: Prisma.ReservationUpdateInput, skipRefundLogic: boolean = false): Promise<Reservation> {
     const reservation = await this.prisma.reservation.findUnique({ 
       where: { id },
       include: {
@@ -161,8 +161,8 @@ export class ReservationService {
     
     if (!reservation) throw new NotFoundException('Reservation not found');
 
-    // Gestion spéciale pour les annulations
-    if (data.status === 'CANCELLED' && reservation.status !== 'CANCELLED') {
+    // Gestion spéciale pour les annulations (SEULEMENT si pas de skipRefundLogic)
+    if (data.status === 'CANCELLED' && reservation.status !== 'CANCELLED' && !skipRefundLogic) {
       await this.handleReservationCancellation(reservation);
     }
 
