@@ -13,9 +13,31 @@ on:
       - 'src/flexcars-backend/**'
       - '.github/workflows/deploy-backend.yml'
 jobs:
-  deploy:
-    name: Deploy to flexcars-backend to EKS
+  test:
+    name: Run Backend Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/flexcars-backend
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.10.7
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
+  deploy:
+    name: Deploy flexcars-backend to EKS
+    runs-on: ubuntu-latest
+    needs: test 
     environment: production
     env:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -46,7 +68,7 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
           docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-    
+
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
@@ -54,7 +76,6 @@ jobs:
           docker tag ${{ env.DOCKER_IMAGE_NAME }}:$IMAGE_TAG ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.DOCKER_IMAGE_NAME }}:$IMAGE_TAG
           docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.DOCKER_IMAGE_NAME }}:$IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
       - name: Update kubeconfig for EKS and create ECR secret
         run: |
           aws eks --region ${{ env.AWS_REGION }} update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }}
