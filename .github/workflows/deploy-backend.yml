@@ -34,14 +34,14 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{secrets.AWS_REGION}} | \
           docker login --username AWS --password-stdin ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}
-      
+      - name: List backend files for debug
+        run: ls -lR src/flexcars-backend
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
           docker build -f src/flexcars-backend/Dockerfile -t ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG src/flexcars-backend
           docker push ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
       - name: Update kubeconfig for EKS and create ECR secret
         run: |
           aws eks --region ${{secrets.AWS_REGION}} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
