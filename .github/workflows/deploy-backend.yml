@@ -39,7 +39,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-          docker buildx build -f src/flexcars-backend/Dockerfile -t flexcars-backend --push src/flexcars-backend
+          docker buildx build -f src/flexcars-backend/Dockerfile -t flexcars-backend src/flexcars-backend
           docker push ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
       - name: Update kubeconfig for EKS and create ECR secret
