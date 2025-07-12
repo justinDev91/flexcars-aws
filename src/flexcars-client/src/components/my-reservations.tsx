@@ -95,14 +95,6 @@ export function MyReservations({ className }: MyReservationsProps) {
       ]);
       
       const reservationsData = reservationsResponse.data || [];
-      console.log('📊 Réservations chargées:', reservationsData.map(r => ({
-        id: r.id.slice(-8),
-        status: r.status,
-        totalPrice: r.totalPrice,
-        invoicesCount: r.invoices?.length || 0,
-        hasInvoices: !!r.invoices?.length
-      })));
-      
       setReservations(reservationsData);
       setVehicles(vehiclesResponse.data || []);
     } catch (err) {
@@ -118,28 +110,9 @@ export function MyReservations({ className }: MyReservationsProps) {
     loadMyReservations();
   }, [loadMyReservations]);
 
-  // Recharger les réservations quand on revient sur la page (ex: après un paiement)
-  useEffect(() => {
-    const handleFocus = () => {
-      console.log('🔄 Page focus détectée, rechargement des réservations...');
-      loadMyReservations();
-    };
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        console.log('🔄 Page visible, rechargement des réservations...');
-        loadMyReservations();
-      }
-    };
-
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [loadMyReservations]);
+  // Note: Rechargement automatique supprimé car il causait des interruptions
+  // du flow de paiement. Les réservations se rechargent automatiquement 
+  // après les actions importantes (annulation, dropoff, etc.)
 
   const filteredReservations = reservations.filter(reservation => {
     if (!searchTerm) return true;
@@ -239,64 +212,6 @@ export function MyReservations({ className }: MyReservationsProps) {
     }
   }, [reservationToRefund, loadMyReservations]);
 
-  // Fonction de diagnostic et correction des problèmes de synchronisation
-  const fixPaymentSync = useCallback(async (reservation: Reservation) => {
-    if (!reservation.invoices?.length) {
-      toast.error('Aucune facture trouvée pour cette réservation');
-      return;
-    }
-
-    const mainInvoice = reservation.invoices.find(inv => 
-      !inv.invoiceType || inv.invoiceType === 'MAIN' || inv.invoiceType === 'BOOKING'
-    ) || reservation.invoices[0];
-
-    console.log('🔧 Diagnostic et correction pour la facture:', mainInvoice.id.slice(-8));
-    
-    try {
-      // Diagnostic
-      const diagResponse = await fetch(`/api/payments/debug/payment-sync/${mainInvoice.id}`);
-      const diagnosis = await diagResponse.json();
-      
-      console.log('📊 Diagnostic:', diagnosis);
-      
-      if (diagnosis.error) {
-        toast.error(`Erreur diagnostic: ${diagnosis.error}`);
-        return;
-      }
-
-      // Vérifier si une correction est nécessaire
-      const needsFix = diagnosis.diagnosis?.invoiceNeedsFix || 
-                      diagnosis.diagnosis?.reservationNeedsFix || 
-                      diagnosis.diagnosis?.vehicleNeedsFix;
-
-      if (needsFix) {
-        console.log('⚠️ Correction nécessaire, application...');
-        
-        // Appliquer la correction
-        const fixResponse = await fetch(`/api/payments/debug/fix-payment-sync/${mainInvoice.id}`, {
-          method: 'POST'
-        });
-        const fixResult = await fixResponse.json();
-        
-        if (fixResult.success) {
-          console.log('✅ Corrections appliquées:', fixResult.fixes);
-          toast.success(`Synchronisation corrigée: ${fixResult.fixes.join(', ')}`);
-          
-          // Recharger les réservations
-          await loadMyReservations();
-        } else {
-          toast.error(`Erreur correction: ${fixResult.error}`);
-        }
-      } else {
-        toast.info('Aucune correction nécessaire');
-      }
-      
-    } catch (error) {
-      console.error('❌ Erreur diagnostic/correction:', error);
-      toast.error('Erreur lors du diagnostic de synchronisation');
-    }
-  }, [loadMyReservations]);
-
   // Note: Fonctions de paiement supprimées - paiement obligatoire lors de la réservation
 
   const getStatusColor = (status: ReservationStatus) => {
@@ -371,7 +286,6 @@ export function MyReservations({ className }: MyReservationsProps) {
   // doivent être effectués lors de la création de réservation
 
   const canDropoffVehicle = (reservation: Reservation) => {
-    console.log(`🚗 Dropoff check for ${reservation.id}: status=${reservation.status}, canDropoff=${reservation.status === ReservationStatus.CONFIRMED}`);
     return reservation.status === ReservationStatus.CONFIRMED;
   };
 
@@ -431,25 +345,6 @@ export function MyReservations({ className }: MyReservationsProps) {
               <RefreshCw className="h-4 w-4 mr-2" />
               Actualiser
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                console.log('🔍 Debug - Réservations actuelles:');
-                reservations.forEach(r => {
-                  console.log(`  • ${r.id.slice(-8)}: ${r.status} - ${r.totalPrice}€ - Factures: ${r.invoices?.length || 0}`);
-                  console.log(`    ├─ canDropoff: ${r.status === ReservationStatus.CONFIRMED}`);
-                  console.log(`    ├─ canCancel: ${r.status === ReservationStatus.PENDING || r.status === ReservationStatus.CONFIRMED}`);
-                  if (r.invoices?.length) {
-                    r.invoices.forEach(inv => {
-                      console.log(`    └─ Facture ${inv.id.slice(-8)}: ${inv.status} - ${inv.amount}€ - Type: ${inv.invoiceType || 'N/A'}`);
-                    });
-                  }
-                });
-              }}
-            >
-              Debug
-            </Button>
           </div>
         </div>
 
@@ -507,10 +402,6 @@ export function MyReservations({ className }: MyReservationsProps) {
                           {getStatusIcon(reservation.status)}
                           <span className="ml-1">{getStatusLabel(reservation.status)}</span>
                         </Badge>
-                        {/* Debug info */}
-                        <span className="text-xs text-gray-400 font-mono">
-                          [{reservation.status}]
-                        </span>
                       </div>
                     </div>
 
@@ -542,7 +433,6 @@ export function MyReservations({ className }: MyReservationsProps) {
                       </div>
                     </div>
 
-                    {/* DEBUG: totalPrice = {reservation.totalPrice} */}
                     {reservation.totalPrice != null && reservation.totalPrice > 0 ? (
                       <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg mb-4">
                         <span className="text-sm font-medium">Prix total TTC:</span>
@@ -596,18 +486,7 @@ export function MyReservations({ className }: MyReservationsProps) {
                         </Button>
                       )}
 
-                      {/* Bouton de diagnostic pour les réservations avec problèmes de sync */}
-                      {reservation.status === ReservationStatus.PENDING && reservation.totalPrice && reservation.totalPrice > 0 && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => fixPaymentSync(reservation)}
-                          className="border-orange-300 text-orange-700 hover:bg-orange-50"
-                        >
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Synchroniser
-                        </Button>
-                      )}
+
                     </div>
                   </CardContent>
                 </Card>

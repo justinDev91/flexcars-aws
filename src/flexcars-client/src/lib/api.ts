@@ -278,6 +278,18 @@ export const paymentApi = {
     }>('/payments/create-payment-intent', { invoiceId });
   },
 
+  confirmPayment: async (paymentIntentId: string) => {
+    return apiClient.post<{
+      success: boolean;
+      message: string;
+      paymentId?: string;
+      invoiceId?: string;
+      paymentIntentId: string;
+      error?: string;
+      status?: string;
+    }>('/payments/confirm-payment', { paymentIntentId });
+  },
+
   getPayments: async () => {
     return apiClient.get<Payment[]>('/payments');
   },

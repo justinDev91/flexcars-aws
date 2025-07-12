@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { PaymentModal } from '../payment-modal';
+import { paymentApi } from '@/lib/api';
 
 // Mock Stripe
 const mockStripe = {
@@ -37,6 +38,13 @@ jest.mock('sonner', () => ({
   },
 }));
 
+// Mock payment API
+jest.mock('@/lib/api', () => ({
+  paymentApi: {
+    confirmPayment: jest.fn(),
+  },
+}));
+
 const defaultProps = {
   isOpen: true,
   onClose: jest.fn(),
@@ -52,6 +60,9 @@ describe('PaymentModal', () => {
     // Initialize mocks with default values
     mockUseStripe.mockReturnValue(mockStripe);
     mockUseElements.mockReturnValue(mockElements);
+    (paymentApi.confirmPayment as jest.Mock).mockResolvedValue({
+      data: { success: true },
+    });
   });
 
   it('should render payment modal when open', () => {
@@ -79,13 +90,13 @@ describe('PaymentModal', () => {
     render(<PaymentModal {...defaultProps} amount={12000} />); // 120€
 
     // Tax = (120 * 0.2 / 1.2) = 20€
-    expect(screen.getByText(/20\.00.*€.*de TVA/)).toBeInTheDocument();
+    expect(screen.getByText(/20€ de TVA/)).toBeInTheDocument();
   });
 
   it('should handle successful payment', async () => {
     const user = userEvent.setup();
     mockStripe.confirmPayment.mockResolvedValue({
-      paymentIntent: { status: 'succeeded' },
+      paymentIntent: { id: 'pi_test', status: 'succeeded' },
       error: undefined,
     });
 
@@ -104,8 +115,18 @@ describe('PaymentModal', () => {
       });
     });
 
-    expect(defaultProps.onSuccess).toHaveBeenCalled();
-    expect(defaultProps.onClose).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(paymentApi.confirmPayment).toHaveBeenCalledWith('pi_test');
+    });
+
+    await waitFor(() => {
+      expect(defaultProps.onSuccess).toHaveBeenCalled();
+    });
+
+    // Wait for the setTimeout to complete (2000ms)
+    await waitFor(() => {
+      expect(defaultProps.onClose).toHaveBeenCalled();
+    }, { timeout: 3000 });
   });
 
   it('should handle payment error', async () => {

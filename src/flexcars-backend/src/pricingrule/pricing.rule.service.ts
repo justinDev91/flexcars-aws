@@ -87,7 +87,7 @@ export class PricingRuleService {
     // Arrondir à 2 décimales pour un prix final propre
     const finalPriceTTC = Math.round(totalPriceTTC * 100) / 100;
     
-    console.log(`💰 Calcul du prix: ${duration} ${durationType} × ${basePrice}€ HT × ${multiplier} = ${totalPriceHT}€ HT → ${finalPriceTTC}€ TTC`);
+    // console.log(`💰 Calcul du prix: ${duration} ${durationType} × ${basePrice}€ HT × ${multiplier} = ${totalPriceHT}€ HT → ${finalPriceTTC}€ TTC`);
     
     return Math.max(finalPriceTTC, 6); // Minimum 6€ TTC (5€ HT + TVA)
   }

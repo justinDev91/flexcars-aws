@@ -105,19 +105,18 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [createdReservation, setCreatedReservation] = useState<CreateReservationRequest | null>(null);
   const [reservationCreated, setReservationCreated] = useState(false);
   const [createdReservationId, setCreatedReservationId] = useState<string | null>(null);
   
-  // Protection synchrone contre les clics multiples
+  // Refs pour éviter les race conditions
   const processingRef = useRef(false);
-  
-  // Cache des requêtes en cours pour éviter les appels multiples
   const activeRequestRef = useRef<Promise<ReservationResponse> | null>(null);
   const requestHashRef = useRef<string | null>(null);
-
-  // Timeout automatique pour les réservations non payées
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // 🔥 NOUVEAU : Ref pour l'état du paiement (synchrone)
+  const paymentCompletedRef = useRef(false);
 
   // Nettoyage des timeouts pour éviter les fuites mémoire
   useEffect(() => {
@@ -341,11 +340,12 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
     } catch (error) {
       console.error('❌ Erreur lors de la création de la réservation:', error);
       toast.error('Erreur lors de la création de la réservation');
-      // Réinitialiser les protections en cas d'erreur
-      setReservationCreated(false);
-      processingRef.current = false;
-      activeRequestRef.current = null;
-      requestHashRef.current = null;
+              // Réinitialiser les protections en cas d'erreur
+        setReservationCreated(false);
+        processingRef.current = false;
+        activeRequestRef.current = null;
+        requestHashRef.current = null;
+        paymentCompletedRef.current = false;
       
       // Nettoyer le timeout en cas d'erreur
       if (timeoutRef.current) {
@@ -377,8 +377,19 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
     setIsCreatingPayment(true);
     try {
       console.log('💳 Création du PaymentIntent pour la facture:', mainInvoice.id);
+      
+      // 🔍 DIAGNOSTIC PRIX - Calculer le prix frontend pour comparaison
+      const frontendPrice = calculatePrice();
+      console.log('🔍 DIAGNOSTIC PRIX - Prix calculé frontend:', frontendPrice, '€ TTC');
+      
       const response = await paymentApi.createPaymentIntent(mainInvoice.id);
       console.log('📝 Réponse PaymentIntent:', response.data);
+      
+      // 🔍 DIAGNOSTIC PRIX - Analyser la réponse
+      console.log('🔍 DIAGNOSTIC PRIX - Réponse backend:');
+      console.log('  - Amount (centimes):', response.data.amount);
+      console.log('  - Équivalent euros:', response.data.amount / 100, '€');
+      console.log('  - Comparaison frontend vs backend:', frontendPrice, '€ vs', response.data.amount / 100, '€');
       
       if (response.data.error || !response.data.clientSecret) {
         console.error('❌ Erreur PaymentIntent:', response.data.error);
@@ -388,7 +399,7 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
       
       console.log('✅ PaymentIntent créé, ouverture du modal...');
       setPaymentClientSecret(response.data.clientSecret);
-      setPaymentAmount(response.data.amount);
+      setPaymentAmount(response.data.amount); // En centimes
       setPaymentInvoiceId(mainInvoice.id);
       setShowPaymentModal(true);
     } catch (error: unknown) {
@@ -431,6 +442,7 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
         processingRef.current = false;
         activeRequestRef.current = null;
         requestHashRef.current = null;
+        paymentCompletedRef.current = false;
         
         toast.error('Paiement échoué - La réservation temporaire a été supprimée automatiquement.');
         
@@ -450,6 +462,7 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
         processingRef.current = false;
         activeRequestRef.current = null;
         requestHashRef.current = null;
+        paymentCompletedRef.current = false;
         
         toast.error('Paiement échoué. Veuillez vérifier vos réservations et contacter le support si nécessaire.');
       }
@@ -459,43 +472,62 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
   // Gérer le succès du paiement
   const handlePaymentSuccess = () => {
     console.log('✅ Paiement réussi !');
+    
+    // 🔥 IMPORTANT : Marquer le paiement comme réussi AVANT de fermer le modal
+    // Utiliser DIRECTEMENT le ref (synchrone) au lieu du state (asynchrone)
+    paymentCompletedRef.current = true;
+    setPaymentCompleted(true);
+    
     toast.success('Paiement effectué avec succès ! Votre réservation est confirmée.');
-    setShowPaymentModal(false);
-    setPaymentClientSecret(null);
-    setPaymentAmount(0);
-    setPaymentInvoiceId(null);
-    setIsCreatingPayment(false);
     
-    // Réinitialiser toutes les protections
-    processingRef.current = false;
-    activeRequestRef.current = null;
-    requestHashRef.current = null;
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    
-    if (createdReservation) {
-      onComplete(createdReservation);
-    }
+    // 🔥 CORRECTION : Utiliser setTimeout pour s'assurer que setPaymentCompleted(true) 
+    // soit traité avant setShowPaymentModal(false)
+    setTimeout(() => {
+      setShowPaymentModal(false);
+      setPaymentClientSecret(null);
+      setPaymentAmount(0);
+      setPaymentInvoiceId(null);
+      setIsCreatingPayment(false);
+      
+      // Réinitialiser toutes les protections
+      processingRef.current = false;
+      activeRequestRef.current = null;
+      requestHashRef.current = null;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      
+      if (createdReservation) {
+        onComplete(createdReservation);
+      }
+    }, 0);
   };
 
   // Gérer la fermeture du modal de paiement
   const handlePaymentModalClose = async () => {
     console.log('🔒 Fermeture du modal de paiement');
+    console.log('🔒 paymentCompleted:', paymentCompleted);
+    
     setShowPaymentModal(false);
     setPaymentClientSecret(null);
     setPaymentAmount(0);
     setPaymentInvoiceId(null);
     setIsCreatingPayment(false);
     
-    // Réinitialiser toutes les protections
+    // Réinitialiser toutes les protections (SAUF paymentCompletedRef)
     processingRef.current = false;
     activeRequestRef.current = null;
     requestHashRef.current = null;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
+    }
+    
+    // 🔥 IMPORTANT : Utiliser le REF pour vérifier l'état du paiement (synchrone)
+    if (paymentCompletedRef.current) {
+      console.log('✅ Paiement complété - Pas d\'annulation de la réservation');
+      return;
     }
     
     // Seulement supprimer la réservation si elle existe encore 
@@ -515,6 +547,7 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
         setCreatedReservation(null);
         setReservationCreated(false);
         setCreatedReservationId(null);
+        paymentCompletedRef.current = false;
         
         toast.info('Paiement annulé - La réservation temporaire a été supprimée automatiquement.');
         
@@ -525,6 +558,7 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
         setCreatedReservation(null);
         setReservationCreated(false);
         setCreatedReservationId(null);
+        paymentCompletedRef.current = false;
         
         toast.error('Paiement annulé. Veuillez vérifier vos réservations et contacter le support si nécessaire.');
       }

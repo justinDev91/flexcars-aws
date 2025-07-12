@@ -177,16 +177,41 @@ async function main() {
     vehicles.push(vehicle);
   }
 
-   // Seed PricingRules
+   // Seed PricingRules avec des prix cohérents
   for (const vehicle of vehicles) {
+    // Règle principale : location horaire
     await prisma.pricingRule.create({
       data: {
         vehicleId: vehicle.id,
-        durationType: faker.helpers.arrayElement(['HOURLY', 'DAILY', 'WEEKLY']),
-        basePrice: faker.number.float({ min: 10, max: 100 }),
-        dynamicMultiplier: faker.number.float({ min: 1, max: 2 }),
-        type: faker.helpers.arrayElement(['RENTAL', 'ACCIDENT', 'LATER_PENALTY']),
-        season: faker.date.month(),
+        durationType: 'HOURLY',
+        basePrice: 25, // 25€ HT par heure (cohérent avec le frontend)
+        dynamicMultiplier: 1.0, // Pas de majoration
+        type: 'RENTAL',
+        season: null,
+      },
+    });
+    
+    // Règle pour les pénalités de retard
+    await prisma.pricingRule.create({
+      data: {
+        vehicleId: vehicle.id,
+        durationType: 'HOURLY',
+        basePrice: 25, // 25€ HT par heure de retard
+        dynamicMultiplier: 1.0,
+        type: 'LATER_PENALTY',
+        season: null,
+      },
+    });
+    
+    // Règle pour les accidents
+    await prisma.pricingRule.create({
+      data: {
+        vehicleId: vehicle.id,
+        durationType: 'HOURLY',
+        basePrice: 500, // 500€ HT forfait pour accident
+        dynamicMultiplier: 1.0,
+        type: 'ACCIDENT',
+        season: null,
       },
     });
   }
