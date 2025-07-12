@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/flexcars-client/**'
+      - '.github/workflows/deploy-client.yml'
   pull_request:
     branches:
       - develop
+    paths:
+      - 'src/flexcars-client/**'
+      - '.github/workflows/deploy-client.yml'
 jobs:
   deploy:
     name: Deploy flexcars-client to EKS

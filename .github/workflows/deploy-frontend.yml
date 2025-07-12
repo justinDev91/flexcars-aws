@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/flexcars-frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
   pull_request:
     branches:
       - develop
+    paths:
+      - 'src/flexcars-frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
   
 jobs:
   deploy:

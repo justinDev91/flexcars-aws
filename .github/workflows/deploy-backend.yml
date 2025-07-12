@@ -3,10 +3,15 @@ on:
   push:
     branches:
       - main
-      - develop
+    paths:
+      - 'src/flexcars-backend/**'
+      - '.github/workflows/deploy-backend.yml'
   pull_request:
     branches:
       - develop
+    paths:
+      - 'src/flexcars-backend/**'
+      - '.github/workflows/deploy-backend.yml'
 jobs:
   deploy:
     name: Deploy to flexcars-backend to EKS
