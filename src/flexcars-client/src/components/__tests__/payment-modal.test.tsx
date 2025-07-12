@@ -109,7 +109,7 @@ describe('PaymentModal', () => {
       expect(mockStripe.confirmPayment).toHaveBeenCalledWith({
         elements: mockElements,
         confirmParams: {
-          return_url: expect.stringContaining('/dashboard/reservations?payment=success'),
+          return_url: expect.stringContaining('/payment/success'),
         },
         redirect: 'if_required',
       });
@@ -120,12 +120,12 @@ describe('PaymentModal', () => {
     });
 
     await waitFor(() => {
-      expect(defaultProps.onSuccess).toHaveBeenCalled();
+    expect(defaultProps.onSuccess).toHaveBeenCalled();
     });
 
     // Wait for the setTimeout to complete (2000ms)
     await waitFor(() => {
-      expect(defaultProps.onClose).toHaveBeenCalled();
+    expect(defaultProps.onClose).toHaveBeenCalled();
     }, { timeout: 3000 });
   });
 

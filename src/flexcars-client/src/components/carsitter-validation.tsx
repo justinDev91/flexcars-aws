@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 
 import { carSitterApi } from '@/lib/api';
+import { useAuth } from '@/context/auth-context';
 
 const validationSchema = z.object({
   isValidated: z.boolean(),
@@ -39,6 +40,7 @@ type ValidationFormData = z.infer<typeof validationSchema>;
 interface DropoffRequest {
   id: string;
   reservationId: string;
+  carSitterId?: string;
   currentMileage: number;
   dropoffTime: string;
   hasAccident: boolean;
@@ -73,6 +75,7 @@ interface CarSitterValidationProps {
 }
 
 export function CarSitterValidation({ dropoffRequestId, onValidationComplete }: CarSitterValidationProps) {
+  const { user } = useAuth();
   const [dropoffRequest, setDropoffRequest] = useState<DropoffRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -89,14 +92,23 @@ export function CarSitterValidation({ dropoffRequestId, onValidationComplete }: 
     try {
       setLoading(true);
       const response = await carSitterApi.getDropoffRequest(dropoffRequestId);
-      setDropoffRequest(response.data as DropoffRequest);
+      const request = response.data as DropoffRequest;
+      
+      // Vérification que le car sitter connecté peut valider cette demande
+      if (user && request.carSitterId !== user.id) {
+        toast.error('Vous n\'êtes pas autorisé à valider cette demande');
+        onValidationComplete?.(false);
+        return;
+      }
+      
+      setDropoffRequest(request);
     } catch (error) {
       console.error('Erreur lors du chargement de la demande:', error);
       toast.error('Impossible de charger la demande de dropoff');
     } finally {
       setLoading(false);
     }
-  }, [dropoffRequestId]);
+  }, [dropoffRequestId, user, onValidationComplete]);
 
   useEffect(() => {
     loadDropoffRequest();

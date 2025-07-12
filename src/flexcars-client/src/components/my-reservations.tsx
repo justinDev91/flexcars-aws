@@ -54,6 +54,8 @@ import { cn } from '@/lib/utils';
 
 import { RefundConfirmationDialog } from './refund-confirmation-dialog';
 import { DropoffModal } from './dropoff-modal';
+import { PickupModal } from './pickup-modal';
+
 
 interface MyReservationsProps {
   className?: string;
@@ -75,10 +77,13 @@ export function MyReservations({ className }: MyReservationsProps) {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showRefundDialog, setShowRefundDialog] = useState(false);
   const [showDropoffModal, setShowDropoffModal] = useState(false);
+  const [showPickupModal, setShowPickupModal] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState<string | null>(null);
   const [reservationToRefund, setReservationToRefund] = useState<Reservation | null>(null);
   const [reservationToDropoff, setReservationToDropoff] = useState<Reservation | null>(null);
+  const [reservationToPickup, setReservationToPickup] = useState<Reservation | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+
 
   // Note: États de paiement supprimés - paiement obligatoire lors de la réservation
 
@@ -220,6 +225,10 @@ export function MyReservations({ className }: MyReservationsProps) {
         return 'bg-yellow-100 text-yellow-800';
       case ReservationStatus.CONFIRMED:
         return 'bg-green-100 text-green-800';
+      case ReservationStatus.PICKUP_REQUESTED:
+        return 'bg-orange-100 text-orange-800';
+      case ReservationStatus.PICKED_UP:
+        return 'bg-blue-100 text-blue-800';
       case ReservationStatus.CANCELLED:
         return 'bg-red-100 text-red-800';
       case ReservationStatus.COMPLETED:
@@ -235,6 +244,10 @@ export function MyReservations({ className }: MyReservationsProps) {
         return 'En attente';
       case ReservationStatus.CONFIRMED:
         return 'Confirmée';
+      case ReservationStatus.PICKUP_REQUESTED:
+        return 'Pickup demandé';
+      case ReservationStatus.PICKED_UP:
+        return 'Véhicule récupéré';
       case ReservationStatus.CANCELLED:
         return 'Annulée';
       case ReservationStatus.COMPLETED:
@@ -250,6 +263,10 @@ export function MyReservations({ className }: MyReservationsProps) {
         return <Clock className="h-4 w-4" />;
       case ReservationStatus.CONFIRMED:
         return <CheckCircle className="h-4 w-4" />;
+      case ReservationStatus.PICKUP_REQUESTED:
+        return <Timer className="h-4 w-4" />;
+      case ReservationStatus.PICKED_UP:
+        return <Car className="h-4 w-4" />;
       case ReservationStatus.CANCELLED:
         return <XCircle className="h-4 w-4" />;
       case ReservationStatus.COMPLETED:
@@ -277,6 +294,7 @@ export function MyReservations({ className }: MyReservationsProps) {
   };
 
   const canCancelReservation = (reservation: Reservation) => {
+    // Le remboursement n'est plus possible après le pickup
     return reservation.status === ReservationStatus.PENDING || 
            reservation.status === ReservationStatus.CONFIRMED;
   };
@@ -286,7 +304,22 @@ export function MyReservations({ className }: MyReservationsProps) {
   // doivent être effectués lors de la création de réservation
 
   const canDropoffVehicle = (reservation: Reservation) => {
-    return reservation.status === ReservationStatus.CONFIRMED;
+    return reservation.status === ReservationStatus.PICKED_UP;
+  };
+
+  const canPickupVehicle = (reservation: Reservation) => {
+    // Le pickup est possible 30 minutes avant le début de la réservation
+    // et seulement si la réservation est confirmée (payée) mais pas encore récupérée
+    if (reservation.status !== ReservationStatus.CONFIRMED) {
+      return false;
+    }
+
+    // Vérifier si on est dans la fenêtre de pickup (30 minutes avant)
+    const now = new Date();
+    const startTime = new Date(reservation.startDatetime);
+    const pickupTime = new Date(startTime.getTime() - 30 * 60 * 1000); // 30 minutes avant
+
+    return now >= pickupTime;
   };
 
   const handleDropoffClick = (reservation: Reservation) => {
@@ -294,11 +327,31 @@ export function MyReservations({ className }: MyReservationsProps) {
     setShowDropoffModal(true);
   };
 
+  const handlePickupClick = (reservation: Reservation) => {
+    setReservationToPickup(reservation);
+    setShowPickupModal(true);
+  };
+
   const handleDropoffSuccess = () => {
     toast.success('Retour de véhicule traité avec succès !');
     setShowDropoffModal(false);
     setReservationToDropoff(null);
-    loadMyReservations(); // Recharger les réservations
+    
+    // Mise à jour optimiste de l'état sans rechargement brutal
+    if (reservationToDropoff) {
+      setReservations(prev => 
+        prev.map(r => 
+          r.id === reservationToDropoff.id 
+            ? { ...r, status: ReservationStatus.COMPLETED }
+            : r
+        )
+      );
+    }
+    
+    // Rechargement différé pour synchroniser avec le serveur
+    setTimeout(() => {
+      loadMyReservations();
+    }, 2000);
   };
 
   if (loading) {
@@ -448,6 +501,21 @@ export function MyReservations({ className }: MyReservationsProps) {
                       </div>
                     ) : null}
 
+                    {/* Message spécial pour PICKUP_REQUESTED */}
+                    {reservation.status === ReservationStatus.PICKUP_REQUESTED && (
+                      <div className="flex items-center gap-3 py-3 px-4 bg-orange-50 border border-orange-200 rounded-lg mb-4">
+                        <Timer className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-orange-900">
+                            Pickup en cours de validation
+                          </p>
+                          <p className="text-xs text-orange-700">
+                            Votre demande de pickup avec carsitter a été envoyée. Vous recevrez un email de confirmation une fois que le carsitter aura validé votre demande.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Actions */}
                     <div className="flex gap-2 pt-4 border-t">
                       <Button
@@ -463,6 +531,17 @@ export function MyReservations({ className }: MyReservationsProps) {
                       </Button>
 
 
+
+                      {canPickupVehicle(reservation) && (
+                        <Button
+                          size="sm"
+                          onClick={() => handlePickupClick(reservation)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Car className="h-4 w-4 mr-2" />
+                          Récupérer le véhicule
+                        </Button>
+                      )}
 
                       {canDropoffVehicle(reservation) && (
                         <Button
@@ -562,6 +641,17 @@ export function MyReservations({ className }: MyReservationsProps) {
           onSuccess={handleDropoffSuccess}
         />
       )}
+
+      {/* Modal de pickup */}
+      {reservationToPickup && (
+        <PickupModal
+          reservation={reservationToPickup}
+          isOpen={showPickupModal}
+          onClose={() => setShowPickupModal(false)}
+        />
+      )}
+
+
     </>
   );
 } 

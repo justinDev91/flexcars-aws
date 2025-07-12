@@ -91,3 +91,27 @@ export interface VehicleWithDetails extends Vehicle {
     dynamicMultiplier?: number;
   }[];
 } 
+
+// Types pour les réponses de dropoff avec pénalités
+export interface DropoffResponse {
+  needsPayment: boolean;
+  penaltyAmount?: number;
+  penaltyInvoiceId?: string;
+  message: string;
+}
+
+export interface DropoffWithPenaltyResponse extends DropoffResponse {
+  needsPayment: true;
+  penaltyAmount: number;
+  penaltyInvoiceId: string;
+}
+
+export interface DropoffSuccessResponse extends DropoffResponse {
+  needsPayment: false;
+}
+
+export interface PenaltyCalculationResponse {
+  penaltyAmount: number;
+  penaltyInvoiceId: string | null;
+  message: string;
+} 

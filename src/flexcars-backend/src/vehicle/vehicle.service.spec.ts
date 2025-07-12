@@ -18,7 +18,7 @@ describe('VehiclesService', () => {
     id: 'reservation-1',
     vehicleId: 'vehicle-1',
     customerId: 'customer-1',
-    status: ReservationStatus.CONFIRMED,
+    status: ReservationStatus.PICKED_UP,
     startDatetime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 heures dans le passé
     endDatetime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 heures dans le futur
     carSittingOption: false,
@@ -200,13 +200,13 @@ describe('VehiclesService', () => {
       expect(result.message).toContain('Vous devez payer 120€ TTC avant de terminer le dropoff');
     });
 
-    it('should throw BadRequestException for non-confirmed reservation', async () => {
-      const nonConfirmedReservation = {
+    it('should throw BadRequestException for non-picked-up reservation', async () => {
+      const nonPickedUpReservation = {
         ...mockReservation,
-        status: ReservationStatus.PENDING,
+        status: ReservationStatus.CONFIRMED,
       };
 
-      jest.spyOn(prismaService.reservation, 'findUnique').mockResolvedValue(nonConfirmedReservation as any);
+      jest.spyOn(prismaService.reservation, 'findUnique').mockResolvedValue(nonPickedUpReservation as any);
 
       await expect(service.dropoffNormal(dropoffData as any))
         .rejects.toThrow(BadRequestException);

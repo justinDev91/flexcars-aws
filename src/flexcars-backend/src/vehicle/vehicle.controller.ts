@@ -18,6 +18,7 @@ import { FindAllVehiclesDto } from './dto/FindAllVehicles.dto';
 import { VehiclesService } from './vehicle.service';
 import { UpdateVehicleDto } from './dto/updateVehicle.dto';
 import { DropVehicleDto, DropVehicleWithCarSitterDto, PenaltyCalculationDto } from './dto/DropVehicle.dto';
+import { PickupVehicleDto, PickupVehicleWithCarSitterDto, ValidatePickupDto, CheckDocumentsDto } from './dto/PickupVehicle.dto';
 
 @ApiBearerAuth('access-token') 
 @Controller('vehicles')
@@ -66,6 +67,51 @@ export class VehiclesController {
   @ApiOperation({ summary: 'Calculate penalty for late return or accidents' })
   async calculatePenalty(@Body() data: { reservationId: string; hasAccident: boolean }) {
     return await this.vehiclesService.calculateDropoffPenalty(data.reservationId, data.hasAccident);
+  }
+
+  // ======= PICKUP ENDPOINTS =======
+
+  @Post('pickup/check-documents')
+  @ApiOperation({ summary: 'Check if user has required documents for pickup' })
+  async checkDocuments(@Body() data: CheckDocumentsDto) {
+    return await this.vehiclesService.checkUserDocuments(data.userId);
+  }
+
+  @Post('pickup/can-pickup')
+  @ApiOperation({ summary: 'Check if pickup is possible for a reservation' })
+  async canPickup(@Body() data: { reservationId: string }) {
+    return await this.vehiclesService.canPickupVehicle(data.reservationId);
+  }
+
+  @Post('pickup/normal')
+  @ApiOperation({ summary: 'Pick up vehicle without car sitter' })
+  async pickupNormal(@Body() data: PickupVehicleDto) {
+    return await this.vehiclesService.pickupNormal({
+      reservationId: data.reservationId,
+      requestedTime: data.requestedTime,
+      pickupLocation: data.pickupLocation
+    });
+  }
+
+  @Post('pickup/with-carsitter')
+  @ApiOperation({ summary: 'Pick up vehicle with car sitter assistance' })
+  async pickupWithCarSitter(@Body() data: PickupVehicleWithCarSitterDto) {
+    return await this.vehiclesService.pickupWithCarSitter({
+      reservationId: data.reservationId,
+      carSitterId: data.carSitterId,
+      requestedTime: data.requestedTime,
+      pickupLocation: data.pickupLocation
+    });
+  }
+
+  @Post('pickup/validate')
+  @ApiOperation({ summary: 'Validate pickup request by car sitter' })
+  async validatePickup(@Body() data: ValidatePickupDto) {
+    return await this.vehiclesService.validatePickup({
+      pickupRequestId: data.pickupRequestId,
+      isValidated: data.isValidated,
+      notes: data.notes
+    });
   }
 
   @Get(':id/pickup')

@@ -298,11 +298,6 @@ export default function VehicleCatalogPage() {
     setSelectedVehicle(null);
   };
 
-  const handleReservationComplete = () => {
-    // Recharger la liste des véhicules pour mettre à jour les statuts
-    loadVehicles();
-  };
-
   // Pagination
   const paginatedVehicles = filteredVehicles.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -804,7 +799,6 @@ export default function VehicleCatalogPage() {
           user={user}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onReservationComplete={handleReservationComplete}
         />
       )}
     </div>

@@ -5,6 +5,8 @@ import { User } from './user';
 export enum ReservationStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
+  PICKUP_REQUESTED = 'PICKUP_REQUESTED',
+  PICKED_UP = 'PICKED_UP',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
 }
@@ -137,4 +139,63 @@ export interface ReservationStats {
   cancelledReservations: number;
   completedReservations: number;
   totalRevenue: number;
+}
+
+// ======= PICKUP TYPES =======
+
+export enum PickupStatus {
+  PENDING = 'PENDING',
+  VALIDATED = 'VALIDATED',
+  REJECTED = 'REJECTED',
+}
+
+export interface PickupRequest {
+  id: string;
+  reservationId: string;
+  carSitterId?: string;
+  requestedTime: Date;
+  pickupLocation: Location;
+  status: PickupStatus;
+  carSitterNotes?: string;
+  validatedAt?: Date;
+  createdAt: Date;
+  // Relations
+  reservation?: Reservation;
+  carSitter?: {
+    id: string;
+    user: User;
+  };
+}
+
+export interface PickupFormData {
+  reservationId: string;
+  requestedTime: Date;
+  pickupLocation: Location;
+  carSitterId?: string;
+}
+
+export interface PickupResponse {
+  success: boolean;
+  data?: PickupRequest;
+  message?: string;
+  pickupRequestId?: string;
+}
+
+export interface DocumentCheck {
+  hasDriverLicense: boolean;
+  hasIdCard: boolean;
+  canPickup: boolean;
+}
+
+export interface PickupAvailabilityCheck {
+  canPickup: boolean;
+  message: string;
+  minutesUntilPickup?: number;
+}
+
+// Types pour les réponses de validation
+export interface ValidationResponse {
+  message: string;
+  status: PickupStatus;
+  reservationUpdated?: boolean;
 } 

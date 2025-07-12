@@ -5,6 +5,7 @@ import { CarSitterService } from './cars-sitter.service';
 import { CreateCarSitterDto } from './dto/create-car-sitter.dto';
 import { UpdateCarSitterDto } from './dto/update-cars-sitter.tdo';
 import { ValidateDropoffDto } from '../vehicle/dto/DropVehicle.dto';
+import { ValidatePickupDto } from '../vehicle/dto/PickupVehicle.dto';
 
 @ApiBearerAuth('access-token') 
 @Controller('car-sitters')
@@ -40,6 +41,20 @@ export class CarSitterController {
     );
   }
 
+  // ======= MY REQUESTS ENDPOINTS (avant :id pour éviter les conflits) =======
+
+  @Get('my-pickup-requests')
+  @ApiOperation({ summary: 'Get pickup requests assigned to the current car sitter' })
+  getMyPickupRequests(@Query('userId') userId: string) {
+    return this.carSitterService.getMyPickupRequests(userId);
+  }
+
+  @Get('my-dropoff-requests')
+  @ApiOperation({ summary: 'Get dropoff requests assigned to the current car sitter' })
+  getMyDropoffRequests(@Query('userId') userId: string) {
+    return this.carSitterService.getMyDropoffRequests(userId);
+  }
+
   @Get(':id')
   @ApiParam({ name: 'id' })
   @ApiOperation({ summary: 'Get car sitter by ID' })
@@ -72,6 +87,23 @@ export class CarSitterController {
   validateDropoff(@Body() data: ValidateDropoffDto) {
     return this.carSitterService.validateDropoff(data);
   }
+
+  // ======= PICKUP ENDPOINTS =======
+
+  @Get('pickup-request/:id')
+  @ApiOperation({ summary: 'Get a pickup request by ID' })
+  @ApiParam({ name: 'id', description: 'Pickup request ID' })
+  getPickupRequest(@Param('id') id: string) {
+    return this.carSitterService.getPickupRequest(id);
+  }
+
+  @Post('validate-pickup')
+  @ApiOperation({ summary: 'Validate a pickup request by car sitter' })
+  validatePickup(@Body() data: ValidatePickupDto) {
+    return this.carSitterService.validatePickup(data);
+  }
+
+
 
   @Delete(':id')
   @ApiParam({ name: 'id' })

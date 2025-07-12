@@ -120,8 +120,8 @@ export class AuthService {
       lastName: user.lastName,
     };
   
-    const { password, role, ...rest } = user;
-  
+        const { password, ...rest } = user;
+
     return {
       access_token: await this.jwtService.signAsync(payload),
       user: rest,

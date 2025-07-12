@@ -183,6 +183,40 @@ export const vehicleApi = {
     return apiClient.post('/vehicles/dropoff/calculate-penalty', data);
   },
 
+  // Nouvelles routes pour le pickup
+  checkUserDocuments: async (userId: string) => {
+    return apiClient.post('/vehicles/pickup/check-documents', { userId });
+  },
+
+  canPickup: async (reservationId: string) => {
+    return apiClient.post('/vehicles/pickup/can-pickup', { reservationId });
+  },
+
+  pickupNormal: async (data: {
+    reservationId: string;
+    requestedTime: string;
+    pickupLocation: string;
+  }) => {
+    return apiClient.post('/vehicles/pickup/normal', data);
+  },
+
+  pickupWithCarSitter: async (data: {
+    reservationId: string;
+    carSitterId: string;
+    requestedTime: string;
+    pickupLocation: string;
+  }) => {
+    return apiClient.post('/vehicles/pickup/with-carsitter', data);
+  },
+
+  validatePickup: async (data: {
+    pickupRequestId: string;
+    isValidated: boolean;
+    notes?: string;
+  }) => {
+    return apiClient.post('/vehicles/pickup/validate', data);
+  },
+
   pickup: async (id: string) => {
     return apiClient.get(`/vehicles/${id}/pickup`);
   },
@@ -801,5 +835,27 @@ export const carSitterApi = {
     notes?: string;
   }) => {
     return apiClient.post('/car-sitters/validate-dropoff', data);
+  },
+
+  // Endpoints pour le pickup
+  getPickupRequest: async (id: string) => {
+    return apiClient.get(`/car-sitters/pickup-request/${id}`);
+  },
+
+  validatePickup: async (data: {
+    pickupRequestId: string;
+    isValidated: boolean;
+    notes?: string;
+  }) => {
+    return apiClient.post('/car-sitters/validate-pickup', data);
+  },
+
+  // Méthodes pour récupérer les demandes assignées au car sitter connecté
+  getMyPickupRequests: async (userId: string) => {
+    return apiClient.get(`/car-sitters/my-pickup-requests?userId=${userId}`);
+  },
+
+  getMyDropoffRequests: async (userId: string) => {
+    return apiClient.get(`/car-sitters/my-dropoff-requests?userId=${userId}`);
   },
 }; 

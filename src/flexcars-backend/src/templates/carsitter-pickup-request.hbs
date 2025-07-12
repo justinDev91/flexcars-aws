@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nouvelle demande de pickup</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+  <div style="max-width: 600px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #2c3e50;">🚙 Nouvelle demande de pickup</h2>
+    <p>Bonjour {{carSitterName}},</p>
+    <p>Vous avez reçu une nouvelle demande de pickup de véhicule.</p>
+    <p>Voici les détails de la demande :</p>
+    <ul>
+      <li><strong>Client :</strong> {{customerName}}</li>
+      <li><strong>Véhicule :</strong> {{vehicleName}}</li>
+      <li><strong>Date et heure souhaitée :</strong> {{pickupTime}}</li>
+      <li><strong>Lieu de pickup :</strong> {{pickupLocation}}</li>
+    </ul>
+    <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #ffeaa7;">
+      <p style="color: #856404; font-weight: bold; margin: 0;">⏰ Action requise</p>
+      <p style="color: #856404; margin: 5px 0 0 0;">Veuillez valider ou refuser cette demande dans les plus brefs délais.</p>
+    </div>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="{{validationUrl}}" style="background-color: #27ae60; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+        Valider la demande
+      </a>
+    </div>
+    <p><strong>Instructions :</strong></p>
+    <ul>
+      <li>Vérifiez votre disponibilité pour l'heure demandée</li>
+      <li>Assurez-vous d'avoir accès au véhicule</li>
+      <li>Préparez les documents nécessaires</li>
+      <li>Contactez le client si nécessaire</li>
+    </ul>
+    <p style="margin-top: 30px;">Merci pour votre collaboration,<br>L'équipe FlexCars</p>
+  </div>
+</body>
+</html> 

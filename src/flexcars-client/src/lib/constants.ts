@@ -26,6 +26,8 @@ export const VEHICLE_STATUS_LABELS: Record<VehicleStatus, string> = {
 export const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
   [ReservationStatus.PENDING]: 'En attente',
   [ReservationStatus.CONFIRMED]: 'Confirmée',
+  [ReservationStatus.PICKUP_REQUESTED]: 'Pickup demandé',
+  [ReservationStatus.PICKED_UP]: 'Véhicule récupéré',
   [ReservationStatus.CANCELLED]: 'Annulée',
   [ReservationStatus.COMPLETED]: 'Terminée',
 };
@@ -41,6 +43,8 @@ export const VEHICLE_STATUS_COLORS: Record<VehicleStatus, string> = {
 export const RESERVATION_STATUS_COLORS: Record<ReservationStatus, string> = {
   [ReservationStatus.PENDING]: 'text-yellow-600 bg-yellow-50',
   [ReservationStatus.CONFIRMED]: 'text-green-600 bg-green-50',
+  [ReservationStatus.PICKUP_REQUESTED]: 'text-orange-600 bg-orange-50',
+  [ReservationStatus.PICKED_UP]: 'text-blue-600 bg-blue-50',
   [ReservationStatus.CANCELLED]: 'text-red-600 bg-red-50',
   [ReservationStatus.COMPLETED]: 'text-gray-600 bg-gray-50',
 };
