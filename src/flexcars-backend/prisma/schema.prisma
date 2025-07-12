@@ -57,6 +57,8 @@ enum MaintenanceStatus {
 enum ReservationStatus {
   PENDING
   CONFIRMED
+  PICKUP_REQUESTED
+  PICKED_UP
   CANCELLED
   COMPLETED
 }
@@ -256,6 +258,7 @@ model Reservation {
   invoices       Invoice[]
   Incident Incident[]
   dropoffRequests DropoffRequest[]
+  pickupRequests PickupRequest[]
 }
 
 model RentalContract {
@@ -357,6 +360,7 @@ model CarSitter {
   availability   Availability     @default(BUSY)
   lastActiveAt   DateTime?
   dropoffRequests DropoffRequest[]
+  pickupRequests PickupRequest[]
 }
 
 model Notification {
@@ -411,6 +415,26 @@ model DropoffRequest {
   status         DropoffStatus    @default(PENDING)
   penaltyAmount  Float?           @default(0)
   penaltyInvoiceId String?
+  carSitterNotes String?
+  validatedAt    DateTime?
+  createdAt      DateTime         @default(now())
+}
+
+enum PickupStatus {
+  PENDING
+  VALIDATED
+  REJECTED
+}
+
+model PickupRequest {
+  id             String           @id @default(uuid())
+  reservationId  String
+  reservation    Reservation?     @relation(fields: [reservationId], references: [id])
+  carSitterId    String?
+  carSitter      CarSitter?       @relation(fields: [carSitterId], references: [id])
+  requestedTime  DateTime
+  pickupLocation Location
+  status         PickupStatus     @default(PENDING)
   carSitterNotes String?
   validatedAt    DateTime?
   createdAt      DateTime         @default(now())

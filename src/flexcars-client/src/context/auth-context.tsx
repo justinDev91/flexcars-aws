@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User } from "@/types";
+import { User, Role } from "@/types";
 import { authApi } from "@/lib/api";
 
 interface AuthState {
@@ -88,7 +88,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         error: null,
       });
 
-      router.push("/dashboard");
+      // Redirection conditionnelle selon le rôle
+      if ((user as User).role === Role.CARSITTER) {
+        router.push("/carsitter/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error: unknown) {
       let errorMessage = "Échec de la connexion";
       

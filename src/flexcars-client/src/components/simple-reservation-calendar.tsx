@@ -75,9 +75,11 @@ export function SimpleReservationCalendar({
     const dayReservations = getReservationsForDate(date);
     if (dayReservations.length === 0) return null;
     
-    // Prioriser les statuts (confirmed > pending > cancelled > completed)
+    // Prioriser les statuts (picked_up > confirmed > pickup_requested > pending > cancelled > completed)
     const statusPriority = {
-      [ReservationStatus.CONFIRMED]: 4,
+      [ReservationStatus.PICKED_UP]: 6,
+      [ReservationStatus.CONFIRMED]: 5,
+      [ReservationStatus.PICKUP_REQUESTED]: 4,
       [ReservationStatus.PENDING]: 3,
       [ReservationStatus.CANCELLED]: 2,
       [ReservationStatus.COMPLETED]: 1,
@@ -91,7 +93,9 @@ export function SimpleReservationCalendar({
   // Customiser l'apparence des dates
   const modifiers = {
     hasReservations: (date: Date) => hasReservations(date),
+    pickedUp: (date: Date) => getDateStatus(date) === ReservationStatus.PICKED_UP,
     confirmed: (date: Date) => getDateStatus(date) === ReservationStatus.CONFIRMED,
+    pickupRequested: (date: Date) => getDateStatus(date) === ReservationStatus.PICKUP_REQUESTED,
     pending: (date: Date) => getDateStatus(date) === ReservationStatus.PENDING,
     cancelled: (date: Date) => getDateStatus(date) === ReservationStatus.CANCELLED,
     completed: (date: Date) => getDateStatus(date) === ReservationStatus.COMPLETED,
@@ -101,9 +105,17 @@ export function SimpleReservationCalendar({
     hasReservations: {
       fontWeight: 'bold',
     },
+    pickedUp: {
+      backgroundColor: '#dbeafe',
+      color: '#1e40af',
+    },
     confirmed: {
       backgroundColor: '#dcfce7',
       color: '#166534',
+    },
+    pickupRequested: {
+      backgroundColor: '#fed7aa',
+      color: '#c2410c',
     },
     pending: {
       backgroundColor: '#fef3c7',
@@ -121,8 +133,12 @@ export function SimpleReservationCalendar({
 
   const getStatusLabel = (status: ReservationStatus) => {
     switch (status) {
+      case ReservationStatus.PICKED_UP:
+        return 'Véhicule récupéré';
       case ReservationStatus.CONFIRMED:
         return 'Confirmé';
+      case ReservationStatus.PICKUP_REQUESTED:
+        return 'Pickup demandé';
       case ReservationStatus.PENDING:
         return 'En attente';
       case ReservationStatus.CANCELLED:
@@ -136,8 +152,12 @@ export function SimpleReservationCalendar({
 
   const getStatusColor = (status: ReservationStatus) => {
     switch (status) {
+      case ReservationStatus.PICKED_UP:
+        return 'bg-blue-100 text-blue-800';
       case ReservationStatus.CONFIRMED:
         return 'bg-green-100 text-green-800';
+      case ReservationStatus.PICKUP_REQUESTED:
+        return 'bg-orange-100 text-orange-800';
       case ReservationStatus.PENDING:
         return 'bg-yellow-100 text-yellow-800';
       case ReservationStatus.CANCELLED:
@@ -191,6 +211,14 @@ export function SimpleReservationCalendar({
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-green-200 rounded"></div>
                 <span>Confirmé</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-orange-200 rounded"></div>
+                <span>Pickup demandé</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-blue-200 rounded"></div>
+                <span>Récupéré</span>
               </div>
               <div className="flex items-center space-x-1">
                 <div className="w-3 h-3 bg-red-200 rounded"></div>

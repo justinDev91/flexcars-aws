@@ -23,9 +23,7 @@ import {
   Wrench
 } from 'lucide-react';
 
-import { Vehicle, VehicleStatus, FuelType } from '@/types/vehicle';
-import { User } from '@/types/user';
-import { CreateReservationRequest } from '@/types/reservation';
+import { Vehicle, VehicleStatus, FuelType, User } from '@/types';
 import { BookingWizard } from './booking-wizard';
 import { cn, calculateTTCPrice } from '@/lib/utils';
 
@@ -34,7 +32,6 @@ interface VehicleDetailsModalProps {
   user: User;
   isOpen: boolean;
   onClose: () => void;
-  onReservationComplete?: (reservation: CreateReservationRequest) => void;
 }
 
 enum ModalView {
@@ -46,8 +43,7 @@ export function VehicleDetailsModal({
   vehicle, 
   user, 
   isOpen, 
-  onClose, 
-  onReservationComplete 
+  onClose
 }: VehicleDetailsModalProps) {
   const [currentView, setCurrentView] = useState<ModalView>(ModalView.DETAILS);
 
@@ -57,17 +53,6 @@ export function VehicleDetailsModal({
 
   const handleBackToDetails = () => {
     setCurrentView(ModalView.DETAILS);
-  };
-
-  const handleReservationComplete = (reservationData: CreateReservationRequest) => {
-    // La réservation a déjà été créée par le BookingWizard
-    // On n'a plus qu'à fermer la modal et rediriger
-    console.log('✅ Réservation terminée, redirection vers les réservations');
-    onReservationComplete?.(reservationData);
-    onClose();
-    
-    // Rediriger vers la page des réservations
-    window.location.href = '/dashboard/reservations';
   };
 
   const getStatusColor = (status: VehicleStatus) => {
@@ -397,7 +382,6 @@ export function VehicleDetailsModal({
                 <BookingWizard
                   vehicle={vehicle}
                   user={user}
-                  onComplete={handleReservationComplete}
                   onCancel={handleBackToDetails}
                 />
               </div>

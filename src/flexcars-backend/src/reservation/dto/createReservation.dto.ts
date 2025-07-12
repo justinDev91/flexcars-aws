@@ -4,6 +4,7 @@ import { IsString, IsOptional, IsDateString, IsEnum, IsBoolean } from 'class-val
 export enum ReservationStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
+  PICKED_UP = 'PICKED_UP',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
 }

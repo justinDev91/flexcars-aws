@@ -231,6 +231,218 @@ export class CarSitterService {
     };
   }
 
+  // ======= PICKUP METHODS =======
+
+  async getPickupRequest(id: string) {
+    const pickupRequest = await this.prisma.pickupRequest.findUnique({
+      where: { id },
+      include: {
+        reservation: {
+          include: {
+            customer: true,
+            vehicle: true
+          }
+        },
+        carSitter: {
+          include: {
+            user: true
+          }
+        }
+      }
+    });
+
+    if (!pickupRequest) {
+      throw new NotFoundException('Pickup request not found');
+    }
+
+    return pickupRequest;
+  }
+
+  async validatePickup(data: { pickupRequestId: string; isValidated: boolean; notes?: string }) {
+    const pickupRequest = await this.prisma.pickupRequest.findUnique({
+      where: { id: data.pickupRequestId },
+      include: {
+        reservation: {
+          include: {
+            customer: true,
+            vehicle: true
+          }
+        },
+        carSitter: {
+          include: {
+            user: true
+          }
+        }
+      }
+    });
+
+    if (!pickupRequest) {
+      throw new NotFoundException('Pickup request not found');
+    }
+
+    if (pickupRequest.status !== 'PENDING') {
+      throw new BadRequestException('Pickup request is not pending');
+    }
+
+    // Mettre à jour le statut de la demande
+    const updatedRequest = await this.prisma.pickupRequest.update({
+      where: { id: data.pickupRequestId },
+      data: {
+        status: data.isValidated ? 'VALIDATED' : 'REJECTED',
+        carSitterNotes: data.notes,
+        validatedAt: new Date()
+      }
+    });
+
+    if (data.isValidated) {
+      // Mettre à jour le statut de la réservation
+      await this.prisma.reservation.update({
+        where: { id: pickupRequest.reservationId },
+        data: {
+          status: 'PICKED_UP'
+        }
+      });
+
+      // Mettre à jour le véhicule
+      await this.prisma.vehicle.update({
+        where: { id: pickupRequest.reservation!.vehicleId },
+        data: {
+          status: 'RENTED'
+        }
+      });
+
+      // Envoyer un email de confirmation au client
+      if (pickupRequest.reservation?.customer?.email) {
+        await this.mailerService.sendMail({
+          to: pickupRequest.reservation.customer.email,
+          subject: 'Véhicule récupéré avec succès',
+          template: 'pickup-confirmed',
+          context: {
+            customerName: pickupRequest.reservation.customer.firstName || 'Client',
+            vehicleName: `${pickupRequest.reservation.vehicle?.brand} ${pickupRequest.reservation.vehicle?.model}`,
+            carSitterName: `${pickupRequest.carSitter?.user?.firstName} ${pickupRequest.carSitter?.user?.lastName}`,
+            pickupTime: pickupRequest.requestedTime.toLocaleDateString('fr-FR'),
+            pickupLocation: pickupRequest.pickupLocation,
+            notes: data.notes || 'Aucune note'
+          }
+        });
+      }
+    }
+
+    return {
+      message: data.isValidated ? 'Pickup validé avec succès' : 'Pickup rejeté',
+      status: updatedRequest.status,
+      reservationUpdated: data.isValidated
+    };
+  }
+
+  // ======= MY REQUESTS METHODS =======
+
+  private async ensureCarSitterExists(userId: string) {
+    // Récupérer d'abord le car sitter associé à cet utilisateur
+    let carSitter = await this.prisma.carSitter.findUnique({
+      where: { userId: userId }
+    });
+
+    if (!carSitter) {
+      // Si pas de car sitter associé, vérifier si l'utilisateur a le rôle CARSITTER
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true }
+      });
+
+      if (user && user.role === 'CARSITTER') {
+        // Créer automatiquement un enregistrement CarSitter pour cet utilisateur
+        carSitter = await this.prisma.carSitter.create({
+          data: {
+            userId: userId,
+            availability: 'AVAILABLE'
+          }
+        });
+      }
+    }
+
+    return carSitter;
+  }
+
+  async getMyPickupRequests(userId: string) {
+    const carSitter = await this.ensureCarSitterExists(userId);
+    
+    if (!carSitter) {
+      return []; // Pas de rôle CARSITTER, retourner liste vide
+    }
+
+    return this.prisma.pickupRequest.findMany({
+      where: {
+        carSitterId: carSitter.id
+      },
+      include: {
+        reservation: {
+          include: {
+            customer: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+                phoneNumber: true
+              }
+            },
+            vehicle: {
+              select: {
+                brand: true,
+                model: true,
+                plateNumber: true,
+                year: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
+
+  async getMyDropoffRequests(userId: string) {
+    const carSitter = await this.ensureCarSitterExists(userId);
+    
+    if (!carSitter) {
+      return []; // Pas de rôle CARSITTER, retourner liste vide
+    }
+
+    return this.prisma.dropoffRequest.findMany({
+      where: {
+        carSitterId: carSitter.id
+      },
+      include: {
+        reservation: {
+          include: {
+            customer: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+                phoneNumber: true
+              }
+            },
+            vehicle: {
+              select: {
+                brand: true,
+                model: true,
+                plateNumber: true,
+                year: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
+
   create(data: Prisma.CarSitterCreateInput) {
     return this.prisma.carSitter.create({ data });
   }

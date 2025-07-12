@@ -66,7 +66,6 @@ type BookingFormData = z.infer<typeof bookingSchema>;
 interface BookingWizardProps {
   vehicle: Vehicle;
   user: UserType;
-  onComplete: (reservation: CreateReservationRequest) => void;
   onCancel: () => void;
 }
 
@@ -93,7 +92,7 @@ const STEPS = [
   { id: BookingStep.CONFIRMATION, title: 'Confirmation', icon: Shield },
 ];
 
-export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWizardProps) {
+export function BookingWizard({ vehicle, user, onCancel }: BookingWizardProps) {
   const [currentStep, setCurrentStep] = useState<BookingStep>(BookingStep.DATES);
   const [availabilityCheck, setAvailabilityCheck] = useState<AvailabilityCheckResponse | null>(null);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
@@ -498,8 +497,9 @@ export function BookingWizard({ vehicle, user, onComplete, onCancel }: BookingWi
         timeoutRef.current = null;
       }
       
-      if (createdReservation) {
-        onComplete(createdReservation);
+      if (createdReservation && createdReservationId) {
+        // Rediriger vers la page de confirmation de paiement
+        window.location.href = `/payment/success?reservationId=${createdReservationId}&amount=${paymentAmount}`;
       }
     }, 0);
   };

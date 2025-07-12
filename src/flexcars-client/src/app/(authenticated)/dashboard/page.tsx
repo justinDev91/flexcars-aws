@@ -29,6 +29,8 @@ import { vehicleApi, reservationApi, invoiceApi, documentApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { ReservationStatus } from '@/types/reservation';
 import { VehicleStatus } from '@/types/vehicle';
+import { Role } from '@/types/user';
+import { useRouter } from 'next/navigation';
 
 interface DashboardStats {
   totalReservations: number;
@@ -52,6 +54,7 @@ interface RecentActivity {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalReservations: 0,
     activeReservations: 0,
@@ -65,6 +68,13 @@ export default function DashboardPage() {
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Redirection automatique des car sitters vers leur dashboard
+  useEffect(() => {
+    if (user && user.role === Role.CARSITTER) {
+      router.push('/carsitter/dashboard');
+    }
+  }, [user, router]);
 
   const loadDashboardData = useCallback(async () => {
     if (!user?.id) return;
