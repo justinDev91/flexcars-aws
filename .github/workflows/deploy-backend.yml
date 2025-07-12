@@ -39,8 +39,8 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-          echo "ECR_REGISTRY: ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}"
-          echo "ECR_REPOSITORY: ${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}"
+          echo " log ECR_REGISTRY: ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}"
+          echo "log ECR_REPOSITORY: ${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}"
           docker buildx build --load -f src/flexcars-backend/Dockerfile -t flexcars-backend src/flexcars-backend
           docker tag flexcars-backend ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
           docker push ${{ secrets.FLEXCARS_BACKEND_ECR_REGISTRY }}/${{ secrets.FLEXCARS_BACKEND_ECR_REPOSITORY }}:$IMAGE_TAG
